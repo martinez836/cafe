@@ -1,4 +1,4 @@
-const mesas = ["Mesa 1", "Mesa 2", "Mesa 3"]; // simulando DB
+/* const mesas = ["Mesa 1", "Mesa 2", "Mesa 3"]; // simulando DB
 const categorias = ["Bebidas", "Postres"];
 const productos = {
   Bebidas: [{ id: 1, nombre: "Café Americano" }, { id: 2, nombre: "Capuccino" }],
@@ -19,7 +19,7 @@ function cargarOpciones() {
   categorias.forEach(c => categoriaSelect.innerHTML += <option>${c}</option>);
 
   categoriaSelect.addEventListener("change", () => mostrarProductos(categoriaSelect.value));
-}
+} */
 
 function mostrarProductos(categoria) {
   const contenedor = document.getElementById("productosContainer");
