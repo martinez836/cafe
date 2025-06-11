@@ -7,7 +7,7 @@ class MySql
 
     private $ipServidor = "localhost";
     private $usuarioBase = "root";
-    //private $contrasena = "";
+    private $contrasena = "";
     private $nombreBaseDatos = "bd_cafe";
 
     private $conexion;
@@ -24,7 +24,7 @@ class MySql
         $this->conexion = mysqli_connect(
             $this->ipServidor,
             $this->usuarioBase,
-            //$this->contrasena,
+            $this->contrasena,
             $this->nombreBaseDatos
         );
 
