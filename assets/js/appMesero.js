@@ -60,7 +60,7 @@ function abrirModal(button, id_producto, nombre_producto) {
     });
     return;
   }
-  document.getElementById("productoSeleccionado").value = id;
+  document.getElementById("productoSeleccionado").value = id_producto;
   document.getElementById("comentarioInput").value = "";
   new bootstrap.Modal(document.getElementById("observacionModal")).show();
 }
