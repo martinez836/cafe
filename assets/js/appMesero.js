@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    fetch("../controllers/obtener_productos.php", {
+    fetch("../controllers/cargar_productos.php", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
