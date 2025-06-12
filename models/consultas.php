@@ -24,11 +24,20 @@ class consultas
     {
         $this->mysql->conectar();
         $consulta = 
-        "select nombre_categoria from categorias;";
+        "select * from categorias;";
         $resultado = $this->mysql->efectuarConsulta($consulta);
             $this->mysql->desconectar();
             return $resultado;
     }
 
-   
+    public function traer_productos_por_categoria($categoria)
+    {
+        $this->mysql->conectar();
+        $consulta = 
+        "select * from productos where fk_categoria = '$categoria' order by nombre_producto asc;";
+        $resultado = $this->mysql->efectuarConsulta($consulta);
+        $this->mysql->desconectar();
+        return $resultado;
+    }
+
 };?>
