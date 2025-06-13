@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/MySQL.php'; 
+require_once __DIR__ . '/../config/config.php';
 
 class consultas
 {
