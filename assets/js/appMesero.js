@@ -1,55 +1,70 @@
-/* const mesas = ["Mesa 1", "Mesa 2", "Mesa 3"]; // simulando DB
-const categorias = ["Bebidas", "Postres"];
-const productos = {
-  Bebidas: [{ id: 1, nombre: "Café Americano" }, { id: 2, nombre: "Capuccino" }],
-  Postres: [{ id: 3, nombre: "Brownie" }, { id: 4, nombre: "Cheesecake" }],
-};
+// funcion para cargar productos al seleccionar una categoria de productos
+document.addEventListener("DOMContentLoaded", function () {
+  const select = document.querySelector("#categoriaSelect");
+  const contenedor = document.querySelector("#productosContainer");
 
-let pedido = [];
+  select.addEventListener("change", function () {
+    const idcategorias = select.value;
 
-document.addEventListener("DOMContentLoaded", () => {
-  cargarOpciones();
+    if (!idcategorias) {
+      contenedor.innerHTML = "";
+      return;
+    }
+
+    fetch("../controllers/cargar_productos.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "idcategoria=" + encodeURIComponent(idcategorias),
+    })
+      .then((response) => response.text())
+      .then((data) => {
+        contenedor.innerHTML = data;
+      })
+      .catch((error) => {
+        contenedor.innerHTML = "<p>Error al cargar productos.</p>";
+        console.error(error);
+      });
+  });
 });
 
-function cargarOpciones() {
-  const mesaSelect = document.getElementById("mesaSelect");
-  mesas.forEach(m => mesaSelect.innerHTML += <option>${m}</option>);
+// funcion para buscar productos desde el input buscador
 
-  const categoriaSelect = document.getElementById("categoriaSelect");
-  categorias.forEach(c => categoriaSelect.innerHTML += <option>${c}</option>);
+document.addEventListener("DOMContentLoaded", function () {
+  const buscador = document.querySelector("#buscadorProductos");
 
-  categoriaSelect.addEventListener("change", () => mostrarProductos(categoriaSelect.value));
-} */
+  buscador.addEventListener("input", function () {
+    const filtro = buscador.value.toLowerCase();
+    const productos = document.querySelectorAll("#productosContainer .card");
 
-function mostrarProductos(categoria) {
-  const contenedor = document.getElementById("productosContainer");
-  contenedor.innerHTML = "";
-  productos[categoria].forEach(prod => {
-    contenedor.innerHTML += `
-      <div class="col-md-4 mb-3">
-        <div class="card card-cafe p-3">
-          <h5>${prod.nombre}</h5>
-          <button class="btn btn-primary mt-2" onclick="abrirModal(${prod.id}, '${prod.nombre}')">Agregar</button>
-        </div>
-      </div>`;
+    productos.forEach(card => {
+      const nombre = card.querySelector("h5").textContent.toLowerCase();
+      card.parentElement.style.display = nombre.includes(filtro) ? "" : "none";
+    });
   });
-}
+});
 
-function abrirModal(id, nombre) {
-  document.getElementById("productoSeleccionado").value = id;
+// funcion para agregar productos al pedido
+function abrirModal(button, id_producto, nombre_producto) {
+  const card = button.closest(".card");
+  const inputCantidad = card.querySelector("input[type='number']");
+  const cantidad = parseInt(inputCantidad.value);
+
+  if (!cantidad || cantidad <= 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Cantidad inválida',
+      text: 'Por favor, ingrese una cantidad válida.',
+      confirmButtonText: 'Entendido'
+    });
+    return;
+  }
+  document.getElementById("productoSeleccionado").value = id_producto;
   document.getElementById("comentarioInput").value = "";
   new bootstrap.Modal(document.getElementById("observacionModal")).show();
 }
 
-function agregarAlPedido() {
-  const id = document.getElementById("productoSeleccionado").value;
-  const comentario = document.getElementById("comentarioInput").value;
-  const categoria = document.getElementById("categoriaSelect").value;
-  const producto = productos[categoria].find(p => p.id == id);
-  pedido.push({ ...producto, comentario, cantidad: 1 });
-  actualizarLista();
-  bootstrap.Modal.getInstance(document.getElementById("observacionModal")).hide();
-}
 
 function actualizarLista() {
   const lista = document.getElementById("pedidoLista");
@@ -78,11 +93,11 @@ function eliminarProducto(index) {
   actualizarLista();
 }
 
-function confirmarPedido() {
+/* function confirmarPedido() {
   const mesa = document.getElementById("mesaSelect").value;
   const pedidosActivos = document.getElementById("pedidosActivos");
   pedidosActivos.innerHTML += <li class="list-group-item">${mesa}: ${pedido.length} productos</li>;
   pedido = [];
   actualizarLista();
   // Aquí se podría marcar la mesa como ocupada en la DB
-}
+} */
