@@ -96,7 +96,9 @@ $productos = $consultas->traer_productos_por_categoria('');
             <h5 class="card-title mb-4">
               <i class="fas fa-clipboard-list me-2"></i>Pedido Actual
             </h5>
-            <ul class="list-group list-group-flush mb-4" id="pedidoLista"></ul>
+            <ul class="list-group list-group-flush mb-4" id="pedidoLista">
+              <!-- Los productos del pedido se agregarán aquí dinámicamente -->
+            </ul>
             <button class="btn btn-success btn-lg w-100 rounded-3" onclick="confirmarPedido()">
               <i class="fas fa-check me-2"></i>Confirmar Pedido
             </button>
@@ -143,6 +145,24 @@ $productos = $consultas->traer_productos_por_categoria('');
       </div>
     </div>
   </div>
+  <!-- Modal Detalle Pedido -->
+<div class="modal fade" id="detallePedidoModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-receipt me-2"></i>Detalle del Pedido</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group mb-3" id="detallePedidoLista">
+          <!-- Productos del pedido -->
+        </ul>
+        <h5 class="text-end">Total: <span id="detallePedidoTotal" class="fw-bold">$0</span></h5>
+      </div>
+    </div>
+  </div>
+</div>
+
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
