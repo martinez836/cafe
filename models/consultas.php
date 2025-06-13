@@ -30,5 +30,32 @@ class consultas
             return $resultado;
     }
 
-   
+    public function traerPedidosPendinetes()
+    {
+        $this->mysql->conectar();
+        $consulta = 
+        "
+            SELECT
+            p.idpedidos,
+            p.fecha_hora_pedido,
+            m.nombre AS nombre_mesa,
+            u.nombre_usuario,
+            dp.producto,
+            dp.precio_producto,
+            dp.cantidad_producto,
+            dp.subtotal,
+            pr.nombre_producto,
+            pr.precio_producto AS precio_actual
+            FROM pedidos p
+            JOIN detalle_pedidos dp ON p.idpedidos = dp.pedidos_idpedidos
+            JOIN productos pr ON dp.productos_idproductos = pr.idproductos
+            JOIN mesas m ON p.mesas_idmesas = m.idmesas
+            JOIN usuarios u on p.usuarios_idusuarios = u.idusuarios
+            WHERE p.estados_idestados = 1
+            ORDER BY p.fecha_hora_pedido DESC;
+        ";
+        $resultado = $this->mysql->efectuarConsulta($consulta);
+        $this->mysql->desconectar();
+        return $resultado;
+    }
 };?>
