@@ -1,4 +1,5 @@
 <?php
+require_once '../config/config.php';
 //clase para gestionar la conexion a la base de datos 
 
 class MySql
