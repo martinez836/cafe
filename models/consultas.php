@@ -54,6 +54,9 @@ class consultas
             WHERE p.estados_idestados = 1
             ORDER BY p.fecha_hora_pedido DESC;
         ";
+        $resultado = $this->mysql->efectuarConsulta($consulta);
+        $this->mysql->desconectar();
+        return $resultado;
     }
     public function traer_productos_por_categoria($categoria)
     {
