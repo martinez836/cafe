@@ -3,6 +3,7 @@ const modalProducto = new bootstrap.Modal(document.getElementById('productModal'
 
 // Funciones globales
 function editarProducto(id) {
+    estaEditando = true;
     document.getElementById('productModalLabel').textContent = 'Editar Producto';
     
     fetch(`../../controllers/admin/productos.php?action=getProducto&id=${id}`)
