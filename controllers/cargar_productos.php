@@ -7,8 +7,8 @@ if (isset($_POST['idcategoria']) && !empty($_POST['idcategoria'])) {
     $consultas = new consultas();
     $productos = $consultas->traer_productos_por_categoria($categoria);
 
-    if ($productos && mysqli_num_rows($productos) > 0) {
-        while ($producto = mysqli_fetch_assoc($productos)) {
+    if (count($productos) > 0) {
+        foreach ($productos as $producto) {
             echo '
             <div class="col-md-4 mb-3">
               <div class="card card-cafe p-3">

@@ -8,11 +8,11 @@ header('Content-Type: application/json');
 $accion = $_GET['action'] ?? '';
 
 switch ($accion) {
-    case 'traerPedidosPendientes':
+    case 'traer_pedidos_pendientes':
         $pedidos = $consultas->traerPedidosPendientes();
         $pedidosFormateados = [];
         if ($pedidos) {
-            while ($fila = mysqli_fetch_assoc($pedidos)) {
+            foreach ($pedidos as $fila) {
                 // Dividir la lista de items en elementos individuales y formatearlos
                 $items_list = explode(' || ', $fila['items_list']);
                 $items = [];

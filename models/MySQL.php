@@ -1,6 +1,6 @@
 <?php
 //clase para gestionar la conexion a la base de datos 
-
+require_once __DIR__ . '/../config/config.php';
 class MySql
 {
     //datos de conexion

@@ -40,7 +40,7 @@ $productos = $consultas->traer_productos_por_categoria('');
                 <option value="">Seleccione una mesa</option>
                 <?php
                 if ($mesas) {
-                  while ($mesa = mysqli_fetch_assoc($mesas)) {
+                  foreach ($mesas as $mesa) {
                 ?>
                     <option value="<?php echo $mesa['nombre']; ?>"><?php echo $mesa['nombre']; ?></option>
                 <?php
@@ -59,7 +59,7 @@ $productos = $consultas->traer_productos_por_categoria('');
                 <option value="">Seleccione una categoría</option>
                 <?php
                 if ($categorias) {
-                  while ($categoria = mysqli_fetch_assoc($categorias)) {
+                  foreach ($categorias as $categoria) {
                 ?>
                     <option value="<?php echo $categoria['idcategorias']; ?>"><?php echo $categoria['nombre_categoria']; ?></option>
                 <?php

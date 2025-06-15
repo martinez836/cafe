@@ -26,6 +26,9 @@
                         <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="../cajero.php">Módulo de Cajero</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#">Cerrar Sesión</a>
                     </li>
                 </ul>
