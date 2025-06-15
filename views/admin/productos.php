@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -76,8 +76,10 @@
                 <i class="fas fa-list-alt me-2"></i>Lista de Productos
             </div>
             <div class="card-body">
-                <p>Aquí se mostrará una tabla con la lista de productos y opciones para agregar, editar o eliminar.</p>
                 <div class="table-responsive">
+                <button class="btn btn-primary mb-3" id="addProductBtn">
+                    <i class="fas fa-plus me-2"></i>Agregar Producto
+                </button>
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
@@ -85,6 +87,7 @@
                                 <th>Nombre</th>
                                 <th>Precio</th>
                                 <th>Categoría</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -99,54 +102,54 @@
             </div>
         </div>
 
-        <!-- Podrías agregar formularios para agregar/editar productos aquí -->
-
+        <!-- Modal para Agregar/Editar Producto -->
+        <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="productModalLabel">Agregar Producto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="productForm">
+                            <input type="hidden" id="productId">
+                            <div class="mb-3">
+                                <label for="productName" class="form-label">Nombre del Producto</label>
+                                <input type="text" class="form-control" id="productName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productPrice" class="form-label">Precio</label>
+                                <input type="number" class="form-control" placeholder="Ej: 5000 (5.000,00)" id="productPrice" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productStock" class="form-label">Stock</label>
+                                <input type="number" class="form-control" placeholder="Dejar nulo si no ejerce Stock" id="productStock" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productCategory" class="form-label">Categoría</label>
+                                <select class="form-control" id="productCategory" required>
+                                    <!-- Las categorías se cargarán dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productEstado" class="form-label">Estado</label>
+                                <select class="form-control" id="productEstado" required>
+                                    <option value="1">Activo</option>
+                                    <option value="2">Inactivo</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="saveProduct">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            function loadProducts() {
-                fetch('../../controllers/admin/productos.php?action=getAllProductos')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const productsTableBody = document.getElementById('productsTableBody');
-                        productsTableBody.innerHTML = ''; // Limpiar la tabla
-
-                        if (data.success && data.data.length > 0) {
-                            data.data.forEach(product => {
-                                const row = `
-                                    <tr>
-                                        <td>${product.idproductos}</td>
-                                        <td>${product.nombre_producto}</td>
-                                        <td>$${parseFloat(product.precio_producto).toFixed(2)}</td>
-                                        <td>${product.nombre_categoria}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning me-1"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                `;
-                                productsTableBody.insertAdjacentHTML('beforeend', row);
-                            });
-                        } else {
-                            productsTableBody.innerHTML = `<tr><td colspan="6" class="text-center">No hay productos para mostrar.</td></tr>`;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar productos:', error);
-                        const productsTableBody = document.getElementById('productsTableBody');
-                        productsTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar productos: ${error.message}</td></tr>`;
-                    });
-            }
-
-            loadProducts(); // Cargar productos al cargar la página
-        });
-    </script>
+    <script src="../../assets/js/appProductos.js"></script>
 </body>
 </html>

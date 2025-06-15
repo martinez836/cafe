@@ -9,6 +9,7 @@
     <link rel="stylesheet"  href="../../assets/css/inventario.css">
 </head>
 <body>
+<div class="container-flex">
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
@@ -76,7 +77,7 @@
                 <i class="fas fa-box-open me-2"></i>Artículos en Inventario
             </div>
             <div class="card-body">
-                <p>Aquí se mostrará una tabla con los artículos en inventario, su cantidad y opciones para actualizar.</p>
+                <button id="btnCrearArticulo" class="btn btn-primary">Crear Articulo </button>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>
@@ -99,54 +100,51 @@
             </div>
         </div>
 
-        <!-- Podrías agregar formularios para agregar/editar artículos de inventario aquí -->
+
 
     </div>
 
+    <!-- modal para crear y editar un articulo -->
+        <!-- Modal -->
+    <div class="modal fade" id="modalArticulo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modalArticuloTitle">Administrar Articulo</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="frmArticulo">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Nombre del articulo</label>
+                            <input type="text" class="form-control" id="articulo" aria-describedby="emailHelp">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Stock del articulo</label>
+                            <input type="text" class="form-control" id="stock" aria-describedby="emailHelp">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Unidad de medida</label><br>
+                            <select id="unidadDeMedida">
+
+                            </select>
+                        </div>
+                       
+                    </div>
+                    <div class="modal-footer">
+                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            function loadInventory() {
-                fetch('../../controllers/admin/inventario.php?action=get_all_inventory')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const inventoryTableBody = document.getElementById('inventoryTableBody');
-                        inventoryTableBody.innerHTML = ''; // Limpiar la tabla
-
-                        if (data.success && data.data.length > 0) {
-                            data.data.forEach(item => {
-                                const row = `
-                                    <tr>
-                                        <td>${item.idinventario}</td>
-                                        <td>${item.articulo}</td>
-                                        <td>${item.stock}</td>
-                                        <td>${item.nombre}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning me-1"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                `;
-                                inventoryTableBody.insertAdjacentHTML('beforeend', row);
-                            });
-                        } else {
-                            inventoryTableBody.innerHTML = `<tr><td colspan="5" class="text-center">No hay artículos en el inventario para mostrar.</td></tr>`;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar inventario:', error);
-                        const inventoryTableBody = document.getElementById('inventoryTableBody');
-                        inventoryTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error al cargar inventario: ${error.message}</td></tr>`;
-                    });
-            }
-
-            loadInventory(); // Cargar inventario al cargar la página
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/appInventario.js"></script>
 </body>
 </html>

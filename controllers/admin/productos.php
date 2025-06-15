@@ -1,36 +1,44 @@
 <?php
 
-require_once __DIR__ . '/../../models/consultasProductos.php';
+require_once '../../models/consultasProductos.php';
 
 header('Content-Type: application/json');
 
-$consultas = new ConsultasProductos();
-
 $action = $_GET['action'] ?? '';
-
-$response = ['success' => false, 'message' => 'Invalid action'];
+$consultas = new ConsultasProductos();
 
 try {
     switch ($action) {
         case 'getAllProductos':
             $productos = $consultas->getAllProductos();
-            $response = [
-                'success' => true,
-                'data' => $productos
-            ];
+            echo json_encode(['success' => true, 'data' => $productos]);
             break;
-
-        // Puedes añadir más casos aquí para agregar, editar, eliminar productos, etc.
-
+        case 'getProducto':
+            $id = $_GET['id'] ?? 0;
+            $producto = $consultas->getProducto($id);
+            echo json_encode(['success' => true, 'data' => $producto]);
+            break;
+        case 'createProducto':
+            $data = json_decode(file_get_contents('php://input'), true);
+            $consultas->createProducto($data);
+            echo json_encode(['success' => true, 'message' => 'Producto creado exitosamente']);
+            break;
+        case 'updateProducto':
+            $data = json_decode(file_get_contents('php://input'), true);
+            $consultas->updateProducto($data);
+            echo json_encode(['success' => true, 'message' => 'Producto actualizado exitosamente']);
+            break;
+        case 'deleteProducto':
+            $data = json_decode(file_get_contents('php://input'), true);
+            $consultas->deleteProducto($data['id']);
+            echo json_encode(['success' => true, 'message' => 'Producto eliminado exitosamente']);
+            break;
         default:
-            $response = ['success' => false, 'message' => 'Invalid action provided.'];
+            echo json_encode(['success' => false, 'message' => 'Acción no válida']);
             break;
     }
 } catch (Exception $e) {
-    $response = ['success' => false, 'message' => 'Server error: ' . $e->getMessage()];
-    error_log("Productos Controller Error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-
-echo json_encode($response);
 
 ?> 

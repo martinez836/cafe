@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para obtener y mostrar pedidos pendientes
     function obtenerPedidosPendientes() {
-        fetch('../controllers/cosina.php?action=traer_pedidos_pendientes')
+        fetch('../controllers/cosina.php?action=traerPedidosPendientes')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        fetch(`../controllers/cosina.php?action=traer_detalles_de_un_pedido&id=${idPedido}`)
+        fetch(`../controllers/cosina.php?action=traerDetallesDeUnPedido&id=${idPedido}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
 
-                fetch('../controllers/cosina.php?action=marcar_pedido_como_listo', {
+                fetch('../controllers/cosina.php?action=marcarPedidoComoListo', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
