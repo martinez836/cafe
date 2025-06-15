@@ -11,8 +11,8 @@ switch ($accion) {
     case 'traerPedidosPendientes':
         $pedidos = $consultas->traerPedidosPendientes();
         $pedidosFormateados = [];
-        if ($pedidos) {
-            while ($fila = mysqli_fetch_assoc($pedidos)) {
+        if (!empty($pedidos)) {
+            foreach ($pedidos as $fila) {
                 // Dividir la lista de items en elementos individuales y formatearlos
                 $items_list = explode(' || ', $fila['items_list']);
                 $items = [];

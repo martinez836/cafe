@@ -14,19 +14,75 @@ class ConsultasProductos
 
     public function getAllProductos() {
         try {
-            // Asumiendo que la tabla de productos se llama 'productos' y tiene campos como idproductos, nombre_producto, descripcion, precio, categoria_idcategoria
-            // También asumiendo que hay una tabla 'categorias' con idcategoria y nombre_categoria
-            $sql = "SELECT productos.idproductos, productos.nombre_producto, productos.precio_producto, categorias.nombre_categoria 
-                        FROM productos JOIN categorias ON 
-                        productos.fk_categoria = categorias.idcategorias;";
+            $sql = "SELECT productos.*, categorias.nombre_categoria 
+                    FROM productos
+                    LEFT JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
+                    ORDER BY productos.idproductos DESC";
             return $this->mysql->efectuarConsulta($sql);
         } catch (Exception $e) {
-            error_log("Error getAllProductos: " . $e->getMessage());
-            return [];
+            throw new Exception('Error al obtener productos: ' . $e->getMessage());
         }
     }
 
-    // Puedes añadir funciones para agregar, editar o eliminar productos aquí
+    public function getProducto($id) {
+        try {
+            $sql = "SELECT * FROM productos WHERE idproductos = ?";
+            $params = [$id];
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, 'i', $params);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?? null;
+        } catch (Exception $e) {
+            throw new Exception('Error al obtener producto: ' . $e->getMessage());
+        }
+    }
+
+    public function createProducto($data) {
+        try {
+            $sql = "INSERT INTO productos (nombre_producto, precio_producto, stock_producto, fk_categoria, estados_idestados) 
+                    VALUES (?, ?, ?, ?, 1)";
+            $params = [
+                $data['nombre'],
+                $data['precio'],
+                $data['stock'],
+                $data['categoria']
+            ];
+            return $this->mysql->ejecutarSentenciaPreparada($sql, 'sdii', $params);
+        } catch (Exception $e) {
+            throw new Exception('Error al crear producto: ' . $e->getMessage());
+        }
+    }
+
+    public function updateProducto($data) {
+        try {
+            $sql = "UPDATE productos 
+                    SET nombre_producto = ?, 
+                        precio_producto = ?, 
+                        stock_producto = ?, 
+                        fk_categoria = ?, 
+                        estados_idestados = ? 
+                    WHERE idproductos = ?";
+            $params = [
+                $data['nombre'],
+                $data['precio'],
+                $data['stock'],
+                $data['categoria'],
+                $data['estado'],
+                $data['id']
+            ];
+            return $this->mysql->ejecutarSentenciaPreparada($sql, 'sdiisi', $params);
+        } catch (Exception $e) {
+            throw new Exception('Error al actualizar producto: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteProducto($id) {
+        try {
+            $sql = "UPDATE productos SET estados_idestados = 2 WHERE idproductos = ?";
+            $params = [$id];
+            return $this->mysql->ejecutarSentenciaPreparada($sql, 'i', $params);
+        } catch (Exception $e) {
+            throw new Exception('Error al eliminar producto: ' . $e->getMessage());
+        }
+    }
 }
 
 ?>

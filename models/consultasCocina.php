@@ -69,7 +69,7 @@ class ConsultasCocina
                     SELECT
                         detalle_pedidos.cantidad_producto,
                         productos.nombre_producto,
-                        detalle_pedidos.observaciones
+                        detalle_pedidos.producto AS observaciones
                     FROM detalle_pedidos
                     JOIN productos ON detalle_pedidos.productos_idproductos = productos.idproductos
                     WHERE detalle_pedidos.pedidos_idpedidos = ?
