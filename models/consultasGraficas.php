@@ -15,16 +15,15 @@ class ConsultasGraficas
     public function getVentasPorCategoria() {
         try {
             $sql = "
-                SELECT
-                    c.nombre_categoria AS categoria,
-                    SUM(dp.cantidad_producto * p.precio) AS total_ventas
-                FROM detalle_pedidos dp
-                JOIN productos p ON dp.productos_idproductos = p.idproductos
-                JOIN categorias c ON p.categoria_idcategoria = c.idcategoria
-                JOIN pedidos ped ON dp.pedidos_idpedidos = ped.idpedidos
-                WHERE ped.estados_idestados = 2 -- Solo pedidos completados
-                GROUP BY c.nombre_categoria
-                ORDER BY total_ventas DESC;
+                SELECT 
+                categorias.nombre_categoria AS categoria, 
+                SUM(detalle_pedidos.cantidad_producto * productos.precio_producto) AS total_ventas 
+                FROM detalle_pedidos
+                JOIN productos ON detalle_pedidos.productos_idproductos = productos.idproductos 
+                JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
+                JOIN pedidos ON detalle_pedidos.pedidos_idpedidos = pedidos.idpedidos 
+                WHERE pedidos.estados_idestados = 2 
+                -- Solo pedidos completados GROUP BY categorias.nombre_categoria ORDER BY total_ventas DESC; 
             ";
             return $this->mysql->efectuarConsulta($sql);
         } catch (Exception $e) {
