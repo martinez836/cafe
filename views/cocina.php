@@ -20,10 +20,10 @@
     </div>
 
     <div class="container mt-4">
-        <div class="row">
+        <div class="row g-4 flex-column-reverse flex-lg-row">
             <!-- Pedidos Pendientes de Preparación -->
-            <div class="col-lg-6 mb-4">
-                <div class="card">
+            <div class="col-12 col-lg-6 mb-4">
+                <div class="card h-100">
                     <div class="card-header">
                         <i class="fas fa-hourglass-start me-2"></i>
                         Pedidos Pendientes
@@ -42,8 +42,8 @@
             </div>
 
             <!-- Detalles del Pedido y Acciones -->
-            <div class="col-lg-6">
-                <div class="card">
+            <div class="col-12 col-lg-6 mb-4">
+                <div class="card h-100">
                     <div class="card-header">
                         <i class="fas fa-utensils me-2"></i>
                         Detalles del Pedido

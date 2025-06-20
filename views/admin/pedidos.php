@@ -14,7 +14,7 @@
             <a class="navbar-brand" href="#">
                 <i class="fas fa-coffee me-2"></i>Admin Café
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas" aria-label="Toggle sidebar">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -33,7 +33,8 @@
         </div>
     </nav>
 
-    <div class="sidebar">
+    <!-- Sidebar fija para escritorio -->
+    <div class="sidebar d-none d-lg-block">
         <ul class="nav flex-column pt-3">
             <li class="nav-item">
                 <a class="nav-link" href="dashboard.php">
@@ -66,6 +67,48 @@
                 </a>
             </li>
         </ul>
+    </div>
+
+    <!-- Sidebar offcanvas para móvil -->
+    <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Menú</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <ul class="nav flex-column pt-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.php">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="usuarios.php">
+                        <i class="fas fa-users me-2"></i>Usuarios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="inventario.php">
+                        <i class="fas fa-boxes me-2"></i>Inventario
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="productos.php">
+                        <i class="fas fa-mug-hot me-2"></i>Productos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="pedidos.php">
+                        <i class="fas fa-receipt me-2"></i>Pedidos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="graficas.php">
+                        <i class="fas fa-chart-bar me-2"></i>Gráficas
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <div class="content">
@@ -104,52 +147,27 @@
 
     </div>
 
+    <!-- Modal para Detalle del Pedido -->
+    <div class="modal fade" id="detallePedidoModal" tabindex="-1" aria-labelledby="detallePedidoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detallePedidoModalLabel">
+                        <i class="fas fa-receipt me-2"></i>Detalle del Pedido
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="detallePedidoContent">
+                    <!-- El contenido del detalle se cargará aquí -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            function loadOrders() {
-                fetch('../../controllers/admin/pedidos.php?action=get_all_orders')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const ordersTableBody = document.getElementById('ordersTableBody');
-                        ordersTableBody.innerHTML = ''; // Limpiar la tabla
-
-                        if (data.success && data.data.length > 0) {
-                            data.data.forEach(order => {
-                                const row = `
-                                    <tr>
-                                        <td>${order.idpedidos}</td>
-                                        <td>${order.fecha_hora_pedido}</td>
-                                        <td>${order.nombre_mesa}</td>
-                                        <td>${order.estado_pedido}</td>
-                                        <td>${order.nombre_usuario}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="fas fa-eye"></i></button>
-                                            <button class="btn btn-sm btn-warning me-1"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                `;
-                                ordersTableBody.insertAdjacentHTML('beforeend', row);
-                            });
-                        } else {
-                            ordersTableBody.innerHTML = `<tr><td colspan="6" class="text-center">No hay pedidos para mostrar.</td></tr>`;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar pedidos:', error);
-                        const ordersTableBody = document.getElementById('ordersTableBody');
-                        ordersTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar pedidos: ${error.message}</td></tr>`;
-                    });
-            }
-
-            loadOrders(); // Cargar pedidos al cargar la página
-        });
-    </script>
+    <script src="../../assets/js/appPedidos.js"></script>
 </body>
 </html>

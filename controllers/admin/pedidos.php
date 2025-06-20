@@ -20,6 +20,29 @@ try {
             ];
             break;
 
+        case 'get_order_detail':
+            $idPedido = $_GET['id'] ?? null;
+            if ($idPedido) {
+                $detallePedido = $consultas->getDetallePedido($idPedido);
+                if ($detallePedido) {
+                    $response = [
+                        'success' => true,
+                        'data' => $detallePedido
+                    ];
+                } else {
+                    $response = [
+                        'success' => false,
+                        'message' => 'Pedido no encontrado'
+                    ];
+                }
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => 'ID de pedido no proporcionado'
+                ];
+            }
+            break;
+
         // Puedes añadir más casos aquí para filtrar, buscar o actualizar pedidos, etc.
 
         default:

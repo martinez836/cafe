@@ -171,13 +171,13 @@ document.addEventListener('DOMContentLoaded', function() {
         `).join('');
 
         detalles_pedido.innerHTML = `
-            <h5 class="mb-3">Pedido #${pedido.id} - ${pedido.table} <span class="badge rounded-pill bg-info insignia-estado insignia-preparacion">En Preparación</span></h5>
+            <h5 class="mb-3">Pedido #${pedido.idpedidos} - ${pedido.nombre_mesa} <span class="badge rounded-pill bg-info insignia-estado insignia-preparacion">En Preparación</span></h5>
             <p class="text-muted">Hora de Pedido: ${pedido.time}</p>
             <h6>Items:</h6>
             <ul class="list-group mb-4">
                 ${htmlItems}
             </ul>
-            <button class="btn btn-success btn-lg w-100" onclick="marcarPedidoComoListo(${pedido.id})">
+            <button class="btn btn-success btn-lg w-100" onclick="marcarPedidoComoListo(${pedido.idpedidos})">
                 <i class="fas fa-check-circle me-2"></i>Marcar como Preparado
             </button>
         `;

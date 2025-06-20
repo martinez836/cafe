@@ -14,7 +14,7 @@
             <a class="navbar-brand" href="#">
                 <i class="fas fa-coffee me-2"></i>Admin Café
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas" aria-label="Toggle sidebar">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -33,7 +33,8 @@
         </div>
     </nav>
 
-    <div class="sidebar">
+    <!-- Sidebar fija para escritorio -->
+    <div class="sidebar d-none d-lg-block">
         <ul class="nav flex-column pt-3">
             <li class="nav-item">
                 <a class="nav-link" href="dashboard.php">
@@ -66,6 +67,48 @@
                 </a>
             </li>
         </ul>
+    </div>
+
+    <!-- Sidebar offcanvas para móvil -->
+    <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="sidebarOffcanvas">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Menú</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <ul class="nav flex-column pt-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.php">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="usuarios.php">
+                        <i class="fas fa-users me-2"></i>Usuarios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="inventario.php">
+                        <i class="fas fa-boxes me-2"></i>Inventario
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="productos.php">
+                        <i class="fas fa-mug-hot me-2"></i>Productos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="pedidos.php">
+                        <i class="fas fa-receipt me-2"></i>Pedidos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="graficas.php">
+                        <i class="fas fa-chart-bar me-2"></i>Gráficas
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <div class="content">
