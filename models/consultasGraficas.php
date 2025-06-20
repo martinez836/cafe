@@ -13,81 +13,44 @@ class ConsultasGraficas
     }
 
     public function getVentasPorCategoria() {
-        try {
-            $sql = "
-                SELECT 
-                categorias.nombre_categoria AS categoria, 
-                SUM(detalle_pedidos.cantidad_producto * productos.precio_producto) AS total_ventas 
-                FROM detalle_pedidos
+        $sql = "SELECT categorias.nombre_categoria AS categoria, 
+                SUM(detalle_pedidos.precio_producto * detalle_pedidos.cantidad_producto) AS total_ventas 
+                FROM detalle_pedidos 
                 JOIN productos ON detalle_pedidos.productos_idproductos = productos.idproductos 
                 JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
-                JOIN pedidos ON detalle_pedidos.pedidos_idpedidos = pedidos.idpedidos 
-                WHERE pedidos.estados_idestados = 2 
-                -- Solo pedidos completados GROUP BY categorias.nombre_categoria ORDER BY total_ventas DESC; 
-            ";
-            return $this->mysql->efectuarConsulta($sql);
-        } catch (Exception $e) {
-            error_log("Error getVentasPorCategoria: " . $e->getMessage());
-            return [];
-        }
+                GROUP BY categorias.nombre_categoria; ";
+        return $this->mysql->efectuarConsulta($sql);
     }
 
-    public function getProductosMasVendidos($limit = 5) {
-        try {
-            $sql = "
-                SELECT
-                    pr.nombre_producto AS producto,
-                    SUM(dp.cantidad_producto) AS cantidad_vendida
-                FROM detalle_pedidos dp
-                JOIN productos pr ON dp.productos_idproductos = pr.idproductos
-                JOIN pedidos ped ON dp.pedidos_idpedidos = ped.idpedidos
-                WHERE ped.estados_idestados = 2 -- Solo pedidos completados
-                GROUP BY pr.nombre_producto
-                ORDER BY cantidad_vendida DESC
-                LIMIT ?;
-            ";
-            $parametros = [$limit];
-            $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, "i", $parametros);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            error_log("Error getProductosMasVendidos: " . $e->getMessage());
-            return [];
-        }
+    public function getProductosMasVendidos() {
+        $sql = "SELECT 
+                productos.nombre_producto AS producto, 
+                SUM(detalle_pedidos.cantidad_producto) AS cantidad_vendida 
+                FROM detalle_pedidos 
+                JOIN productos ON detalle_pedidos.productos_idproductos = productos.idproductos 
+                GROUP BY productos.nombre_producto 
+                ORDER BY cantidad_vendida DESC 
+                LIMIT 5; ";
+        return $this->mysql->efectuarConsulta($sql);
     }
 
     public function getTendenciaPedidosMensual() {
-        try {
-            $sql = "
-                SELECT
-                    DATE_FORMAT(fecha_hora_pedido, '%Y-%m') AS mes,
-                    COUNT(idpedidos) AS total_pedidos
+        $sql = "SELECT DATE_FORMAT(pedidos.fecha_hora_pedido, '%Y-%m') AS mes, COUNT(*) AS total_pedidos
                 FROM pedidos
                 GROUP BY mes
-                ORDER BY mes ASC;
-            ";
-            return $this->mysql->efectuarConsulta($sql);
-        } catch (Exception $e) {
-            error_log("Error getTendenciaPedidosMensual: " . $e->getMessage());
-            return [];
-        }
+                ORDER BY mes";
+        return $this->mysql->efectuarConsulta($sql);
     }
 
     public function getIngresosAnuales() {
-        try {
-            $sql = "
-                SELECT
-                    YEAR(fecha_hora_pedido) AS año,
-                    SUM(total) AS total_ingresos
-                FROM pedidos
-                WHERE estados_idestados = 2 -- Solo ingresos de pedidos completados
-                GROUP BY año
-                ORDER BY año ASC;
-            ";
-            return $this->mysql->efectuarConsulta($sql);
-        } catch (Exception $e) {
-            error_log("Error getIngresosAnuales: " . $e->getMessage());
-            return [];
-        }
+        $sql = "SELECT 
+                YEAR(pedidos.fecha_hora_pedido) AS año, 
+                SUM(detalle_pedidos.precio_producto * detalle_pedidos.cantidad_producto) AS total_ingresos 
+                FROM detalle_pedidos 
+                JOIN pedidos ON pedidos.idpedidos = detalle_pedidos.pedidos_idpedidos 
+                GROUP BY año 
+                ORDER BY año;";
+        return $this->mysql->efectuarConsulta($sql);
     }
 }
 

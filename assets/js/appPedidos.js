@@ -1,10 +1,9 @@
-setInterval(() => {
-        obtenerPedidosPendientes();
-    }, 10000);
-
 // Funcionalidad para la gestión de pedidos
 document.addEventListener('DOMContentLoaded', function() {
     loadOrders(); // Cargar pedidos al cargar la página
+    
+    // Actualizar pedidos automáticamente cada 30 segundos
+    setInterval(loadOrders, 30000);
 });
 
 function loadOrders() {
