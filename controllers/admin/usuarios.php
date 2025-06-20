@@ -19,7 +19,65 @@ try {
                 'data' => $usuarios
             ];
             break;
+        case 'traer_roles':
+            $roles = $consultas->traerRoles();
+            $response = [
+                'success' => true,
+                'data' => $roles
+            ];
+            break;
+        case 'crear_usuario':
+            $nombre_usuario = $_POST['nombre_usuario'] ?? '';
+            $contrasena_usuario = $_POST['contrasena_usuario'] ?? '';
+            $email_usuario = $_POST['email_usuario'] ?? '';
+            $rol_idrol = $_POST['rol_idrol'] ?? 0;
+            $contrasenaEncriptada = password_hash($contrasena_usuario, PASSWORD_BCRYPT);
 
+            if (empty($nombre_usuario) || empty($contrasena_usuario) || empty($email_usuario) || $rol_idrol <= 0) {
+                $response = ['success' => false, 'message' => 'Datos invalidos'];
+            } else {
+                $insertar = $consultas->insertarUsuarios($nombre_usuario, $contrasenaEncriptada, $email_usuario, $rol_idrol);
+                if ($insertar) {
+                    $response = ['success' => true, 'message' => 'Usuario creado exitosamente'];
+                } else {
+                    $response = ['success' => false, 'message' => 'Fallo en crear el usuario'];
+                }
+            }
+            break;
+        case 'eliminar':
+            $id = $_POST['id'] ?? 0;
+            if(empty($id)) {
+                $response = ['success'=> false, 'message'=> 'No hay id'];
+            } else{
+                $eliminar = $consultas->eliminarUsuario( $id );
+                if($eliminar){
+                    $response = ['success'=> true, 'message'=> 'Usuario Eliminado Correctamente'];
+                }else{
+                     $response = ['success'=> false, 'message'=> 'Fallo en eliminar usuario'];
+                }
+            }
+            break;
+        case 'editar':
+            $idusuario = $_POST['idusuario'];
+            $nombre = $_POST['nombre_usuario'];
+            $email = $_POST['email_usuario'];
+            $rol = $_POST['rol_idrol'];
+            if(empty($idusuario) || empty($nombre) || empty($email) || empty($rol))
+            {
+                $response = ['success'=> false, 'message'=> "faltan datos"];
+            }
+            else{
+                $eliminar = $consultas->editarUsuario($idusuario, $nombre, $email, $rol);
+                if($eliminar)
+                {
+                    $response = ['success'=> true, 'message'=> 'Usuario Eliminado Correctamente']; 
+                }
+                else
+                {
+                    $response = ['success'=> false, 'message'=> 'Error el editar el usuario'];
+                }
+            }
+            break;
         // Puedes añadir más casos aquí para agregar, editar, eliminar usuarios, etc.
 
         default:

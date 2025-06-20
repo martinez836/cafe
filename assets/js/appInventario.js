@@ -65,14 +65,6 @@ document.addEventListener('DOMContentLoaded', function() {
     frmArticulo.addEventListener('submit', (e) => {
         e.preventDefault();
         const idUnidadMedida = document.querySelector('#unidadDeMedida').value;
-        const datos = [
-            {
-                articulo: articulo.value,
-                stock: stock.value,
-                estado: 1,
-                idunidad_medida: idUnidadMedida
-            }
-        ]
         if(opcion === "crear")
             {
                 const formData = new FormData();

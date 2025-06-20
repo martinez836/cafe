@@ -7,8 +7,9 @@
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/usuarios.css">
-</head>
+</head> 
 <body>
+<div class="container-fluid">
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
@@ -76,7 +77,7 @@
                 <i class="fas fa-table me-2"></i>Lista de Usuarios
             </div>
             <div class="card-body">
-                <p>Aquí se mostrará una tabla con la lista de usuarios y opciones para agregar, editar o eliminar.</p>
+                <button id="btnCrearUsuario" class="btn btn-primary">Crear Articulo </button>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>
@@ -98,55 +99,51 @@
                 </div>
             </div>
         </div>
-
-        <!-- Podrías agregar formularios para agregar/editar usuarios aquí -->
-
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            function loadUsers() {
-                fetch('../../controllers/admin/usuarios.php?action=get_all_users')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const usersTableBody = document.getElementById('usersTableBody');
-                        usersTableBody.innerHTML = ''; // Limpiar la tabla
+    <!-- Modal -->
+    <div class="modal fade" id="modalUsuario" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modalUsuarioTitle">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                <form id="frmUsuario">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Nombre del usuario</label>
+                                <input type="text" class="form-control" id="nombre_usuario" aria-describedby="emailHelp">
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email_usuario" aria-describedby="emailHelp">
+                            </div>
+                             <div class="mb-3">
+                                <label for="exampleInputEmail1" id="lblContrasena" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" id="contrasena_usuario" aria-describedby="emailHelp">
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Rol</label><br>
+                                <select id="rolUsuario">
 
-                        if (data.success && data.data.length > 0) {
-                            data.data.forEach(user => {
-                                const row = `
-                                    <tr>
-                                        <td>${user.idusuarios}</td>
-                                        <td>${user.nombre_usuario}</td>
-                                        <td>${user.email_usuario}</td>
-                                        <td>${user.nombre_rol}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-warning me-1"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                `;
-                                usersTableBody.insertAdjacentHTML('beforeend', row);
-                            });
-                        } else {
-                            usersTableBody.innerHTML = `<tr><td colspan="5" class="text-center">No hay usuarios para mostrar.</td></tr>`;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar usuarios:', error);
-                        const usersTableBody = document.getElementById('usersTableBody');
-                        usersTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error al cargar usuarios: ${error.message}</td></tr>`;
-                    });
-            }
-
-            loadUsers(); // Cargar usuarios al cargar la página
-        });
-    </script>
+                                </select>
+                            </div>
+                        </div>
+                
+                    </div>
+                    <div class="modal-footer">
+                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/appUsuario.js"></script>
 </body>
 </html>
