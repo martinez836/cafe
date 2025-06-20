@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gráficas - Tienda de Café</title>
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet"  href="../../assets/css/graficas.css">
 </head>
 <body>
@@ -47,11 +46,6 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="inventario.php">
-                    <i class="fas fa-boxes me-2"></i>Inventario
-                </a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link" href="productos.php">
                     <i class="fas fa-mug-hot me-2"></i>Productos
                 </a>
@@ -85,11 +79,6 @@
                 <li class="nav-item">
                     <a class="nav-link" href="usuarios.php">
                         <i class="fas fa-users me-2"></i>Usuarios
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="inventario.php">
-                        <i class="fas fa-boxes me-2"></i>Inventario
                     </a>
                 </li>
                 <li class="nav-item">
@@ -159,7 +148,7 @@
 
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../assets/js/appGraficas.js"></script>
 </body>

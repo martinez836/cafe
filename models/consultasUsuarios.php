@@ -17,7 +17,7 @@ class ConsultasUsuarios
             // Asumiendo que la tabla de usuarios se llama 'usuarios' y tiene campos como idusuarios, nombre_usuario, email_usuario, rol_idrol
             $sql = "SELECT usuarios.idusuarios, usuarios.nombre_usuario, usuarios.email_usuario, roles.nombre_rol, roles.idrol,usuarios.estados_idestados
                         FROM usuarios JOIN roles ON 
-                        usuarios.rol_idrol = roles.idrol where usuarios.estados_idestados = 1;";
+                        usuarios.rol_idrol = roles.idrol where usuarios.estados_idestados = 5;";
             return $this->mysql->efectuarConsulta($sql);
         } catch (Exception $e) {
             error_log("Error getAllUsuarios: " . $e->getMessage());
@@ -37,13 +37,13 @@ class ConsultasUsuarios
         }
     }
 
-    public function insertarUsuarios($nombre_usuario,$contraseña_usuario,$email_usuario,$rol_idrol)
+    public function insertarUsuarios($nombre_usuario,$contrasena_usuario,$email_usuario,$rol_idrol)
     {
         try {
             //code...
-            $sql = "insert into usuarios(nombre_usuario,contraseña_usuario,email_usuario,estados_idestados,rol_idrol)
+            $sql = "insert into usuarios(nombre_usuario,contrasena_usuario,email_usuario,estados_idestados,rol_idrol)
             values (?,?,?,?,?)";
-            $parametros = [$nombre_usuario, $contraseña_usuario, $email_usuario, 1, $rol_idrol];
+            $parametros = [$nombre_usuario, $contrasena_usuario, $email_usuario, 5, $rol_idrol];
             $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, "sssii", $parametros);
             if ($stmt->rowCount() > 0) {
                 return true; // Usuario insertado correctamente
@@ -52,6 +52,8 @@ class ConsultasUsuarios
             }
         } catch (\Throwable $th) {
             //throw $th;
+            error_log("Error insertarUsuarios: " . $th->getMessage());
+            return false;
         }
     }
 

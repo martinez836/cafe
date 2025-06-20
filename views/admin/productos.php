@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Productos - Tienda de Café</title>
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/productos.css">
 </head>
 <body>
@@ -44,11 +43,6 @@
             <li class="nav-item">
                 <a class="nav-link" href="usuarios.php">
                     <i class="fas fa-users me-2"></i>Usuarios
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="inventario.php">
-                    <i class="fas fa-boxes me-2"></i>Inventario
                 </a>
             </li>
             <li class="nav-item">
@@ -175,7 +169,7 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="productEstado" class="form-label">Estado</label>
+                                <label for="productEstado" class="form-label">Estado</label>    
                                 <select class="form-control" id="productEstado" required>
                                     <option value="1">Activo</option>
                                     <option value="2">Inactivo</option>
@@ -192,7 +186,7 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/jsBootstrap/bootstrap.bundle.js"></script>
     <script src="../../assets/js/appProductos.js"></script>
 </body>
 </html>

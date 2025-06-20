@@ -21,7 +21,7 @@ class ProcesarPagoCajero
             $consultas = new consultasCajero();
 
             
-            $resultado = $consultas->cambiarEstadoPedido($idpedido, 2);
+            $resultado = $consultas->cambiarEstadoPedido($idpedido, 6);
 
             if ($resultado) {
                 echo json_encode(['success' => true, 'message' => 'Estado del pedido actualizado correctamente']);

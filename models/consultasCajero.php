@@ -31,7 +31,7 @@ class consultasCajero
                 JOIN productos pr ON dp.productos_idproductos = pr.idproductos
                 JOIN mesas m ON p.mesas_idmesas = m.idmesas
                 JOIN usuarios u on p.usuarios_idusuarios = u.idusuarios
-                WHERE p.estados_idestados = 1
+                WHERE p.estados_idestados = 5
                 ORDER BY p.idpedidos DESC;
             ";
              $stmt = $this->mysql->efectuarConsulta($query);
@@ -53,5 +53,34 @@ class consultasCajero
         ];
         $stmt = $this->mysql->ejecutarSentenciaPreparada($query, 'ii', $parameters);
         return $stmt;
+    }
+
+    public function obtenerDetallesPedido($idPedido)
+    {
+        try {
+            $query = "
+                SELECT
+                    p.idpedidos,
+                    p.fecha_hora_pedido,
+                    m.nombre AS nombre_mesa,
+                    u.nombre_usuario,
+                    dp.cantidad_producto,
+                    dp.subtotal,
+                    pr.nombre_producto,
+                    pr.precio_producto as precio_unitario
+                FROM pedidos p
+                JOIN detalle_pedidos dp ON p.idpedidos = dp.pedidos_idpedidos
+                JOIN productos pr ON dp.productos_idproductos = pr.idproductos
+                JOIN mesas m ON p.mesas_idmesas = m.idmesas
+                JOIN usuarios u on p.usuarios_idusuarios = u.idusuarios
+                WHERE p.idpedidos = :idPedido;
+            ";
+            $parameters = [':idPedido' => $idPedido];
+            // La 'i' indica que el parámetro idPedido es un entero.
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($query, 'i', $parameters);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            throw new Exception("Error al obtener detalles del pedido: " . $e->getMessage());
+        }
     }
 }
