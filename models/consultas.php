@@ -12,48 +12,56 @@ class ConsultasMesero
         $this->mysql = new MySql();
     }
 
+    // MESAS
     public function traerMesas()
     {
-        try {
-            $consulta = "SELECT m.*, 
-                (SELECT COUNT(*) FROM tokens_mesa t
-                WHERE t.mesas_idmesas = m.idmesas AND t.estado_token = 'activo' AND t.fecha_hora_expiracion > NOW()
-                ) as tiene_token_activo,
-                (SELECT COUNT(*) FROM pedidos p
-                WHERE p.mesas_idmesas = m.idmesas AND p.estados_idestados = 1
-                ) as tiene_pedido_activo
-            FROM mesas m
-            WHERE m.estados_idestados IN (1,4,3) ORDER BY m.nombre;";
-            return $this->mysql->efectuarConsulta($consulta);
-        } catch (Exception $e) {
-            throw new Exception('Error al traer las mesas: ' . $e->getMessage());
-        }
+        $consulta = "SELECT m.*, 
+            (SELECT COUNT(*) FROM tokens_mesa t WHERE t.mesas_idmesas = m.idmesas AND t.estado_token = 'activo' AND t.fecha_hora_expiracion > NOW()) as tiene_token_activo,
+            (SELECT COUNT(*) FROM pedidos p WHERE p.mesas_idmesas = m.idmesas AND p.estados_idestados = 1) as tiene_pedido_activo
+        FROM mesas m
+        WHERE m.estados_idestados IN (1,4,3) ORDER BY m.nombre;";
+        return $this->mysql->efectuarConsulta($consulta);
     }
 
+    public function traerMesasOcupadas($pdo)
+    {
+        $stmt = $pdo->query("SELECT idmesas, nombre FROM mesas WHERE estados_idestados = 3");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function actualizarEstadoMesa($pdo, $mesaId, $nuevoEstado)
+    {
+        $stmt = $pdo->prepare("UPDATE mesas SET estados_idestados = ? WHERE idmesas = ?");
+        $stmt->execute([$nuevoEstado, $mesaId]);
+    }
+
+    public function obtenerNombreMesa($pdo, $mesaId)
+    {
+        $stmt = $pdo->prepare("SELECT nombre FROM mesas WHERE idmesas = ?");
+        $stmt->execute([$mesaId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? $row['nombre'] : '';
+    }
+
+    // CATEGORIAS
     public function traerCategorias()
     {
-        try {
-            $consulta = "SELECT idcategorias, nombre_categoria FROM categorias WHERE estados_idestados = 1 ORDER BY nombre_categoria;";
-            return $this->mysql->efectuarConsulta($consulta);
-        } catch (Exception $e) {
-            throw new Exception("Error al traer las categorías: " . $e->getMessage());
-        }
+        $consulta = "SELECT idcategorias, nombre_categoria FROM categorias WHERE estados_idestados = 1 ORDER BY nombre_categoria;";
+        return $this->mysql->efectuarConsulta($consulta);
     }
 
+    // PRODUCTOS
     public function traer_productos_por_categoria($categoria)
     {
-        try {
-            $consulta = "SELECT * FROM productos WHERE fk_categoria = ? AND estados_idestados = 1 ORDER BY nombre_producto;";
-            $parametros = [$categoria];
-            return $this->mysql->ejecutarSentenciaPreparada($consulta, "i", $parametros);
-        } catch (Exception $e) {
-            throw new Exception("Error al traer productos por categoría: " . $e->getMessage());
-        }
+        $consulta = "SELECT * FROM productos WHERE fk_categoria = ? AND estados_idestados = 1 ORDER BY nombre_producto;";
+        $parametros = [$categoria];
+        return $this->mysql->ejecutarSentenciaPreparada($consulta, "i", $parametros);
     }
 
-    public function guardarPedido($pdo, $mesaId, $usuarioId) {
-        $stmt = $pdo->prepare("INSERT INTO pedidos (fecha_hora_pedido, total_pedido, estados_idestados, mesas_idmesas, usuarios_idusuarios) VALUES (NOW(), 0, 1, ?, ?)");
-        $stmt->execute([$mesaId, $usuarioId]);
+    // PEDIDOS
+    public function guardarPedido($pdo, $mesaId, $usuarioId, $token = null) {
+        $stmt = $pdo->prepare("INSERT INTO pedidos (fecha_hora_pedido, total_pedido, estados_idestados, mesas_idmesas, usuarios_idusuarios, token_utilizado) VALUES (NOW(), 0, 1, ?, ?, ?)");
+        $stmt->execute([$mesaId, $usuarioId, $token]);
         return $pdo->lastInsertId();
     }
 
@@ -74,35 +82,24 @@ class ConsultasMesero
         $stmt->execute([$total, $idPedido]);
     }
 
-    public function obtenerNombreMesa($pdo, $mesaId) {
-        $stmt = $pdo->prepare("SELECT nombre FROM mesas WHERE idmesas = ?");
-        $stmt->execute([$mesaId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ? $row['nombre'] : '';
-    }
-
-    public function actualizarEstadoMesa($pdo, $mesaId, $nuevoEstado) {
-        $stmt = $pdo->prepare("UPDATE mesas SET estados_idestados = ? WHERE idmesas = ?");
-        $stmt->execute([$nuevoEstado, $mesaId]);
-    }
-
-    public function traerMesasOcupadas($pdo) {
-        $stmt = $pdo->query("SELECT idmesas, nombre FROM mesas WHERE estados_idestados = 3");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
     public function traerPedidosActivosPorMesa($pdo, $mesaId) {
-        $stmt = $pdo->prepare("SELECT idpedidos FROM pedidos WHERE mesas_idmesas = ? AND estados_idestados = 1 ORDER BY idpedidos DESC LIMIT 1");
+        $stmt = $pdo->prepare("SELECT idpedidos, fecha_hora_pedido, total_pedido, token_utilizado FROM pedidos WHERE mesas_idmesas = ? AND estados_idestados = 1 ORDER BY fecha_hora_pedido DESC");
         $stmt->execute([$mesaId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function traerDetallePedido($pdo, $pedidoId) {
-        $stmt = $pdo->prepare("SELECT productos_idproductos as id, productos.nombre_producto as nombre, cantidad_producto as cantidad, precio_producto as precio, observaciones as comentario FROM detalle_pedidos JOIN productos ON productos.idproductos = detalle_pedidos.productos_idproductos WHERE pedidos_idpedidos = ?");
+        $stmt = $pdo->prepare("SELECT dp.productos_idproductos as id, pr.nombre_producto as nombre, dp.cantidad_producto as cantidad, dp.precio_producto as precio, dp.observaciones as comentario FROM detalle_pedidos dp JOIN productos pr ON pr.idproductos = dp.productos_idproductos WHERE dp.pedidos_idpedidos = ?");
         $stmt->execute([$pedidoId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function actualizarPedidosActivosAMesaLibre($pdo, $mesaId) {
+        $stmt = $pdo->prepare("UPDATE pedidos SET estados_idestados = 4 WHERE mesas_idmesas = ? AND estados_idestados = 1");
+        $stmt->execute([$mesaId]);
+    }
+
+    // TOKENS
     public function obtenerTokensPorMesa($pdo, $mesaId) {
         $stmt = $pdo->prepare("SELECT idtoken_mesa, token, fecha_hora_generacion, fecha_hora_expiracion, estado_token FROM tokens_mesa WHERE mesas_idmesas = ? ORDER BY fecha_hora_generacion DESC");
         $stmt->execute([$mesaId]);
@@ -114,9 +111,22 @@ class ConsultasMesero
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function actualizarPedidosActivosAMesaLibre($pdo, $mesaId) {
-        $stmt = $pdo->prepare("UPDATE pedidos SET estados_idestados = 4 WHERE mesas_idmesas = ? AND estados_idestados = 1");
-        $stmt->execute([$mesaId]);
+    public function validarToken($pdo, $token) {
+        $sql = "SELECT t.*, m.idmesas as mesa_id FROM tokens_mesa t JOIN mesas m ON t.mesas_idmesas = m.idmesas WHERE t.token = ? AND t.estado_token = 'activo' AND t.fecha_hora_expiracion > NOW()";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$token]);
+        $token_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($token_data) {
+            $token_data['expiracion_timestamp'] = strtotime($token_data['fecha_hora_expiracion']) * 1000;
+        }
+        return $token_data;
+    }
+
+    // PEDIDOS POR TOKEN (usuario mesa)
+    public function traerPedidosPorMesaYToken($pdo, $mesaId, $token) {
+        $stmt = $pdo->prepare("SELECT p.idpedidos, p.fecha_hora_pedido, p.total_pedido, p.token_utilizado FROM pedidos p WHERE p.mesas_idmesas = ? AND p.token_utilizado = ? AND p.estados_idestados = 1 ORDER BY p.fecha_hora_pedido DESC");
+        $stmt->execute([$mesaId, $token]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 

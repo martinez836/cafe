@@ -2,7 +2,7 @@
 /* session_start();
 
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../index.php');
+    header('Location: ../views/inicioSesion.php');
     exit();
 } */
 
@@ -49,17 +49,6 @@ try {
               </h5>
               <select id="mesaSelect" class="form-select form-select-lg rounded-3">
                 <option value="">Seleccione una mesa</option>
-                <?php 
-                if ($mesas && is_array($mesas)) {
-                    foreach ($mesas as $mesa) {
-                        $disabled = ($mesa['estados_idestados'] == 3 || $mesa['tiene_token_activo'] > 0 || $mesa['tiene_pedido_activo'] > 0) ? 'disabled' : '';
-                        $msg = $mesa['estados_idestados'] == 3 ? ' (Ocupada)' : 
-                               ($mesa['tiene_token_activo'] > 0 ? ' (Token activo)' : 
-                               ($mesa['tiene_pedido_activo'] > 0 ? ' (Pedido activo)' : ''));
-                        echo '<option value="' . (int)$mesa['idmesas'] . '" ' . $disabled . '>' . htmlspecialchars($mesa['nombre']) . $msg . '</option>';
-                    }
-                }
-                ?>
               </select>
               <button class="btn btn-warning mt-2 w-100" onclick="generarTokenMesa()">
                 <i class="fas fa-key me-2"></i>Generar Token para la Mesa
@@ -73,14 +62,6 @@ try {
               </h5>
               <select id="categoriaSelect" class="form-select form-select-lg rounded-3">
                 <option value="">Seleccione una categoría</option>
-                <?php 
-                if ($categorias && is_array($categorias)) {
-                    foreach ($categorias as $categoria) {
-                        echo '<option value="' . (int)$categoria['idcategorias'] . '">' . 
-                             htmlspecialchars($categoria['nombre_categoria']) . '</option>';
-                    }
-                }
-                ?>
               </select>
             </div>
           </div>
@@ -171,84 +152,40 @@ try {
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../assets/js/appMesero.js"></script>
   <script>
-    function generarTokenMesa() {
-      const mesaId = document.getElementById('mesaSelect').value;
-      if (!mesaId) {
-        Swal.fire('Seleccione una mesa', 'Debe seleccionar una mesa para generar el token', 'warning');
-        return;
-      }
-      fetch('../controllers/generar_token.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'mesa_id=' + mesaId
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire({
-            title: 'Token generado',
-            html: 'El token para la mesa es: <b>' + data.token + '</b><br>Expira a las: <b>' + (new Date(data.expira).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})) + '</b>',
-            icon: 'success'
-          }).then(() => {
-            location.reload();
-          });
-        } else {
-          Swal.fire('Error', data.message, 'error');
-        }
-      });
-    }
-
-    function cargarTokensActivosGlobal() {
-      fetch('../controllers/generar_token.php?activos=1')
+    // Cargar mesas vía AJAX
+    function cargarMesas() {
+      fetch('../controllers/mesas.php')
         .then(res => res.json())
         .then(data => {
-          const cont = document.getElementById('tokensActivosGlobal');
-          if (data.success && data.tokens.length > 0) {
-            let html = '<div class="card mt-2"><div class="card-body p-2"><ul class="list-group">';
-            data.tokens.forEach(token => {
-              html += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                <span><b>${token.token}</b> <span class="badge bg-secondary ms-2">${token.estado_token}</span><br><small class="text-muted">Mesa: ${token.mesa_nombre} (${token.idmesas})<br>Expira: ${(new Date(token.fecha_hora_expiracion)).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small></span>
-                <button class="btn btn-sm btn-danger" onclick="cancelarTokenGlobal('${token.token}')"><i class='fas fa-times'></i></button>
-              </li>`;
+          const selectMesa = document.getElementById('mesaSelect');
+          selectMesa.innerHTML = '<option value="">Seleccione una mesa</option>';
+          if (data.success && data.mesas) {
+            data.mesas.forEach(mesa => {
+              let disabled = (mesa.estados_idestados == 3 || mesa.tiene_token_activo > 0 || mesa.tiene_pedido_activo > 0) ? 'disabled' : '';
+              let msg = mesa.estados_idestados == 3 ? ' (Ocupada)' : (mesa.tiene_token_activo > 0 ? ' (Token activo)' : (mesa.tiene_pedido_activo > 0 ? ' (Pedido activo)' : ''));
+              selectMesa.innerHTML += `<option value="${mesa.idmesas}" ${disabled}>${mesa.nombre}${msg}</option>`;
             });
-            html += '</ul></div></div>';
-            cont.innerHTML = html;
-          } else {
-            cont.innerHTML = '<div class="alert alert-info">No hay tokens activos actualmente.</div>';
           }
         });
     }
-
-    function cancelarTokenGlobal(token) {
-      Swal.fire({
-        title: '¿Cancelar token?',
-        text: '¿Está seguro de cancelar este token? El usuario ya no podrá usarlo.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, cancelar',
-        cancelButtonText: 'No'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          fetch('../controllers/generar_token.php', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: 'cancelar_token_por_valor=' + encodeURIComponent(token)
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire('Cancelado', 'El token fue cancelado.', 'success');
-              cargarTokensActivosGlobal();
-            } else {
-              Swal.fire('Error', data.message, 'error');
-            }
-          });
-        }
-      });
+    // Cargar categorías vía AJAX
+    function cargarCategorias() {
+      fetch('../controllers/cargar_categorias.php')
+        .then(res => res.json())
+        .then(data => {
+          const selectCategoria = document.getElementById('categoriaSelect');
+          selectCategoria.innerHTML = '<option value="">Seleccione una categoría</option>';
+          if (data.success && data.categorias) {
+            data.categorias.forEach(cat => {
+              selectCategoria.innerHTML += `<option value="${cat.idcategorias}">${cat.nombre_categoria}</option>`;
+            });
+          }
+        });
     }
-
-    // Llamar al cargar la página
-    cargarTokensActivosGlobal();
+    document.addEventListener('DOMContentLoaded', function() {
+      cargarMesas();
+      cargarCategorias();
+    });
   </script>
 </body>
 </html>

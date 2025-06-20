@@ -17,35 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     try {
         $pdo = config::conectar();
-        
-        // Buscar pedidos de la mesa específica que usaron el token específico
-        $stmt = $pdo->prepare("
-            SELECT p.idpedidos, p.fecha_hora_pedido, p.total_pedido, p.token_utilizado
-            FROM pedidos p 
-            WHERE p.mesas_idmesas = ? 
-            AND p.token_utilizado = ? 
-            AND p.estados_idestados = 1
-            ORDER BY p.fecha_hora_pedido DESC
-        ");
-        $stmt->execute([$data['mesa_id'], $data['token']]);
-        $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+        $consultas = new ConsultasMesero();
+        $pedidos = $consultas->traerPedidosPorMesaYToken($pdo, $data['mesa_id'], $data['token']);
         $resultado = [];
         foreach ($pedidos as $pedido) {
-            // Obtener detalles del pedido
-            $stmt = $pdo->prepare("
-                SELECT dp.productos_idproductos as id, 
-                       pr.nombre_producto as nombre, 
-                       dp.cantidad_producto as cantidad, 
-                       dp.precio_producto as precio, 
-                       dp.observaciones as comentario
-                FROM detalle_pedidos dp
-                JOIN productos pr ON pr.idproductos = dp.productos_idproductos
-                WHERE dp.pedidos_idpedidos = ?
-            ");
-            $stmt->execute([$pedido['idpedidos']]);
-            $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+            $productos = $consultas->traerDetallePedido($pdo, $pedido['idpedidos']);
             $resultado[] = [
                 'pedido_id' => $pedido['idpedidos'],
                 'fecha_hora' => $pedido['fecha_hora_pedido'],

@@ -5,13 +5,7 @@ require_once '../config/config.php';
 header('Content-Type: application/json');
 
 try {
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME,
-        DB_USER,
-        DB_PASS,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-
+    $pdo = config::conectar();
     $consultas = new ConsultasMesero();
     
     // Obtener mesas ocupadas

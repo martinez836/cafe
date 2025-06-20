@@ -299,70 +299,104 @@ function confirmarPedido() {
 }
 
 function generarTokenMesa() {
-  const mesaSelect = document.getElementById("mesaSelect");
-  const mesaId = mesaSelect.value;
-
+  const mesaId = document.getElementById('mesaSelect').value;
   if (!mesaId) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Seleccione una mesa',
-      text: 'Por favor, seleccione una mesa para generar el token.',
-    });
+    Swal.fire('Seleccione una mesa', 'Debe seleccionar una mesa para generar el token', 'warning');
     return;
   }
-
-  fetch("../controllers/generar_token.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ mesa: mesaId }),
+  
+  fetch('../controllers/generar_token.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'mesa_id=' + mesaId
   })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.success) {
-        // Deshabilitar la mesa seleccionada
-        const option = mesaSelect.querySelector(`option[value="${mesaId}"]`);
-        if (option) {
-          option.disabled = true;
-          option.textContent += ' (Token activo)';
-        }
-
-        // Limpiar la selección
-        mesaSelect.value = '';
-
-        // Mostrar mensaje de éxito
-        Swal.fire({
-          icon: 'success',
-          title: 'Token generado',
-          text: `Token: ${data.token}`,
-          timer: 3000,
-          showConfirmButton: false,
-          didClose: () => {
-            location.reload(); // ✅ Esto recarga la página correctamente
-          }
-        });
-        
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: data.message,
-        });
-      }
-    })
-    .catch((error) => {
-      console.error('Error:', error);
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo generar el token.',
+        title: 'Token generado',
+        html: 'El token para la mesa es: <b>' + data.token + '</b><br>Expira a las: <b>' + (new Date(data.expira).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})) + '</b>',
+        icon: 'success'
+      }).then(() => {
+        location.reload();
       });
-    });
+    } else {
+      Swal.fire('Error', data.message, 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error al generar token:', error);
+    Swal.fire('Error', 'No se pudo generar el token.', 'error');
+  });
 }
 
 // Exportar funciones globales para el HTML
 document.addEventListener("DOMContentLoaded", function () {
   window.confirmarPedido = confirmarPedido;
   window.generarTokenMesa = generarTokenMesa;
+  window.cargarTokensActivosGlobal = cargarTokensActivosGlobal;
+  window.cancelarTokenGlobal = cancelarTokenGlobal;
+  
+  // Cargar tokens activos al iniciar la página
+  cargarTokensActivosGlobal();
 });
+
+// Función para cargar tokens activos globalmente
+function cargarTokensActivosGlobal() {
+  fetch('../controllers/generar_token.php?activos=1')
+    .then(res => res.json())
+    .then(data => {
+      const cont = document.getElementById('tokensActivosGlobal');
+      if (data.success && data.tokens.length > 0) {
+        let html = '<div class="card mt-2"><div class="card-body p-2"><ul class="list-group">';
+        data.tokens.forEach(token => {
+          html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><b>${token.token}</b> <span class="badge bg-secondary ms-2">${token.estado_token}</span><br><small class="text-muted">Mesa: ${token.mesa_nombre} (${token.idmesas})<br>Expira: ${(new Date(token.fecha_hora_expiracion)).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small></span>
+            <button class="btn btn-sm btn-danger" onclick="cancelarTokenGlobal('${token.token}')"><i class='fas fa-times'></i></button>
+          </li>`;
+        });
+        html += '</ul></div></div>';
+        cont.innerHTML = html;
+      } else {
+        cont.innerHTML = '<div class="alert alert-info">No hay tokens activos actualmente.</div>';
+      }
+    })
+    .catch(error => {
+      console.error('Error al cargar tokens activos:', error);
+      const cont = document.getElementById('tokensActivosGlobal');
+      cont.innerHTML = '<div class="alert alert-danger">Error al cargar tokens activos.</div>';
+    });
+}
+
+// Función para cancelar token global
+function cancelarTokenGlobal(token) {
+  Swal.fire({
+    title: '¿Cancelar token?',
+    text: '¿Está seguro de cancelar este token? El usuario ya no podrá usarlo.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, cancelar',
+    cancelButtonText: 'No'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch('../controllers/generar_token.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'cancelar_token_por_valor=' + encodeURIComponent(token)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire('Cancelado', 'El token fue cancelado.', 'success');
+          cargarTokensActivosGlobal();
+        } else {
+          Swal.fire('Error', data.message, 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error al cancelar token:', error);
+        Swal.fire('Error', 'No se pudo cancelar el token.', 'error');
+      });
+    }
+  });
+}
