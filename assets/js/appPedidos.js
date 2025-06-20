@@ -81,7 +81,7 @@ function formatDateTime(dateTimeString) {
 }
 
 function verDetallePedido(idPedido) {
-    const modal = new bootstrap.Modal(document.getElementById('detallePedidoModal'));
+    const modal = new bootstrap.Modal(document.querySelector('#detallePedidoModal'));
     const content = document.getElementById('detallePedidoContent');
     
     // Mostrar loading
