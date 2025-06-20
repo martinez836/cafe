@@ -115,8 +115,13 @@
         <h2 class="mb-4">Gestión de Pedidos</h2>
 
         <div class="card mb-4">
-            <div class="card-header">
-                <i class="fas fa-clipboard-list me-2"></i>Lista de Pedidos
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-clipboard-list me-2"></i>Lista de Pedidos
+                </div>
+                <button id="refreshOrders" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-sync-alt me-1"></i>Actualizar
+                </button>
             </div>
             <div class="card-body">
                 <p>Aquí se mostrará una tabla con la lista de pedidos y sus estados.</p>
