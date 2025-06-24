@@ -11,9 +11,10 @@ function formatCurrency(amount) {
 
 function loadOrders() {
     const ordersList = document.getElementById('ordersList');
-    fetch('../controller/cajero/obtenerPedidosPendientes.php')
+    fetch('../controllers/cajero/obtenerPedidosPendientes.php')
         .then(response => response.json())
-        .then(pendingOrders => {
+        .then(response => {
+            const pendingOrders = response.data || [];
             if (pendingOrders.length === 0) {
                 ordersList.innerHTML = `
                     <div class="empty-state">
@@ -167,12 +168,62 @@ function processPayment(orderNumero) {
     if (selectedOrder && amountReceived >= selectedOrder.total) {
         const change = amountReceived - selectedOrder.total;
         
-        if (confirm(`¿Confirmar pago?\n\nTotal: ${formatCurrency(selectedOrder.total)}\nRecibido: ${formatCurrency(amountReceived)}\nCambio: ${formatCurrency(change)}`)) {
-            // Aquí puedes hacer un fetch para marcar el pedido como pagado en el servidor
-            alert('¡Pago procesado exitosamente!');
-            clearSelection();
-            loadOrders(); // Recargar pedidos actualizados
-        }
+        Swal.fire({
+            title: '¿Confirmar pago?',
+            html: `
+                <div class="text-start">
+                    <p><strong>Total:</strong> ${formatCurrency(selectedOrder.total)}</p>
+                    <p><strong>Recibido:</strong> ${formatCurrency(amountReceived)}</p>
+                    <p><strong>Cambio:</strong> ${formatCurrency(change)}</p>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Sí, confirmar pago',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('../controllers/cajero/procesarPago.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        numero: orderNumero
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Éxito!',
+                            text: 'Pago procesado correctamente',
+                            icon: 'success',
+                            confirmButtonColor: '#28a745'
+                        });
+                        clearSelection();
+                        loadOrders();
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Error al procesar el pago: ' + data.message,
+                            icon: 'error',
+                            confirmButtonColor: '#dc3545'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Error al procesar el pago',
+                        icon: 'error',
+                        confirmButtonColor: '#dc3545'
+                    });
+                });
+            }
+        });
     }
 }
 

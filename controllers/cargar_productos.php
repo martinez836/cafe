@@ -16,55 +16,27 @@ try {
     $consultas = new ConsultasMesero();
     $productos = $consultas->traer_productos_por_categoria($categoria);
 
-    if (!$productos || $productos->rowCount() === 0) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'No hay productos disponibles para esta categoría.',
-            'html' => '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No hay productos disponibles para esta categoría.</div>'
-        ]);
-        exit;
+    if ($productos && mysqli_num_rows($productos) > 0) {
+        while ($producto = mysqli_fetch_assoc($productos)) {
+            echo '
+            <div class="col-md-4 mb-3">
+              <div class="card card-cafe p-3">
+                <h5 class = "text-center">' . htmlspecialchars($producto['nombre_producto']) . '</h5>
+                <p class="text-center">Precio: $' . number_format($producto['precio_producto'], 2) . '</p>
+                <input type="number" class="form-control text-center" min="0" id="inputCantidad" placeholder="Cantidad">
+                <button 
+                class="btn btn-primary mt-2" 
+                onclick="abrirModal(this, ' . $producto['idproductos'] . ', \'' . addslashes($producto['nombre_producto']) . '\')">
+                Agregar
+                </button>
+              </div>
+            </div>';
+        }
+    } else {
+        echo "<p>No hay productos disponibles para esta categoría.</p>";
     }
-
-    $html = '';
-    foreach ($productos as $producto) {
-        $id = $producto['idproductos'];
-        $nombre = $producto['nombre_producto'];
-        $precio = $producto['precio_producto'];
-        
-        $html .= '<div class="col-md-4 mb-4">
-            <div class="card h-100" data-id="' . $id . '">
-                <div class="card-body">
-                    <h5 class="card-title">' . $nombre . '</h5>
-                    <p class="card-text">$' . number_format($precio, 2) . '</p>
-                    <div class="input-group mb-3">
-                        <input type="number" class="form-control" min="1" value="1">
-                        <button class="btn btn-primary" data-precio="' . $precio . '">
-                            Agregar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>';
-    }
-
-    echo json_encode([
-        'success' => true,
-        'html' => $html,
-        'debug' => [
-            'categoria_recibida' => $_POST['idcategorias'],
-            'categoria_filtrada' => $categoria,
-            'productos_encontrados' => $productos->rowCount()
-        ]
-    ]);
-
-} catch (Exception $e) {
-    echo json_encode([
-        'success' => false,
-        'message' => $e->getMessage(),
-        'html' => '<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>' . htmlspecialchars($e->getMessage()) . '</div>',
-        'debug' => [
-            'post_data' => $_POST,
-            'error' => $e->getMessage()
-        ]
-    ]);
+} else {
+    echo "<p>Categoría no válida.</p>";
 }
+?>
+

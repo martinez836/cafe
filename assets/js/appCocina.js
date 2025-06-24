@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para obtener y mostrar pedidos pendientes
     function obtenerPedidosPendientes() {
-        fetch('../controllers/cosina.php?action=traer_pedidos_pendientes')
+        fetch('../controllers/cosina.php?action=traerPedidosPendientes')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        fetch(`../controllers/cosina.php?action=traer_detalles_de_un_pedido&id=${idPedido}`)
+        fetch(`../controllers/cosina.php?action=traerDetallesDeUnPedido&id=${idPedido}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -171,13 +171,13 @@ document.addEventListener('DOMContentLoaded', function() {
         `).join('');
 
         detalles_pedido.innerHTML = `
-            <h5 class="mb-3">Pedido #${pedido.id} - ${pedido.table} <span class="badge rounded-pill bg-info insignia-estado insignia-preparacion">En Preparación</span></h5>
+            <h5 class="mb-3">Pedido #${pedido.idpedidos} - ${pedido.nombre_mesa} <span class="badge rounded-pill bg-info insignia-estado insignia-preparacion">En Preparación</span></h5>
             <p class="text-muted">Hora de Pedido: ${pedido.time}</p>
             <h6>Items:</h6>
             <ul class="list-group mb-4">
                 ${htmlItems}
             </ul>
-            <button class="btn btn-success btn-lg w-100" onclick="marcarPedidoComoListo(${pedido.id})">
+            <button class="btn btn-success btn-lg w-100" onclick="marcarPedidoComoListo(${pedido.idpedidos})">
                 <i class="fas fa-check-circle me-2"></i>Marcar como Preparado
             </button>
         `;
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
 
-                fetch('../controllers/cosina.php?action=marcar_pedido_como_listo', {
+                fetch('../controllers/cosina.php?action=marcarPedidoComoListo', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

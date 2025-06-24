@@ -49,6 +49,15 @@ try {
               </h5>
               <select id="mesaSelect" class="form-select form-select-lg rounded-3">
                 <option value="">Seleccione una mesa</option>
+                <?php
+                if ($mesas) {
+                  while ($mesa = mysqli_fetch_assoc($mesas)) {
+                ?>
+                    <option value="<?php echo $mesa['nombre']; ?>"><?php echo $mesa['nombre']; ?></option>
+                <?php
+                  }
+                }
+                ?>
               </select>
               <button class="btn btn-warning mt-2 w-100" onclick="generarTokenMesa()">
                 <i class="fas fa-key me-2"></i>Generar Token para la Mesa
@@ -62,6 +71,15 @@ try {
               </h5>
               <select id="categoriaSelect" class="form-select form-select-lg rounded-3">
                 <option value="">Seleccione una categoría</option>
+                <?php
+                if ($categorias) {
+                  while ($categoria = mysqli_fetch_assoc($categorias)) {
+                ?>
+                    <option value="<?php echo $categoria['idcategorias']; ?>"><?php echo $categoria['nombre_categoria']; ?></option>
+                <?php
+                  }
+                }
+                ?>
               </select>
             </div>
           </div>
