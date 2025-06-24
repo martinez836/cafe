@@ -12,16 +12,16 @@ try {
     if (isset($_POST['cancelar_token'])) {
         $idtoken = intval($_POST['cancelar_token']);
         $pdo = config::conectar();
-        $stmt = $pdo->prepare("UPDATE tokens_mesa SET estado_token = 'cancelado' WHERE idtoken_mesa = ?");
-        $stmt->execute([$idtoken]);
+        $consultas = new ConsultasMesero();
+        $consultas->cancelarTokenPorId($pdo, $idtoken);
         echo json_encode(['success' => true, 'message' => 'Token cancelado correctamente']);
         exit;
     }
     if (isset($_POST['cancelar_token_por_valor'])) {
         $token = $_POST['cancelar_token_por_valor'];
         $pdo = config::conectar();
-        $stmt = $pdo->prepare("UPDATE tokens_mesa SET estado_token = 'cancelado' WHERE token = ? AND estado_token = 'activo'");
-        $stmt->execute([$token]);
+        $consultas = new ConsultasMesero();
+        $consultas->cancelarTokenPorValor($pdo, $token);
         echo json_encode(['success' => true, 'message' => 'Token cancelado correctamente']);
         exit;
     }
@@ -57,7 +57,16 @@ try {
     
     if (!$mesa_id) throw new Exception('Mesa no especificada');
     
-    $usuario_id = 1; // ID del mesero, cámbialo según tu lógica de sesión
+    $pdo = config::conectar();
+    $consultas = new ConsultasMesero();
+    // Verificar si existe al menos un usuario en la tabla usuarios
+    $usuario = $consultas->getPrimerUsuario($pdo);
+    if (!$usuario) {
+        // Si no hay usuarios, crear uno por defecto con la estructura correcta
+        $usuario_id = $consultas->crearUsuarioPorDefecto($pdo);
+    } else {
+        $usuario_id = $usuario['idusuarios'];
+    }
 
     // Generar token de 4 dígitos
     $token = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
@@ -65,9 +74,9 @@ try {
     // Tiempo de expiración: 15 minutos desde ahora
     $expiracion = date('Y-m-d H:i:s', strtotime('+15 minutes'));
 
-    $pdo = config::conectar();
-    $stmt = $pdo->prepare("INSERT INTO tokens_mesa (token, fecha_hora_generacion, fecha_hora_expiracion, estado_token, mesas_idmesas, usuarios_idusuarios) VALUES (?, NOW(), ?, 'activo', ?, ?)");
-    $stmt->execute([$token, $expiracion, $mesa_id, $usuario_id]);
+    // Usar función del modelo para insertar el token
+    $consultas = new ConsultasMesero();
+    $consultas->insertarTokenMesa($pdo, $token, $expiracion, $mesa_id, $usuario_id);
 
     echo json_encode(['success' => true, 'token' => $token, 'expira' => $expiracion]);
 } catch (Exception $e) {

@@ -128,6 +128,86 @@ class ConsultasMesero
         $stmt->execute([$mesaId, $token]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // CONFIRMAR PEDIDO (desde confirmar_pedido.php)
+    public function confirmarPedidoCliente($pdo, $mesaId, $productos, $token = null) {
+        try {
+            $pdo->beginTransaction();
+            // 1. Crear el pedido (con tipo_pedido y token_utilizado)
+            $stmt = $pdo->prepare("INSERT INTO pedidos (fecha_hora_pedido, total_pedido, estados_idestados, mesas_idmesas, usuarios_idusuarios, tipo_pedido, token_utilizado) VALUES (NOW(), 0, 1, ?, 1, 'cliente', ?)");
+            $stmt->execute([$mesaId, $token]);
+            $pedido_id = $pdo->lastInsertId();
+
+            // 2. Insertar los productos del pedido
+            $stmt = $pdo->prepare("INSERT INTO detalle_pedidos (observaciones, precio_producto, cantidad_producto, subtotal, pedidos_idpedidos, productos_idproductos) VALUES (?, ?, ?, ?, ?, ?)");
+            foreach ($productos as $producto) {
+                $subtotal = $producto['precio'] * $producto['cantidad'];
+                $stmt->execute([
+                    $producto['comentario'] ?? null,
+                    $producto['precio'],
+                    $producto['cantidad'],
+                    $subtotal,
+                    $pedido_id,
+                    $producto['id']
+                ]);
+            }
+
+            // 3. Calcular y actualizar el total del pedido (usando subconsulta)
+            $stmt = $pdo->prepare("UPDATE pedidos SET total_pedido = (SELECT SUM(subtotal) FROM detalle_pedidos WHERE pedidos_idpedidos = ?) WHERE idpedidos = ?");
+            $stmt->execute([$pedido_id, $pedido_id]);
+
+            // 4. Invalidar el token
+            $stmt = $pdo->prepare("UPDATE tokens_mesa SET estado_token = 'usado' WHERE mesas_idmesas = ? AND estado_token = 'activo'");
+            $stmt->execute([$mesaId]);
+
+            $pdo->commit();
+            return $pedido_id;
+        } catch (Exception $e) {
+            if (isset($pdo)) $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    // TOKENS: Insertar nuevo token para una mesa
+    public function insertarTokenMesa($pdo, $token, $expiracion, $mesa_id, $usuario_id) {
+        $stmt = $pdo->prepare("INSERT INTO tokens_mesa (token, fecha_hora_generacion, fecha_hora_expiracion, estado_token, mesas_idmesas, usuarios_idusuarios) VALUES (?, NOW(), ?, 'activo', ?, ?)");
+        $stmt->execute([$token, $expiracion, $mesa_id, $usuario_id]);
+        return $pdo->lastInsertId();
+    }
+
+    // TOKENS: Cancelar token por idtoken_mesa
+    public function cancelarTokenPorId($pdo, $idtoken) {
+        $stmt = $pdo->prepare("UPDATE tokens_mesa SET estado_token = 'cancelado' WHERE idtoken_mesa = ?");
+        $stmt->execute([$idtoken]);
+        return $stmt->rowCount();
+    }
+
+    // TOKENS: Cancelar token por valor de token
+    public function cancelarTokenPorValor($pdo, $token) {
+        $stmt = $pdo->prepare("UPDATE tokens_mesa SET estado_token = 'cancelado' WHERE token = ? AND estado_token = 'activo'");
+        $stmt->execute([$token]);
+        return $stmt->rowCount();
+    }
+
+    // USUARIOS: Obtener el primer usuario
+    public function getPrimerUsuario($pdo) {
+        $stmt = $pdo->query("SELECT idusuarios FROM usuarios LIMIT 1");
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // USUARIOS: Crear usuario por defecto
+    public function crearUsuarioPorDefecto($pdo) {
+        $stmt = $pdo->prepare("INSERT INTO usuarios (nombre_usuario, contraseña_usuario, email_usuario, estados_idestados, rol_idrol) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute(['Mesero', 'password123', 'mesero@cafe.com', 1, 1]);
+        return $pdo->lastInsertId();
+    }
+
+    // PEDIDOS: Cambiar un pedido específico a estado libre (4)
+    public function liberarPedidoPorId($pdo, $pedido_id) {
+        $stmt = $pdo->prepare("UPDATE pedidos SET estados_idestados = 4 WHERE idpedidos = ?");
+        $stmt->execute([$pedido_id]);
+        return $stmt->rowCount();
+    }
 }
 
 ?>

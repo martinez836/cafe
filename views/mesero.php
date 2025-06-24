@@ -49,13 +49,15 @@ try {
               </h5>
               <select id="mesaSelect" class="form-select form-select-lg rounded-3">
                 <option value="">Seleccione una mesa</option>
-                <?php
-                if ($mesas) {
-                  while ($mesa = mysqli_fetch_assoc($mesas)) {
-                ?>
-                    <option value="<?php echo $mesa['nombre']; ?>"><?php echo $mesa['nombre']; ?></option>
-                <?php
-                  }
+                <?php 
+                if ($mesas && is_array($mesas)) {
+                    foreach ($mesas as $mesa) {
+                        $disabled = ($mesa['estados_idestados'] == 3 || $mesa['tiene_token_activo'] > 0 || $mesa['tiene_pedido_activo'] > 0) ? 'disabled' : '';
+                        $msg = $mesa['estados_idestados'] == 3 ? ' (Ocupada)' : 
+                               ($mesa['tiene_token_activo'] > 0 ? ' (Token activo)' : 
+                               ($mesa['tiene_pedido_activo'] > 0 ? ' (Pedido activo)' : ''));
+                        echo '<option value="' . (int)$mesa['idmesas'] . '" ' . $disabled . '>' . htmlspecialchars($mesa['nombre']) . $msg . '</option>';
+                    }
                 }
                 ?>
               </select>
@@ -71,13 +73,12 @@ try {
               </h5>
               <select id="categoriaSelect" class="form-select form-select-lg rounded-3">
                 <option value="">Seleccione una categoría</option>
-                <?php
-                if ($categorias) {
-                  while ($categoria = mysqli_fetch_assoc($categorias)) {
-                ?>
-                    <option value="<?php echo $categoria['idcategorias']; ?>"><?php echo $categoria['nombre_categoria']; ?></option>
-                <?php
-                  }
+                <?php 
+                if ($categorias && is_array($categorias)) {
+                    foreach ($categorias as $categoria) {
+                        echo '<option value="' . (int)$categoria['idcategorias'] . '">' . 
+                             htmlspecialchars($categoria['nombre_categoria']) . '</option>';
+                    }
                 }
                 ?>
               </select>
@@ -169,41 +170,5 @@ try {
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../assets/js/appMesero.js"></script>
-  <script>
-    // Cargar mesas vía AJAX
-    function cargarMesas() {
-      fetch('../controllers/mesas.php')
-        .then(res => res.json())
-        .then(data => {
-          const selectMesa = document.getElementById('mesaSelect');
-          selectMesa.innerHTML = '<option value="">Seleccione una mesa</option>';
-          if (data.success && data.mesas) {
-            data.mesas.forEach(mesa => {
-              let disabled = (mesa.estados_idestados == 3 || mesa.tiene_token_activo > 0 || mesa.tiene_pedido_activo > 0) ? 'disabled' : '';
-              let msg = mesa.estados_idestados == 3 ? ' (Ocupada)' : (mesa.tiene_token_activo > 0 ? ' (Token activo)' : (mesa.tiene_pedido_activo > 0 ? ' (Pedido activo)' : ''));
-              selectMesa.innerHTML += `<option value="${mesa.idmesas}" ${disabled}>${mesa.nombre}${msg}</option>`;
-            });
-          }
-        });
-    }
-    // Cargar categorías vía AJAX
-    function cargarCategorias() {
-      fetch('../controllers/cargar_categorias.php')
-        .then(res => res.json())
-        .then(data => {
-          const selectCategoria = document.getElementById('categoriaSelect');
-          selectCategoria.innerHTML = '<option value="">Seleccione una categoría</option>';
-          if (data.success && data.categorias) {
-            data.categorias.forEach(cat => {
-              selectCategoria.innerHTML += `<option value="${cat.idcategorias}">${cat.nombre_categoria}</option>`;
-            });
-          }
-        });
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-      cargarMesas();
-      cargarCategorias();
-    });
-  </script>
 </body>
 </html>

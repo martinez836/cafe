@@ -18,8 +18,7 @@ try {
     
     // Si se especifica un pedido_id, cambiar solo ese pedido
     if ($pedido_id) {
-        $stmt = $pdo->prepare("UPDATE pedidos SET estados_idestados = 4 WHERE idpedidos = ?");
-        $stmt->execute([$pedido_id]);
+        $consultas->liberarPedidoPorId($pdo, $pedido_id);
     } else {
         // Cambiar todos los pedidos activos de la mesa a libre
         $consultas->actualizarPedidosActivosAMesaLibre($pdo, $mesa);
