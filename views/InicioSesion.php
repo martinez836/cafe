@@ -15,16 +15,15 @@ require_once '../config/config.php';
 </head>
 
 <body class="bg-coffee">
-  <div class="container py-4">
-    <header class="text-center mb-5">
-      <h1 class="display-4 text-light fw-bold">
-        <i class="fas fa-mug-hot me-2"></i>Tienda de Café
-      </h1>
-      <p class="text-light opacity-75">Inicio de Sesión</p>
-    </header>
-
-    <div class="row g-4">
-        <div class="col-lg-4">
+  <div class="d-flex flex-column justify-content-center align-items-center min-vh-100 w-100 px-4 px-lg-5">
+    <div class="d-flex flex-column flex-lg-row justify-content-center align-items-center w-100 gap-2 mx-auto" style="max-width: 900px;">
+      <header class="text-center text-lg-end mb-4 mb-lg-0 col-12 col-lg-auto">
+        <h1 class="display-4 text-light fw-bold">
+          <i class="fas fa-mug-hot me-2"></i>Tienda de Café
+        </h1>
+        <p class="text-light opacity-75">Inicio de Sesión</p>
+      </header>
+      <div class="col-12 col-lg-4 col-md-6 mx-auto" style="max-width: 400px;">
         <div class="card shadow-lg border-0 rounded-4 bg-light">
           <div class="card-body p-4">
             <h5 class="card-title mb-3">
@@ -44,13 +43,15 @@ require_once '../config/config.php';
               </button>
             </form>
           </div>
-        </div>      
+        </div>
+      </div>
     </div>
+  </div>
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="../assets/js/appMesero.js"></script>
+  <script src="../assets/js/appLogin.js"></script>
   
 </body>
 </html>

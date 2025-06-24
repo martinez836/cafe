@@ -208,6 +208,17 @@ class ConsultasMesero
         $stmt->execute([$pedido_id]);
         return $stmt->rowCount();
     }
+
+    // USUARIOS: Verificar credenciales de inicio de sesión
+    public function verificarCredencialesUsuario($pdo, $correo, $contrasena) {
+        $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email_usuario = ? AND estados_idestados = 1 LIMIT 1");
+        $stmt->execute([$correo]);
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($usuario && password_verify($contrasena, $usuario['contrasena_usuario'])) {
+            return $usuario;
+        }
+        return false;
+    }
 }
 
 ?>

@@ -1,10 +1,10 @@
 <?php
-/* session_start();
+session_start();
 
 if (!isset($_SESSION['usuario'])) {
     header('Location: ../views/inicioSesion.php');
     exit();
-} */
+}
 
 require_once '../models/consultas.php';
 require_once '../config/config.php';
@@ -30,11 +30,18 @@ try {
 
 <body class="bg-coffee">
   <div class="container py-4">
-    <header class="text-center mb-5">
-      <h1 class="display-4 text-light fw-bold">
-        <i class="fas fa-mug-hot me-2"></i>Tienda de Café
-      </h1>
-      <p class="text-light opacity-75">Sistema de Gestión de Pedidos</p>
+    <header class="text-center mb-5 d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="display-4 text-light fw-bold mb-0">
+          <i class="fas fa-mug-hot me-2"></i>Tienda de Café
+        </h1>
+        <p class="text-light opacity-75 mb-0">Sistema de Gestión de Pedidos</p>
+      </div>
+      <div>
+        <button id="btnCerrarSesion" class="btn btn-danger btn-lg" title="Cerrar Sesión">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
     </header>
 
     <div class="row g-4">
@@ -169,6 +176,25 @@ try {
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.getElementById('btnCerrarSesion').addEventListener('click', function(e) {
+      e.preventDefault();
+      Swal.fire({
+        title: '¿Deseas cerrar tu sesión?',
+        text: 'Se cerrará tu sesión y volverás al inicio de sesión.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, cerrar sesión',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '../controllers/logout.php';
+        }
+      });
+    });
+  </script>
   <script src="../assets/js/appMesero.js"></script>
 </body>
 </html>
