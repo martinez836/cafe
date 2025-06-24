@@ -16,7 +16,7 @@
                 <h1 class="display-4 text-light fw-bold">
                     <i class="fas fa-mug-hot me-2"></i>Tienda de Café
                 </h1>
-                <p class="text-light opacity-75">Pedido de Cliente en Mesa</p>
+                <h4 class="text-light opacity-75">Pedido de Cliente en Mesa</h4>
             </header>
             <div class="col-12 col-lg-4 col-md-6 mx-auto" id="tokenPanel" style="max-width: 400px;">
                 <div class="card shadow-lg border-0 rounded-4 bg-light">
@@ -151,5 +151,19 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../assets/js/appUsuarioMesa.js"></script>
+    <script>
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input && btn) {
+                if (input.type === "password") {
+                    input.type = "text";
+                    btn.textContent = "🙈";
+                } else {
+                    input.type = "password";
+                    btn.textContent = "👁";
+                }
+            }
+        }
+    </script>
 </body>
 </html> 

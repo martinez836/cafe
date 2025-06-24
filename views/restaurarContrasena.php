@@ -21,31 +21,21 @@ require_once '../config/config.php';
         <h1 class="display-4 text-light fw-bold">
           <i class="fas fa-mug-hot me-2"></i>Tienda de Café
         </h1>
-        <h4 class="text-light opacity-75">Inicio de Sesión</h4>
+        <h4 class="text-light opacity-75"> Restaurar Contraseña</h4>
       </header>
       <div class="col-12 col-lg-4 col-md-6 mx-auto" style="max-width: 400px;">
         <div class="card shadow-lg border-0 rounded-4 bg-light">
           <div class="card-body p-4">
             <h5 class="card-title mb-3">
-              <i class="fas fa-user me-2"></i>Iniciar Sesión
+              <i class="fas fa-envelope me-2"></i>Restaurar Contraseña
             </h5>
-            <form id="loginForm">
+            <form id="RecuperarContrasenaForm">
               <div class="mb-3">
                 <label for="usuario" class="form-label">Correo</label>
                 <input type="email" class="form-control" id="correo" required />
               </div>
-              <div class="mb-3">
-                <label for="contrasena" class="form-label">Contraseña</label>
-                <div class="input-group">
-                  <input type="password" class="form-control" id="contrasena" required />
-                  <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('contrasena', this)" title="Mostrar/Ocultar contraseña">👁</button>
-                </div>
-              </div>
-              <div class="mb-3">
-                <a href="./restaurarContrasena.php">¿Olvidaste tu contraseña?</a>
-              </div>
               <button type="submit" class="btn btn-primary w-100">
-                <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                <i class="fas fa-sign-in-alt me-2"></i>Restablecer Contraseña
               </button>
             </form>
           </div>
@@ -57,18 +47,7 @@ require_once '../config/config.php';
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="../assets/js/appLogin.js"></script>
-  <script>
-    function togglePassword(inputId, btn) {
-      const input = document.getElementById(inputId);
-      if (input.type === "password") {
-        input.type = "text";
-        btn.textContent = "🙈";
-      } else {
-        input.type = "password";
-        btn.textContent = "👁";
-      }
-    }
-  </script>
+  <script src="../assets/js/appRecuperarContrasena.js"></script>
+  
 </body>
 </html>
