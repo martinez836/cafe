@@ -95,7 +95,7 @@ function showPaymentPanel(order) {
 
         <div class="payment-summary">
             <div class="row align-items-center mb-3">
-                <div class="col">
+                <div class="col">   
                     <span class="fw-bold">Total a Pagar:</span>
                 </div>
                 <div class="col-auto">
@@ -203,6 +203,7 @@ function processPayment(orderNumero) {
                             icon: 'success',
                             confirmButtonColor: '#28a745'
                         });
+                        window.open('../facturas/factura_pedido_' + orderNumero.replace('P', '') + '.pdf', '_blank');
                         clearSelection();
                         loadOrders();
                     } else {

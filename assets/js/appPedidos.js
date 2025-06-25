@@ -1,5 +1,11 @@
 // Funcionalidad para la gestión de pedidos
 document.addEventListener('DOMContentLoaded', function() {
+    const tablaProductos = $('#tablaPedidos').DataTable({
+        responsive: true,
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        }
+    });
     loadOrders(); // Cargar pedidos al cargar la página
     
     // Actualizar pedidos automáticamente cada 30 segundos
@@ -7,6 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadOrders() {
+    const tablaPedidos = $('#tablaPedidos').DataTable();
+    tablaPedidos.clear(); // Limpia la tabla de DataTables
+
     fetch('../../controllers/admin/pedidos.php?action=get_all_orders')
         .then(response => {
             if (!response.ok) {
@@ -15,39 +24,43 @@ function loadOrders() {
             return response.json();
         })
         .then(data => {
-            const ordersTableBody = document.getElementById('ordersTableBody');
-            ordersTableBody.innerHTML = ''; // Limpiar la tabla
-
             if (data.success && data.data.length > 0) {
                 data.data.forEach(order => {
-                    const row = `
-                        <tr>
-                            <td>${order.idpedidos}</td>
-                            <td>${formatDateTime(order.fecha_hora_pedido)}</td>
-                            <td>${order.nombre_mesa}</td>
-                            <td>
-                                <span class="badge bg-${getEstadoColor(order.estado_pedido)}">
-                                    ${order.estado_pedido}
-                                </span>
-                            </td>
-                            <td>${order.nombre_usuario}</td>
-                            <td>
-                                <button class="btn btn-sm btn-info me-1" onclick="verDetallePedido(${order.idpedidos})">
-                                    <i class="fas fa-eye"></i> Ver Detalle
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                    ordersTableBody.insertAdjacentHTML('beforeend', row);
+                    tablaPedidos.row.add([
+                        order.idpedidos,
+                        formatDateTime(order.fecha_hora_pedido),
+                        order.nombre_mesa,
+                        `<span class="badge bg-${getEstadoColor(order.estado_pedido)}">${order.estado_pedido}</span>`,
+                        order.nombre_usuario,
+                        `<button class="btn btn-sm btn-info me-1" onclick="verDetallePedido(${order.idpedidos})">
+                            <i class="fas fa-eye"></i> Ver Detalle
+                        </button>`
+                    ]);
                 });
             } else {
-                ordersTableBody.innerHTML = `<tr><td colspan="6" class="text-center">No hay pedidos para mostrar.</td></tr>`;
+                tablaPedidos.row.add([
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '<span class="text-center">No hay pedidos para mostrar.</span>'
+                ]);
             }
+            tablaPedidos.draw();
         })
         .catch(error => {
             console.error('Error al cargar pedidos:', error);
-            const ordersTableBody = document.getElementById('ordersTableBody');
-            ordersTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar pedidos: ${error.message}</td></tr>`;
+            tablaPedidos.clear();
+            tablaPedidos.row.add([
+                '',
+                '',
+                '',
+                '',
+                '',
+                `<span class="text-danger">Error al cargar pedidos: ${error.message}</span>`
+            ]);
+            tablaPedidos.draw();
         });
 }
 

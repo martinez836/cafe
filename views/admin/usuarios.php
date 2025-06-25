@@ -6,6 +6,7 @@
     <title>Gestión de Usuarios - Tienda de Café</title>
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/usuarios.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head> 
 <body>
 <div class="container-fluid">
@@ -47,11 +48,6 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="inventario.php">
-                    <i class="fas fa-boxes me-2"></i>Inventario
-                </a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link" href="productos.php">
                     <i class="fas fa-mug-hot me-2"></i>Productos
                 </a>
@@ -88,11 +84,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="inventario.php">
-                        <i class="fas fa-boxes me-2"></i>Inventario
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="productos.php">
                         <i class="fas fa-mug-hot me-2"></i>Productos
                     </a>
@@ -120,8 +111,8 @@
             </div>
             <div class="card-body">
                 <button id="btnCrearUsuario" class="btn btn-primary">Crear Articulo </button>
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
+                <div class="table">
+                    <table class="table table-striped table-hover" id="tablaUsuarios">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -132,10 +123,7 @@
                             </tr>
                         </thead>
                         <tbody id="usersTableBody">
-                            <!-- Datos de usuarios se cargarán aquí -->
-                            <tr>
-                                <td colspan="5" class="text-center">Cargando usuarios...</td>
-                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -184,6 +172,8 @@
         </div>
     </div>
 </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/appUsuario.js"></script>

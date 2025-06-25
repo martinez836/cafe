@@ -12,43 +12,43 @@ var opcion = ""; // Variable para determinar si es crear o editar
 
 
 document.addEventListener('DOMContentLoaded', function() {
-function loadUsers() {
-    fetch('../../controllers/admin/usuarios.php?action=get_all_users')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const usersTableBody = document.getElementById('usersTableBody');
-            usersTableBody.innerHTML = ''; // Limpiar la tabla
+    const tablaUsuarios = $('#tablaUsuarios').DataTable({
+        responsive: true,
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        }
+    });
 
-            if (data.success && data.data.length > 0) {
-                data.data.forEach(user => {
-                    const row = `
-                        <tr>
-                            <td>${user.idusuarios}</td>
-                            <td>${user.nombre_usuario}</td>
-                            <td>${user.email_usuario}</td>
-                            <td data-idrol="${user.idrol}">${user.nombre_rol}</td>
-                            <td>
-                                <button class="btn btn-sm btn-warning me-1 btnEditar"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-danger btnEliminar"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                    usersTableBody.insertAdjacentHTML('beforeend', row);
-                });
-            } else {
-                usersTableBody.innerHTML = `<tr><td colspan="5" class="text-center">No hay usuarios para mostrar.</td></tr>`;
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar usuarios:', error);
-            const usersTableBody = document.getElementById('usersTableBody');
-            usersTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error al cargar usuarios: ${error.message}</td></tr>`;
-        });
+    function loadUsers() {
+        fetch('../../controllers/admin/usuarios.php?action=get_all_users')
+            .then(response => response.json())
+            .then(data => {
+                tablaUsuarios.clear(); // Limpia la tabla de DataTables
+
+                if (data.success && data.data.length > 0) {
+                    data.data.forEach(user => {
+                        tablaUsuarios.row.add([
+                            user.idusuarios,
+                            user.nombre_usuario,
+                            user.email_usuario,
+                            `<span data-idrol="${user.idrol}">${user.nombre_rol}</span>`,
+                            `<button class="btn btn-sm btn-warning me-1 btnEditar"><i class="fas fa-edit"></i></button>
+                             <button class="btn btn-sm btn-danger btnEliminar"><i class="fas fa-trash"></i></button>`
+                        ]);
+                    });
+                }
+                tablaUsuarios.draw(); // Redibuja la tabla
+            })
+            .catch(error => {
+                tablaUsuarios.clear();
+                tablaUsuarios.row.add([
+                    '',
+                    '',
+                    `<span class="text-danger" colspan="5">Error al cargar usuarios: ${error.message}</span>`,
+                    '',
+                    ''
+                ]).draw();
+            });
     }
 
     loadUsers(); // Cargar usuarios al cargar la página

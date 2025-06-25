@@ -6,6 +6,7 @@
     <title>Gestión de Productos - Tienda de Café</title>
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/productos.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -82,11 +83,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="inventario.php">
-                        <i class="fas fa-boxes me-2"></i>Inventario
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link active" href="productos.php">
                         <i class="fas fa-mug-hot me-2"></i>Productos
                     </a>
@@ -117,7 +113,7 @@
                 <button class="btn btn-primary mb-3" id="addProductBtn">
                     <i class="fas fa-plus me-2"></i>Agregar Producto
                 </button>
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped table-hover" id="tablaProductos">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -129,10 +125,6 @@
                             </tr>
                         </thead>
                         <tbody id="productsTableBody">
-                            <!-- Datos de productos se cargarán aquí -->
-                            <tr>
-                                <td colspan="6" class="text-center">Cargando productos...</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -185,7 +177,9 @@
             </div>
         </div>
     </div>
-
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="../../assets/jsBootstrap/bootstrap.bundle.js"></script>
     <script src="../../assets/js/appProductos.js"></script>
 </body>

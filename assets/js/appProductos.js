@@ -47,6 +47,13 @@ function eliminarProducto(id) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const tablaProductos = $('#tablaProductos').DataTable({
+        responsive: true,
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        }
+    });
+
     const formularioProducto = document.getElementById('productForm');
     const botonAgregarProducto = document.getElementById('addProductBtn');
     const botonGuardarProducto = document.getElementById('saveProduct');
@@ -73,47 +80,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cargar productos
     window.cargarProductos = function() {
         fetch('../../controllers/admin/productos.php?action=getAllProductos')
-            .then(respuesta => {
-                if (!respuesta.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-                return respuesta.json();
-            })
+            .then(respuesta => respuesta.json())
             .then(datos => {
-                const cuerpoTablaProductos = document.getElementById('productsTableBody');
-                cuerpoTablaProductos.innerHTML = '';
+                tablaProductos.clear(); // Limpia la tabla de DataTables
 
                 if (datos.success && datos.data.length > 0) {
                     datos.data.forEach(producto => {
-                        const fila = `
-                            <tr>
-                                <td>${producto.idproductos}</td>
-                                <td>${producto.nombre_producto}</td>
-                                <td>$${parseFloat(producto.precio_producto).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                <td>${producto.nombre_categoria}</td>
-                                <td>${producto.estados_idestados == 1 ? 'Activo' : 'Inactivo'}</td>
-                                <td>
-                                    <button class="btn btn-sm btn-warning me-1" onclick="editarProducto(${producto.idproductos})">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${producto.idproductos})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                        cuerpoTablaProductos.insertAdjacentHTML('beforeend', fila);
+                        tablaProductos.row.add([
+                            producto.idproductos,
+                            producto.nombre_producto,
+                            `$${parseFloat(producto.precio_producto).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                            producto.nombre_categoria,
+                            producto.estados_idestados == 1 ? 'Activo' : 'Inactivo',
+                            `<button class="btn btn-sm btn-warning me-1" onclick="editarProducto(${producto.idproductos})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${producto.idproductos})">
+                                <i class="fas fa-trash"></i>
+                            </button>`
+                        ]);
                     });
                 } else {
-                    cuerpoTablaProductos.innerHTML = `<tr><td colspan="6" class="text-center">No hay productos para mostrar.</td></tr>`;
+                    tablaProductos.row.add([
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '<span class="text-center">No hay productos para mostrar.</span>'
+                    ]);
                 }
+                tablaProductos.draw();
             })
             .catch(error => {
-                console.error('Error al cargar productos:', error);
-                const cuerpoTablaProductos = document.getElementById('productsTableBody');
-                cuerpoTablaProductos.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar productos: ${error.message}</td></tr>`;
+                tablaProductos.clear();
+                tablaProductos.row.add([
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    `<span class="text-danger">Error al cargar productos: ${error.message}</span>`
+                ]);
+                tablaProductos.draw();
             });
-    }
+    };
 
     // Evento para agregar nuevo producto
     botonAgregarProducto.addEventListener('click', () => {

@@ -31,7 +31,7 @@ class consultasCajero
                 JOIN productos pr ON dp.productos_idproductos = pr.idproductos
                 JOIN mesas m ON p.mesas_idmesas = m.idmesas
                 JOIN usuarios u on p.usuarios_idusuarios = u.idusuarios
-                WHERE p.estados_idestados = 5
+                WHERE p.estados_idestados = 1
                 ORDER BY p.idpedidos DESC;
             ";
              $stmt = $this->mysql->efectuarConsulta($query);

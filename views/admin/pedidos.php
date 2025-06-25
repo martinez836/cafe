@@ -6,6 +6,7 @@
     <title>Gestión de Pedidos - Tienda de Café</title>
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/pedidos.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -82,11 +83,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="inventario.php">
-                        <i class="fas fa-boxes me-2"></i>Inventario
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="productos.php">
                         <i class="fas fa-mug-hot me-2"></i>Productos
                     </a>
@@ -120,7 +116,7 @@
             <div class="card-body">
                 <p>Aquí se mostrará una tabla con la lista de pedidos y sus estados.</p>
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped table-hover" id="tablaPedidos">
                         <thead>
                             <tr>
                                 <th>ID Pedido</th>
@@ -133,9 +129,6 @@
                         </thead>
                         <tbody id="ordersTableBody">
                             <!-- Datos de pedidos se cargarán aquí -->
-                            <tr>
-                                <td colspan="6" class="text-center">Cargando pedidos...</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -166,6 +159,8 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/appPedidos.js"></script>
 </body>
