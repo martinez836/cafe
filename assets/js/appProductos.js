@@ -48,10 +48,36 @@ function eliminarProducto(id) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const tablaProductos = $('#tablaProductos').DataTable({
-        responsive: true,
-        language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        responsive: {
+        details: {
+            renderer: function (api, rowIdx, columns) {
+                let data = columns
+                    .filter(col => col.hidden)
+                    .map(col => {
+                        const label = `<strong>${col.title}:</strong>`;
+                        return `<tr>
+                                    <td class="text-end fw-bold">${col.title}</td>
+                                    <td>${col.data}</td>
+                                </tr>`;
+                    })
+                    .join('');
+
+                return data
+                    ? $('<table class="table table-sm table-bordered mb-0 w-100"/>').append(data)
+                    : false;
+            }
         }
+    },
+    columnDefs: [
+        { responsivePriority: 1, targets: 1 }, // Nombre
+        { responsivePriority: 2, targets: 2 }, // Precio
+        { responsivePriority: 3, targets: 3 }, // Categoría
+        { responsivePriority: 4, targets: 4 }, // Estado
+        { responsivePriority: 5, targets: 5 }  // Acciones
+    ],
+    language: {
+        url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+    }
     });
 
     const formularioProducto = document.getElementById('productForm');

@@ -75,7 +75,7 @@ class ProcesarPagoCajero
 
         // Información del cliente
         $pdf->SetFont('Arial', '', 12);
-        $pdf->Cell(0, 10, 'Cliente: ' . $pedido['cliente'], 0, 1);
+        $pdf->Cell(0, 10, 'Mesa: ' . $pedido['cliente'], 0, 1);
         $pdf->Cell(0, 10, 'Mesero: ' . $pedido['mesero'], 0, 1);
         $pdf->Cell(0, 10, 'Fecha y hora: ' . $pedido['hora'], 0, 1);
 

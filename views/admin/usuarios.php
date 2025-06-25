@@ -58,6 +58,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                    <a class="nav-link" href="balanceGeneral.php">
+                        <i class="fas fa-receipt me-2"></i>Balance
+                    </a>
+                </li>
+            <li class="nav-item">
                 <a class="nav-link" href="graficas.php">
                     <i class="fas fa-chart-bar me-2"></i>Gráficas
                 </a>
@@ -94,6 +99,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="pedidos.php">
+                        <i class="fas fa-receipt me-2"></i>Balance
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="graficas.php">
                         <i class="fas fa-chart-bar me-2"></i>Gráficas
                     </a>
@@ -110,7 +120,7 @@
                 <i class="fas fa-table me-2"></i>Lista de Usuarios
             </div>
             <div class="card-body">
-                <button id="btnCrearUsuario" class="btn btn-primary">Crear Articulo </button>
+                <button id="btnCrearUsuario" class="btn btn-primary">Crear Usuario </button>
                 <div class="table">
                     <table class="table table-striped table-hover" id="tablaUsuarios">
                         <thead>

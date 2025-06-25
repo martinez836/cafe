@@ -57,6 +57,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                    <a class="nav-link" href="balanceGeneral.php">
+                        <i class="fas fa-receipt me-2"></i>Balance
+                    </a>
+                </li>
+            <li class="nav-item">
                 <a class="nav-link" href="graficas.php">
                     <i class="fas fa-chart-bar me-2"></i>Gráficas
                 </a>
@@ -90,6 +95,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="pedidos.php">
                         <i class="fas fa-receipt me-2"></i>Pedidos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="balanceGeneral.php">
+                        <i class="fas fa-receipt me-2"></i>Balance
                     </a>
                 </li>
                 <li class="nav-item">
@@ -181,6 +191,8 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="../../assets/jsBootstrap/bootstrap.bundle.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
     <script src="../../assets/js/appProductos.js"></script>
 </body>
 </html>
