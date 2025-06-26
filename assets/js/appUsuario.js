@@ -107,7 +107,7 @@ function cargarEstados(idSeleccionado = null)
                 data.data.forEach(estado => {
                     const option = document.createElement('option');
                     option.value = estado.idestados;
-                    option.textContent = `${estado.nombre_estado}`;
+                    option.textContent = `${estado.estado}`;
                     if(idSeleccionado && estado.idestados == idSeleccionado){
                         option.selected = true;
                     }

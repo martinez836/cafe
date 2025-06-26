@@ -42,7 +42,7 @@ class ConsultasUsuarios
     {
         try {
             // Asumiendo que la tabla de estados se llama 'estados' y tiene campos como idestados, nombre_estado
-            $sql = "SELECT idestados, nombre_estado FROM estados";
+            $sql = "SELECT idestados, estado FROM estados";
             return $this->mysql->efectuarConsulta($sql);
         } catch (Exception $e) {
             error_log("Error traerEstados: " . $e->getMessage());

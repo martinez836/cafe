@@ -38,7 +38,7 @@ try {
             $contrasena_usuario = $_POST['contrasena_usuario'] ?? '';
             $email_usuario = $_POST['email_usuario'] ?? '';
             $rol_idrol = $_POST['rol_idrol'] ?? 0;
-            $estado_idestado = $_POST['estado_idestado'] ?? 5; // Por defecto activo
+            $estado_idestado = $_POST['estado_idestado'] ?? 5;
             $contrasenaEncriptada = password_hash($contrasena_usuario, PASSWORD_BCRYPT);
 
             if (empty($nombre_usuario) || empty($contrasena_usuario) || empty($email_usuario) || $rol_idrol <= 0) {
