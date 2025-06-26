@@ -117,7 +117,7 @@
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-chart-bar me-2"></i>Ventas por Categoría
+                        <i class="fas fa-chart-bar me-2"></i>Recaudo Mensual
                     </div>
                     <div class="card-body">
                         <canvas id="ventasCategoriaChart"></canvas>
@@ -137,20 +137,20 @@
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-chart-line me-2"></i>Tendencia de Pedidos (Mensual)
+                        <i class="fas fa-chart-line me-2"></i>Ingresos por empleado
                     </div>
                     <div class="card-body">
-                        <canvas id="tendenciaPedidosChart"></canvas>
+                        <canvas id="ingresosEmpleadoChart"></canvas>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-chart-area me-2"></i>Ingresos Anuales
+                        <i class="fas fa-chart-line me-2"></i>Mesas atendidas por empleado
                     </div>
                     <div class="card-body">
-                        <canvas id="ingresosAnualesChart"></canvas>
+                        <canvas id="mesasEmpleadoChart"></canvas>
                     </div>
                 </div>
             </div>

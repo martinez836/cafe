@@ -1,39 +1,64 @@
+// Plugin para mostrar 'Sin datos' cuando no hay datos
+const noDataPlugin = {
+    id: 'noData',
+    afterDraw: (chart) => {
+        const data = chart.data.datasets[0].data;
+        if (!data || data.length === 0 || data.every(v => v === 0)) {
+            const ctx = chart.ctx;
+            const width = chart.width;
+            const height = chart.height;
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = '18px sans-serif';
+            ctx.fillStyle = '#888';
+            ctx.fillText('Sin datos', width / 2, height / 2);
+            ctx.restore();
+        }
+    }
+};
+Chart.register(noDataPlugin);
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Función para inicializar y actualizar gráfica de Barras: Ventas por Categoría
-    const ventasCategoriaCtx = document.getElementById('ventasCategoriaChart').getContext('2d');
-    let ventasCategoriaChart = new Chart(ventasCategoriaCtx, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Ventas ($)',
-                data: [],
-                backgroundColor: [
-                    'rgba(139, 94, 60, 0.7)',
-                    'rgba(75, 192, 192, 0.7)',
-                    'rgba(255, 206, 86, 0.7)',
-                    'rgba(153, 102, 255, 0.7)'
-                ],
-                borderColor: [
-                    'rgba(139, 94, 60, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(153, 102, 255, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
+    // Gráfica de Barras: Ventas por Categoría
+    const ventasCategoriaCanvas = document.getElementById('ventasCategoriaChart');
+    let ventasCategoriaChart;
+    if (ventasCategoriaCanvas) {
+        const ventasCategoriaCtx = ventasCategoriaCanvas.getContext('2d');
+        ventasCategoriaChart = new Chart(ventasCategoriaCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Ventas ($)',
+                    data: [],
+                    backgroundColor: [
+                        'rgba(139, 94, 60, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(139, 94, 60, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
-        }
-    });
-
+        });
+    }
     function loadVentasPorCategoria() {
+        if (!ventasCategoriaChart) return;
         fetch('../../controllers/admin/graficas.php?action=get_ventas_por_categoria')
             .then(response => response.json())
             .then(data => {
@@ -44,53 +69,59 @@ document.addEventListener('DOMContentLoaded', function() {
                     ventasCategoriaChart.data.datasets[0].data = values;
                     ventasCategoriaChart.update();
                 } else {
-                    console.warn('No hay datos para Ventas por Categoría.', data.message);
+                    ventasCategoriaChart.data.labels = [];
+                    ventasCategoriaChart.data.datasets[0].data = [];
+                    ventasCategoriaChart.update();
                 }
             })
             .catch(error => console.error('Error al cargar Ventas por Categoría:', error));
     }
 
     // Gráfica de Pastel: Productos más Vendidos
-    const productosVendidosCtx = document.getElementById('productosVendidosChart').getContext('2d');
-    let productosVendidosChart = new Chart(productosVendidosCtx, {
-        type: 'pie',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Cantidad Vendida',
-                data: [],
-                backgroundColor: [
-                    'rgba(139, 94, 60, 0.7)',
-                    'rgba(54, 162, 235, 0.7)',
-                    'rgba(255, 99, 132, 0.7)',
-                    'rgba(75, 192, 192, 0.7)',
-                    'rgba(255, 206, 86, 0.7)'
-                ],
-                borderColor: [
-                    'rgba(139, 94, 60, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 206, 86, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: false,
-                    text: 'Productos más Vendidos'
+    const productosVendidosCanvas = document.getElementById('productosVendidosChart');
+    let productosVendidosChart;
+    if (productosVendidosCanvas) {
+        const productosVendidosCtx = productosVendidosCanvas.getContext('2d');
+        productosVendidosChart = new Chart(productosVendidosCtx, {
+            type: 'pie',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Cantidad Vendida',
+                    data: [],
+                    backgroundColor: [
+                        'rgba(139, 94, 60, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(255, 206, 86, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(139, 94, 60, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Productos más Vendidos'
+                    }
                 }
             }
-        }
-    });
-
+        });
+    }
     function loadProductosMasVendidos() {
+        if (!productosVendidosChart) return;
         fetch('../../controllers/admin/graficas.php?action=get_productos_mas_vendidos')
             .then(response => response.json())
             .then(data => {
@@ -101,111 +132,123 @@ document.addEventListener('DOMContentLoaded', function() {
                     productosVendidosChart.data.datasets[0].data = values;
                     productosVendidosChart.update();
                 } else {
-                    console.warn('No hay datos para Productos más Vendidos.', data.message);
+                    productosVendidosChart.data.labels = [];
+                    productosVendidosChart.data.datasets[0].data = [];
+                    productosVendidosChart.update();
                 }
             })
             .catch(error => console.error('Error al cargar Productos más Vendidos:', error));
     }
 
-    // Gráfica de Líneas: Tendencia de Pedidos (Mensual)
-    const tendenciaPedidosCtx = document.getElementById('tendenciaPedidosChart').getContext('2d');
-    let tendenciaPedidosChart = new Chart(tendenciaPedidosCtx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Número de Pedidos',
-                data: [],
-                borderColor: '#8B5E3C',
-                backgroundColor: 'rgba(139, 94, 60, 0.2)',
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: false,
-                    text: 'Tendencia de Pedidos (Mensual)'
-                }
+    // Gráfica de Barras: Ingresos por Empleado
+    const ingresosEmpleadoCanvas = document.getElementById('ingresosEmpleadoChart');
+    let ingresosEmpleadoChart;
+    if (ingresosEmpleadoCanvas) {
+        const ingresosEmpleadoCtx = ingresosEmpleadoCanvas.getContext('2d');
+        ingresosEmpleadoChart = new Chart(ingresosEmpleadoCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Ingresos ($)',
+                    data: [],
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: false,
+                        text: 'Ingresos por Empleado'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
-        }
-    });
-
-    function loadTendenciaPedidosMensual() {
-        fetch('../../controllers/admin/graficas.php?action=get_tendencia_pedidos_mensual')
+        });
+    }
+    function loadIngresosPorEmpleado() {
+        if (!ingresosEmpleadoChart) return;
+        fetch('../../controllers/admin/graficas.php?action=get_mesas_por_empleado')
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.data.length > 0) {
-                    const labels = data.data.map(item => item.mes);
-                    const values = data.data.map(item => parseInt(item.total_pedidos));
-                    tendenciaPedidosChart.data.labels = labels;
-                    tendenciaPedidosChart.data.datasets[0].data = values;
-                    tendenciaPedidosChart.update();
+                    const labels = data.data.map(item => item.usuarios);
+                    const values = data.data.map(item => parseFloat(item.total_ingresos));
+                    ingresosEmpleadoChart.data.labels = labels;
+                    ingresosEmpleadoChart.data.datasets[0].data = values;
+                    ingresosEmpleadoChart.update();
                 } else {
-                    console.warn('No hay datos para Tendencia de Pedidos Mensual.', data.message);
+                    ingresosEmpleadoChart.data.labels = [];
+                    ingresosEmpleadoChart.data.datasets[0].data = [];
+                    ingresosEmpleadoChart.update();
                 }
             })
-            .catch(error => console.error('Error al cargar Tendencia de Pedidos Mensual:', error));
+            .catch(error => console.error('Error al cargar Ingresos por Empleado:', error));
     }
 
-    // Gráfica de Área: Ingresos Anuales
-    const ingresosAnualesCtx = document.getElementById('ingresosAnualesChart').getContext('2d');
-    let ingresosAnualesChart = new Chart(ingresosAnualesCtx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Ingresos Anuales ($)',
-                data: [],
-                borderColor: '#28a745',
-                backgroundColor: 'rgba(40, 167, 69, 0.2)',
-                fill: true,
-                tension: 0.2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: false,
-                    text: 'Ingresos Anuales'
-                }
+    // Gráfica de Barras: Mesas atendidas por Empleado
+    const mesasEmpleadoCanvas = document.getElementById('mesasEmpleadoChart');
+    let mesasEmpleadoChart;
+    if (mesasEmpleadoCanvas) {
+        const mesasEmpleadoCtx = mesasEmpleadoCanvas.getContext('2d');
+        mesasEmpleadoChart = new Chart(mesasEmpleadoCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Cantidad de Mesas Atendidas',
+                    data: [],
+                    backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: false,
+                        text: 'Mesas atendidas por Empleado'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
-        }
-    });
-
-    function loadIngresosAnuales() {
-        fetch('../../controllers/admin/graficas.php?action=get_ingresos_anuales')
+        });
+    }
+    function loadMesasPorEmpleado() {
+        if (!mesasEmpleadoChart) return;
+        fetch('../../controllers/admin/graficas.php?action=get_cantidad_mesas_por_empleado')
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.data.length > 0) {
-                    const labels = data.data.map(item => item.año);
-                    const values = data.data.map(item => parseFloat(item.total_ingresos));
-                    ingresosAnualesChart.data.labels = labels;
-                    ingresosAnualesChart.data.datasets[0].data = values;
-                    ingresosAnualesChart.update();
+                    const labels = data.data.map(item => item.usuario);
+                    const values = data.data.map(item => parseInt(item.cantidad_mesas));
+                    mesasEmpleadoChart.data.labels = labels;
+                    mesasEmpleadoChart.data.datasets[0].data = values;
+                    mesasEmpleadoChart.update();
                 } else {
-                    console.warn('No hay datos para Ingresos Anuales.', data.message);
+                    mesasEmpleadoChart.data.labels = [];
+                    mesasEmpleadoChart.data.datasets[0].data = [];
+                    mesasEmpleadoChart.update();
                 }
             })
-            .catch(error => console.error('Error al cargar Ingresos Anuales:', error));
+            .catch(error => console.error('Error al cargar Mesas atendidas por Empleado:', error));
     }
 
     // Cargar todas las gráficas al cargar la página
     loadVentasPorCategoria();
     loadProductosMasVendidos();
-    loadTendenciaPedidosMensual();
-    loadIngresosAnuales();
+    loadIngresosPorEmpleado();
+    loadMesasPorEmpleado();
 });
