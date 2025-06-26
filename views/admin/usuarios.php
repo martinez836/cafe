@@ -129,6 +129,7 @@
                                 <th>Nombre</th>
                                 <th>Email</th>
                                 <th>Rol</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -167,6 +168,12 @@
                             <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Rol</label><br>
                                 <select id="rolUsuario">
+
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Estado</label><br>
+                                <select id="estadoUsuario">
 
                                 </select>
                             </div>

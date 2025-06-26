@@ -109,4 +109,168 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Cargar datos al iniciar la página
             loadDashboardData();
+
+            // Cargar alertas de stock
+            cargarAlertasStock();
+            
+            // Configurar gráfico de ventas (placeholder)
+            configurarGraficoVentas();
         });
+
+async function cargarAlertasStock() {
+    try {
+        const [productosBajoStock, productosSinStock, estadisticas] = await Promise.all([
+            fetch('../../controllers/admin/productos.php?action=getProductosBajoStock').then(r => r.json()),
+            fetch('../../controllers/admin/productos.php?action=getProductosSinStock').then(r => r.json()),
+            fetch('../../controllers/admin/productos.php?action=getResumenStock').then(r => r.json())
+        ]);
+
+        const contenidoAlertas = document.getElementById('contenidoAlertasStock');
+        
+        if (!productosBajoStock.success && !productosSinStock.success) {
+            contenidoAlertas.innerHTML = '<div class="alert alert-info">No se pudieron cargar las alertas de stock.</div>';
+            return;
+        }
+
+        const productosBajo = productosBajoStock.success ? productosBajoStock.data : [];
+        const productosSin = productosSinStock.success ? productosSinStock.data : [];
+        const stats = estadisticas.success ? estadisticas.data[0] : null;
+
+        let html = '';
+
+        // Mostrar estadísticas generales
+        if (stats) {
+            html += `
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-primary">${stats.total_productos}</h4>
+                            <small class="text-muted">Total Productos</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-success">${stats.con_stock}</h4>
+                            <small class="text-muted">Con Stock</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-warning">${stats.bajo_stock}</h4>
+                            <small class="text-muted">Stock Bajo</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-danger">${stats.sin_stock}</h4>
+                            <small class="text-muted">Sin Stock</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Mostrar alertas
+        if (productosSin.length > 0) {
+            html += `
+                <div class="alert alert-danger">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <div class="flex-grow-1">
+                            <strong>Productos Sin Stock (${productosSin.length})</strong>
+                            <div class="mt-2">
+                                ${productosSin.slice(0, 3).map(p => 
+                                    `<span class="badge bg-danger me-1">${p.nombre_producto}</span>`
+                                ).join('')}
+                                ${productosSin.length > 3 ? `<span class="badge bg-secondary">+${productosSin.length - 3} más</span>` : ''}
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="verTodosProductosSinStock()">
+                            Ver Todos
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (productosBajo.length > 0) {
+            html += `
+                <div class="alert alert-warning">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <div class="flex-grow-1">
+                            <strong>Productos con Stock Bajo (${productosBajo.length})</strong>
+                            <div class="mt-2">
+                                ${productosBajo.slice(0, 3).map(p => 
+                                    `<span class="badge bg-warning text-dark me-1">${p.nombre_producto} (${p.stock_producto})</span>`
+                                ).join('')}
+                                ${productosBajo.length > 3 ? `<span class="badge bg-secondary">+${productosBajo.length - 3} más</span>` : ''}
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-warning" onclick="verTodosProductosBajoStock()">
+                            Ver Todos
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (productosSin.length === 0 && productosBajo.length === 0) {
+            html += `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>¡Excelente!</strong> Todos los productos tienen stock suficiente.
+                </div>
+            `;
+        }
+
+        contenidoAlertas.innerHTML = html;
+
+    } catch (error) {
+        console.error('Error al cargar alertas de stock:', error);
+        document.getElementById('contenidoAlertasStock').innerHTML = 
+            '<div class="alert alert-danger">Error al cargar las alertas de stock.</div>';
+    }
+}
+
+function verTodosProductosSinStock() {
+    if (notificacionesStock) {
+        notificacionesStock.obtenerProductosSinStock().then(productos => {
+            notificacionesStock.mostrarModalDetalles(productos);
+        });
+    }
+}
+
+function verTodosProductosBajoStock() {
+    if (notificacionesStock) {
+        notificacionesStock.obtenerProductosBajoStock().then(productos => {
+            notificacionesStock.mostrarModalDetalles(productos);
+        });
+    }
+}
+
+function configurarGraficoVentas() {
+    const ctx = document.getElementById('ventasDiariasChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                datasets: [{
+                    label: 'Ventas Diarias',
+                    data: [12, 19, 3, 5, 2, 3, 7],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+}

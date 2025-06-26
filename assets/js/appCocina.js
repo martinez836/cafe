@@ -14,7 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
-            renderizarPedidosPendientes(data);
+            if (data.success && Array.isArray(data.data)) {
+                renderizarPedidosPendientes(data.data);
+            } else {
+                renderizarPedidosPendientes([]);
+            }
         })
         .catch(error => {
             console.error('Error al obtener pedidos pendientes:', error);

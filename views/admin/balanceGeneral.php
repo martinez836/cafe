@@ -41,30 +41,35 @@
         <div class="sidebar d-none d-lg-block">
             <ul class="nav flex-column pt-3">
                 <li class="nav-item">
-                    <a class="nav-link active" href="dashboard.php">
-                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                <a class="nav-link active" href="dashboard.php">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="usuarios.php">
+                    <i class="fas fa-users me-2"></i>Usuarios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="productos.php">
+                    <i class="fas fa-mug-hot me-2"></i>Productos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="pedidos.php">
+                    <i class="fas fa-receipt me-2"></i>Pedidos
+                </a>
+            </li>
+            <li class="nav-item">
+                    <a class="nav-link" href="balanceGeneral.php">
+                        <i class="fas fa-receipt me-2"></i>Balance
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="usuarios.php">
-                        <i class="fas fa-users me-2"></i>Usuarios
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="productos.php">
-                        <i class="fas fa-mug-hot me-2"></i>Productos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="pedidos.php">
-                        <i class="fas fa-receipt me-2"></i>Pedidos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="graficas.php">
-                        <i class="fas fa-chart-bar me-2"></i>Gráficas
-                    </a>
-                </li>
+            <li class="nav-item">
+                <a class="nav-link" href="graficas.php">
+                    <i class="fas fa-chart-bar me-2"></i>Gráficas
+                </a>
+            </li>
             </ul>
         </div>
 

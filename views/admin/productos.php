@@ -7,6 +7,7 @@
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/productos.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="../../assets/css/notificaciones.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -129,6 +130,7 @@
                                 <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Precio</th>
+                                <th>Stock</th>
                                 <th>Categoría</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
@@ -162,7 +164,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="productStock" class="form-label">Stock</label>
-                                <input type="number" class="form-control" placeholder="Dejar nulo si no ejerce Stock" id="productStock" required>
+                                <input type="number" class="form-control" placeholder="Cantidad disponible (opcional)" id="productStock" min="0">
                             </div>
                             <div class="mb-3">
                                 <label for="productCategory" class="form-label">Categoría</label>
@@ -194,5 +196,6 @@
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
     <script src="../../assets/js/appProductos.js"></script>
+    <script src="../../assets/js/notificacionesStock.js"></script>
 </body>
 </html>

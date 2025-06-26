@@ -38,6 +38,11 @@ function eliminarProducto(id) {
             if (datos.success) {
                 alert('Producto eliminado exitosamente');
                 cargarProductos();
+                
+                // Actualizar notificaciones de stock si están disponibles
+                if (typeof notificacionesStock !== 'undefined') {
+                    notificacionesStock.verificarStockInicial();
+                }
             } else {
                 alert('Error al eliminar el producto');
             }
@@ -71,9 +76,10 @@ document.addEventListener('DOMContentLoaded', function() {
     columnDefs: [
         { responsivePriority: 1, targets: 1 }, // Nombre
         { responsivePriority: 2, targets: 2 }, // Precio
-        { responsivePriority: 3, targets: 3 }, // Categoría
-        { responsivePriority: 4, targets: 4 }, // Estado
-        { responsivePriority: 5, targets: 5 }  // Acciones
+        { responsivePriority: 3, targets: 3 }, // Stock
+        { responsivePriority: 4, targets: 4 }, // Categoría
+        { responsivePriority: 5, targets: 5 }, // Estado
+        { responsivePriority: 6, targets: 6 }  // Acciones
     ],
     language: {
         url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
@@ -112,12 +118,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (datos.success && datos.data.length > 0) {
                     datos.data.forEach(producto => {
+                        // Formatear el stock - mostrar "Sin stock" si es null o 0
+                        const stockDisplay = producto.stock_producto === null || producto.stock_producto === 0 
+                            ? '<span class="badge bg-warning">Sin stock</span>' 
+                            : producto.stock_producto;
+                        
                         tablaProductos.row.add([
                             producto.idproductos,
                             producto.nombre_producto,
                             `$${parseFloat(producto.precio_producto).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                            stockDisplay,
                             producto.nombre_categoria,
-                            producto.estados_idestados == 1 ? 'Activo' : 'Inactivo',
+                            producto.nombre_estado === 'Activo'
+                                ? '<span class="badge bg-success">Activo</span>'
+                                : '<span class="badge bg-danger">Inactivo</span>',
                             `<button class="btn btn-sm btn-warning me-1" onclick="editarProducto(${producto.idproductos})">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -133,6 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         '',
                         '',
                         '',
+                        '',
                         '<span class="text-center">No hay productos para mostrar.</span>'
                     ]);
                 }
@@ -141,6 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 tablaProductos.clear();
                 tablaProductos.row.add([
+                    '',
                     '',
                     '',
                     '',
@@ -164,11 +180,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Evento para guardar producto
     botonGuardarProducto.addEventListener('click', () => {
+        const stockValue = document.getElementById('productStock').value;
         const datosProducto = {
             id: document.getElementById('productId').value,
             nombre: document.getElementById('productName').value,
             precio: document.getElementById('productPrice').value,
-            stock: document.getElementById('productStock').value,
+            stock: stockValue === '' ? null : parseInt(stockValue),
             categoria: document.getElementById('productCategory').value,
             estado: document.getElementById('productEstado').value
         };
@@ -188,6 +205,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert(estaEditando ? 'Producto actualizado exitosamente' : 'Producto creado exitosamente');
                 modalProducto.hide();
                 cargarProductos();
+                
+                // Actualizar notificaciones de stock si están disponibles
+                if (typeof notificacionesStock !== 'undefined') {
+                    notificacionesStock.verificarStockInicial();
+                }
             } else {
                 alert('Error al guardar el producto');
             }

@@ -14,9 +14,10 @@ class ConsultasProductos
 
     public function getAllProductos() {
         try {
-            $sql = "SELECT productos.*, categorias.nombre_categoria 
+            $sql = "SELECT productos.*, categorias.nombre_categoria, estados.estado AS nombre_estado
                     FROM productos
-                    LEFT JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
+                    LEFT JOIN categorias ON productos.fk_categoria = categorias.idcategorias
+                    LEFT JOIN estados ON productos.estados_idestados = estados.idestados
                     ORDER BY productos.idproductos DESC";
             return $this->mysql->efectuarConsulta($sql);
         } catch (Exception $e) {
@@ -68,7 +69,7 @@ class ConsultasProductos
                 $data['estado'],
                 $data['id']
             ];
-            return $this->mysql->ejecutarSentenciaPreparada($sql, 'sdiisi', $params);
+            return $this->mysql->ejecutarSentenciaPreparada($sql, 'sdiiis', $params);
         } catch (Exception $e) {
             throw new Exception('Error al actualizar producto: ' . $e->getMessage());
         }
@@ -81,6 +82,50 @@ class ConsultasProductos
             return $this->mysql->ejecutarSentenciaPreparada($sql, 'i', $params);
         } catch (Exception $e) {
             throw new Exception('Error al eliminar producto: ' . $e->getMessage());
+        }
+    }
+
+    public function getProductosBajoStock() {
+        try {
+            $sql = "SELECT productos.*, categorias.nombre_categoria 
+                    FROM productos
+                    LEFT JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
+                    WHERE productos.stock_producto IS NOT NULL 
+                    AND productos.stock_producto <= 10 
+                    AND productos.estados_idestados = 5
+                    ORDER BY productos.stock_producto ASC";
+            return $this->mysql->efectuarConsulta($sql);
+        } catch (Exception $e) {
+            throw new Exception('Error al obtener productos con bajo stock: ' . $e->getMessage());
+        }
+    }
+
+    public function getProductosSinStock() {
+        try {
+            $sql = "SELECT productos.*, categorias.nombre_categoria 
+                    FROM productos
+                    LEFT JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
+                    WHERE (productos.stock_producto IS NULL OR productos.stock_producto = 0)
+                    AND productos.estados_idestados = 5
+                    ORDER BY productos.nombre_producto ASC";
+            return $this->mysql->efectuarConsulta($sql);
+        } catch (Exception $e) {
+            throw new Exception('Error al obtener productos sin stock: ' . $e->getMessage());
+        }
+    }
+
+    public function getResumenStock() {
+        try {
+            $sql = "SELECT 
+                        COUNT(*) as total_productos,
+                        COUNT(CASE WHEN stock_producto IS NOT NULL AND stock_producto > 0 THEN 1 END) as con_stock,
+                        COUNT(CASE WHEN stock_producto IS NOT NULL AND stock_producto <= 10 AND stock_producto > 0 THEN 1 END) as bajo_stock,
+                        COUNT(CASE WHEN stock_producto IS NULL OR stock_producto = 0 THEN 1 END) as sin_stock
+                    FROM productos 
+                    WHERE estados_idestados = 5";
+            return $this->mysql->efectuarConsulta($sql);
+        } catch (Exception $e) {
+            throw new Exception('Error al obtener resumen de stock: ' . $e->getMessage());
         }
     }
 }
