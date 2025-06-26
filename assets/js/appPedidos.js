@@ -204,3 +204,12 @@ function verDetallePedido(idPedido) {
             `;
         });
 }
+
+function showSwalError(msg) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: msg || 'Ocurrió un error.',
+        confirmButtonText: 'Aceptar'
+    });
+}

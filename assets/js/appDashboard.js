@@ -65,9 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             console.error('Error al cargar datos del dashboard:', data.message);
                         }
                     })
-                    .catch(error => {
-                        console.error('Error de red al cargar el dashboard:', error);
-                    });
+                    .catch(error => showSwalError('Error al cargar datos del dashboard.'));
             }
 
             // Chart para Ventas Diarias (inicialización y actualización)
@@ -273,4 +271,13 @@ function configurarGraficoVentas() {
             }
         });
     }
+}
+
+function showSwalError(msg) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: msg || 'Ocurrió un error.',
+        confirmButtonText: 'Aceptar'
+    });
 }

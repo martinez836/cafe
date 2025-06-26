@@ -7,6 +7,7 @@
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet"  href="../../assets/css/dashboard.css">
     <link rel="stylesheet" href="../../assets/css/notificaciones.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -64,7 +65,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="pedidos.php">
-                    <i class="fas fa-receipt me-2"></i>Pedidos
+                    <i class="fas fa-receipt me-2"></i>Ventas
                 </a>
             </li>
             <li class="nav-item">
@@ -233,5 +234,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../assets/js/appDashboard.js"></script>
     <script src="../../assets/js/notificacionesStock.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

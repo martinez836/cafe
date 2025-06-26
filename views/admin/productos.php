@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../../assets/css/productos.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="../../assets/css/notificaciones.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -54,7 +55,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="pedidos.php">
-                    <i class="fas fa-receipt me-2"></i>Pedidos
+                    <i class="fas fa-receipt me-2"></i>Ventas
                 </a>
             </li>
             <li class="nav-item">
@@ -175,8 +176,8 @@
                             <div class="mb-3">
                                 <label for="productEstado" class="form-label">Estado</label>    
                                 <select class="form-control" id="productEstado" required>
-                                    <option value="1">Activo</option>
-                                    <option value="2">Inactivo</option>
+                                    <option value="5">Activo</option>
+                                    <option value="6">Inactivo</option>
                                 </select>
                             </div>
                         </form>
@@ -197,5 +198,6 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
     <script src="../../assets/js/appProductos.js"></script>
     <script src="../../assets/js/notificacionesStock.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

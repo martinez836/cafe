@@ -20,21 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderizarPedidosPendientes([]);
             }
         })
-        .catch(error => {
-            console.error('Error al obtener pedidos pendientes:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error al cargar pedidos',
-                text: 'No se pudieron cargar los pedidos pendientes. Por favor, intenta recargar la página.',
-            });
-            pedidos_pendientes.innerHTML = `
-                <div class="estado-vacio texto-centrado py-5">
-                    <i class="fas fa-exclamation-circle fa-3x texto-peligro mb-3"></i>
-                    <h5>Error al cargar pedidos</h5>
-                    <p>Intenta recargar la página.</p>
-                </div>
-            `;
-        });
+        .catch(error => showSwalError('Error al obtener pedidos pendientes.'));
     }
 
     // Función para renderizar los pedidos pendientes en la lista
@@ -135,21 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             }
         })
-        .catch(error => {
-            console.error('Error al obtener detalles del pedido:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error de conexión',
-                text: 'Hubo un problema al comunicarse con el servidor para obtener los detalles del pedido.',
-            });
-            detalles_pedido.innerHTML = `
-                <div class="estado-vacio texto-centrado py-5">
-                    <i class="fas fa-exclamation-circle fa-3x texto-peligro mb-3"></i>
-                    <h5>Error de red</h5>
-                    <p>Verifica tu conexión y recarga la página.</p>
-                </div>
-            `;
-        });
+        .catch(error => showSwalError('Error al obtener detalles del pedido.'));
     }
 
     // Función para renderizar los detalles del pedido en el panel
@@ -238,18 +210,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         );
                     }
                 })
-                .catch(error => {
-                    console.error('Error al marcar el pedido como listo:', error);
-                    Swal.fire(
-                        'Error de conexión!',
-                        'Ocurrió un error al intentar comunicarse con el servidor.',
-                        'error'
-                    );
-                });
+                .catch(error => showSwalError('Error al marcar el pedido como listo.'));
             }
         });
     };
 
     // Carga inicial de pedidos pendientes cuando la página se carga
     obtenerPedidosPendientes();
-}); 
+});
+
+function showSwalError(msg) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: msg || 'Ocurrió un error.',
+        confirmButtonText: 'Aceptar'
+    });
+} 

@@ -33,7 +33,7 @@ class NotificacionesStock {
 
             this.mostrarNotificaciones(productosBajoStock, productosSinStock);
         } catch (error) {
-            console.error('Error al verificar stock inicial:', error);
+            showSwalError('Error al verificar stock inicial.');
         }
     }
 
@@ -230,7 +230,7 @@ class NotificacionesStock {
             const data = await response.json();
             return data.success ? data.data[0] : null;
         } catch (error) {
-            console.error('Error al obtener estadísticas de stock:', error);
+            showSwalError('Error al obtener estadísticas de stock.');
             return null;
         }
     }
@@ -290,7 +290,7 @@ class NotificacionesStock {
                 });
             }
         } catch (error) {
-            console.error('Error al mostrar todas las alertas:', error);
+            showSwalError('Error al mostrar todas las alertas.');
         }
     }
 }
@@ -299,4 +299,13 @@ class NotificacionesStock {
 let notificacionesStock;
 document.addEventListener('DOMContentLoaded', function() {
     notificacionesStock = new NotificacionesStock();
-}); 
+});
+
+function showSwalError(msg) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: msg || 'Ocurrió un error.',
+        confirmButtonText: 'Aceptar'
+    });
+} 

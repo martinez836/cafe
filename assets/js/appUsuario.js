@@ -87,9 +87,7 @@ function cargarRoles(idSeleccionado = null)
                 selectRol.appendChild(option);
             }
         })
-        .catch(error => {
-            console.error('Error al cargar roles:', error);
-        });
+        .catch(error => showSwalError('Error al cargar roles.'));
 }
 
 function cargarEstados(idSeleccionado = null)
@@ -121,9 +119,7 @@ function cargarEstados(idSeleccionado = null)
                 selectEstado.appendChild(option);
             }
         })
-        .catch(error => {
-            console.error('Error al cargar estados:', error);
-        });
+        .catch(error => showSwalError('Error al cargar estados.'));
 }
 
     btnCrearUsuario.addEventListener('click', () =>
@@ -284,3 +280,12 @@ function cargarEstados(idSeleccionado = null)
         }
     })
 });
+
+function showSwalError(msg) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: msg || 'Ocurrió un error.',
+        confirmButtonText: 'Aceptar'
+    });
+}

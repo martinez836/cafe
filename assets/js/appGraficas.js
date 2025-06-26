@@ -57,6 +57,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    function showSwalError(msg) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: msg || 'Ocurrió un error al cargar los datos.',
+            confirmButtonText: 'Aceptar'
+        });
+    }
     function loadVentasPorCategoria() {
         if (!ventasCategoriaChart) return;
         fetch('../../controllers/admin/graficas.php?action=get_ventas_por_categoria')
@@ -74,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ventasCategoriaChart.update();
                 }
             })
-            .catch(error => console.error('Error al cargar Ventas por Categoría:', error));
+            .catch(error => showSwalError('Error al cargar Ventas por Categoría.'));
     }
 
     // Gráfica de Pastel: Productos más Vendidos
@@ -137,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     productosVendidosChart.update();
                 }
             })
-            .catch(error => console.error('Error al cargar Productos más Vendidos:', error));
+            .catch(error => showSwalError('Error al cargar Productos más Vendidos.'));
     }
 
     // Gráfica de Barras: Ingresos por Empleado
@@ -190,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ingresosEmpleadoChart.update();
                 }
             })
-            .catch(error => console.error('Error al cargar Ingresos por Empleado:', error));
+            .catch(error => showSwalError('Error al cargar Ingresos por Empleado.'));
     }
 
     // Gráfica de Barras: Mesas atendidas por Empleado
@@ -243,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     mesasEmpleadoChart.update();
                 }
             })
-            .catch(error => console.error('Error al cargar Mesas atendidas por Empleado:', error));
+            .catch(error => showSwalError('Error al cargar Mesas atendidas por Empleado.'));
     }
 
     // Cargar todas las gráficas al cargar la página

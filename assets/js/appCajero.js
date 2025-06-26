@@ -60,10 +60,7 @@ function loadOrders() {
                 ordersList.appendChild(div);
             });
         })
-        .catch(error => {
-            console.error('Error al cargar pedidos:', error);
-            ordersList.innerHTML = `<p class="text-danger">Error al cargar los pedidos</p>`;
-        });
+        .catch(error => showSwalError('Error al cargar pedidos.'));
 }
 
 function showPaymentPanel(order) {
@@ -239,6 +236,15 @@ function clearSelection() {
             <p>Haz clic en un pedido de la lista para proceder con el pago</p>
         </div>
     `;
+}
+
+function showSwalError(msg) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: msg || 'Ocurrió un error.',
+        confirmButtonText: 'Aceptar'
+    });
 }
 
 // Inicializar

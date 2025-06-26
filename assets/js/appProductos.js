@@ -25,30 +25,37 @@ function editarProducto(id) {
 }
 
 function eliminarProducto(id) {
-    if (confirm('¿Está seguro de que desea eliminar este producto?')) {
-        fetch('../../controllers/admin/productos.php?action=deleteProducto', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: id })
-        })
-        .then(respuesta => respuesta.json())
-        .then(datos => {
-            if (datos.success) {
-                alert('Producto eliminado exitosamente');
-                cargarProductos();
-                
-                // Actualizar notificaciones de stock si están disponibles
-                if (typeof notificacionesStock !== 'undefined') {
-                    notificacionesStock.verificarStockInicial();
+    Swal.fire({
+        title: '¿Está seguro?',
+        text: '¿Está seguro de que desea eliminar este producto?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('../../controllers/admin/productos.php?action=deleteProducto', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: id })
+            })
+            .then(respuesta => respuesta.json())
+            .then(datos => {
+                if (datos.success) {
+                    Swal.fire('¡Eliminado!', 'Producto eliminado exitosamente', 'success');
+                    cargarProductos();
+                    if (typeof notificacionesStock !== 'undefined') {
+                        notificacionesStock.verificarStockInicial();
+                    }
+                } else {
+                    Swal.fire('Error', 'Error al eliminar el producto', 'error');
                 }
-            } else {
-                alert('Error al eliminar el producto');
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
+            })
+            .catch(error => Swal.fire('Error', 'Error al eliminar el producto', 'error'));
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -202,19 +209,17 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(respuesta => respuesta.json())
         .then(datos => {
             if (datos.success) {
-                alert(estaEditando ? 'Producto actualizado exitosamente' : 'Producto creado exitosamente');
+                Swal.fire('¡Éxito!', estaEditando ? 'Producto actualizado exitosamente' : 'Producto creado exitosamente', 'success');
                 modalProducto.hide();
                 cargarProductos();
-                
-                // Actualizar notificaciones de stock si están disponibles
                 if (typeof notificacionesStock !== 'undefined') {
                     notificacionesStock.verificarStockInicial();
                 }
             } else {
-                alert('Error al guardar el producto');
+                Swal.fire('Error', 'Error al guardar el producto', 'error');
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => Swal.fire('Error', 'Error al guardar el producto', 'error'));
     });
 
     // Cargar datos iniciales
