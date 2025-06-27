@@ -35,7 +35,7 @@ try {
         <h1 class="display-4 text-light fw-bold mb-0">
           <i class="fas fa-mug-hot me-2"></i>Tienda de Café
         </h1>
-        <p class="text-light opacity-75 mb-0">Sistema de Gestión de Pedidos</p>
+        <h4 class="text-light opacity-75 mb-0">Sistema de Gestión de Pedidos</h4>
       </div>
       <div>
         <button id="btnCerrarSesion" class="btn btn-danger btn-lg" title="Cerrar Sesión">
@@ -60,10 +60,10 @@ try {
                 if ($mesas && is_array($mesas)) {
                     foreach ($mesas as $mesa) {
                         $disabled = ($mesa['estados_idestados'] == 3 || $mesa['tiene_token_activo'] > 0 || $mesa['tiene_pedido_activo'] > 0) ? 'disabled' : '';
-                        $msg = $mesa['estados_idestados'] == 3 ? ' (Ocupada)' : 
-                               ($mesa['tiene_token_activo'] > 0 ? ' (Token activo)' : 
-                               ($mesa['tiene_pedido_activo'] > 0 ? ' (Pedido activo)' : ''));
-                        echo '<option value="' . (int)$mesa['idmesas'] . '" ' . $disabled . '>' . htmlspecialchars($mesa['nombre']) . $msg . '</option>';
+                        $msg = $mesa['estados_idestados'] == 3 ? ' (Ocupada)' :
+                               ($mesa['tiene_pedido_activo'] > 0 ? ' (Pedido activo)' : '');
+                        $token = isset($mesa['token_activo']) && $mesa['token_activo'] ? ' | Token #' . htmlspecialchars($mesa['token_activo']) : '';
+                        echo '<option value="' . (int)$mesa['idmesas'] . '" ' . $disabled . '>' . htmlspecialchars($mesa['nombre']) . $token . $msg . '</option>';
                     }
                 }
                 ?>
@@ -125,13 +125,13 @@ try {
           </div>
         </div>
 
-        <!-- Tokens Activos en Mesas -->
+        <!-- Pedidos Activos de la Mesa -->
         <div class="card shadow-lg border-0 rounded-4 bg-light mt-4">
           <div class="card-body p-4">
             <h5 class="card-title mb-4">
-              <i class="fas fa-key me-2"></i>Tokens Activos en Mesas
+              <i class="fas fa-list me-2"></i>Pedidos Activos de la Mesa
             </h5>
-            <div id="tokensActivosGlobal"></div>
+            <div id="pedidosActivosMesa"></div>
           </div>
         </div>
       </div>
@@ -175,26 +175,6 @@ try {
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    document.getElementById('btnCerrarSesion').addEventListener('click', function(e) {
-      e.preventDefault();
-      Swal.fire({
-        title: '¿Deseas cerrar tu sesión?',
-        text: 'Se cerrará tu sesión y volverás al inicio de sesión.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, cerrar sesión',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = '../controllers/logout.php';
-        }
-      });
-    });
-  </script>
   <script src="../assets/js/appMesero.js"></script>
 </body>
 </html>

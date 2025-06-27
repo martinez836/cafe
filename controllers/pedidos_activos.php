@@ -8,11 +8,11 @@ try {
     $pdo = config::conectar();
     $consultas = new ConsultasMesero();
     
-    // Obtener mesas ocupadas
-    $mesasOcupadas = $consultas->traerMesasOcupadas($pdo);
+    // Obtener todas las mesas
+    $mesas = $pdo->query("SELECT idmesas, nombre FROM mesas")->fetchAll(PDO::FETCH_ASSOC);
     
     $pedidos = [];
-    foreach ($mesasOcupadas as $mesa) {
+    foreach ($mesas as $mesa) {
         // Obtener pedidos activos de la mesa
         $pedidosMesa = $consultas->traerPedidosActivosPorMesa($pdo, $mesa['idmesas']);
         

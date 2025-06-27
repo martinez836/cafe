@@ -18,7 +18,7 @@
                 </h1>
                 <h4 class="text-light opacity-75">Pedido de Cliente en Mesa</h4>
             </header>
-            <div class="col-12 col-lg-4 col-md-6 mx-auto" id="tokenPanel" style="max-width: 400px;">
+            <div class="col-12 col-lg-4 col-md-6 mx-auto py-4" id="tokenPanel" style="max-width: 400px;">
                 <div class="card shadow-lg border-0 rounded-4 bg-light">
                     <div class="card-body p-4">
                         <div id="tokenSection">
@@ -81,26 +81,11 @@
                             <h5 class="card-title mb-4">
                                 <i class="fas fa-shopping-cart me-2"></i>Pedido Actual
                             </h5>
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Producto</th>
-                                            <th>Cantidad</th>
-                                            <th>Precio</th>
-                                            <th>Observaciones</th>
-                                            <th>Subtotal</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="productosPedido"></tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="4" class="text-end"><strong>Total:</strong></td>
-                                            <td id="totalPedido" colspan="2">$0.00</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                            <ul class="list-group mb-3" id="productosPedido">
+                                <!-- Los productos del pedido se cargarán dinámicamente como <li> -->
+                            </ul>
+                            <div class="text-end fw-bold mb-3">
+                                Total: <span id="totalPedido">$0.00</span>
                             </div>
                             <button class="btn btn-success w-100" id="btnConfirmarPedido" onclick="confirmarPedido()">
                                 <i class="fas fa-check me-2"></i>Confirmar Pedido
@@ -151,19 +136,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../assets/js/appUsuarioMesa.js"></script>
-    <script>
-        function togglePassword(inputId, btn) {
-            const input = document.getElementById(inputId);
-            if (input && btn) {
-                if (input.type === "password") {
-                    input.type = "text";
-                    btn.textContent = "🙈";
-                } else {
-                    input.type = "password";
-                    btn.textContent = "👁";
-                }
-            }
-        }
-    </script>
 </body>
 </html> 

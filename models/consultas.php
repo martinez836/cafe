@@ -17,6 +17,7 @@ class ConsultasMesero
     {
         $consulta = "SELECT m.*, 
             (SELECT COUNT(*) FROM tokens_mesa t WHERE t.mesas_idmesas = m.idmesas AND t.estado_token = 'activo' AND t.fecha_hora_expiracion > NOW()) as tiene_token_activo,
+            (SELECT t.token FROM tokens_mesa t WHERE t.mesas_idmesas = m.idmesas AND t.estado_token = 'activo' AND t.fecha_hora_expiracion > NOW() ORDER BY t.fecha_hora_generacion DESC LIMIT 1) as token_activo,
             (SELECT COUNT(*) FROM pedidos p WHERE p.mesas_idmesas = m.idmesas AND p.estados_idestados = 1) as tiene_pedido_activo
         FROM mesas m
         WHERE m.estados_idestados IN (1,4,3) ORDER BY m.nombre;";
@@ -140,6 +141,7 @@ class ConsultasMesero
 
             // 2. Insertar los productos del pedido
             $stmt = $pdo->prepare("INSERT INTO detalle_pedidos (observaciones, precio_producto, cantidad_producto, subtotal, pedidos_idpedidos, productos_idproductos) VALUES (?, ?, ?, ?, ?, ?)");
+            $updateStockStmt = $pdo->prepare("UPDATE productos SET stock_producto = stock_producto - ? WHERE idproductos = ?");
             foreach ($productos as $producto) {
                 $subtotal = $producto['precio'] * $producto['cantidad'];
                 $stmt->execute([
@@ -150,6 +152,10 @@ class ConsultasMesero
                     $pedido_id,
                     $producto['id']
                 ]);
+                // Descontar stock si no es null
+                if (isset($producto['cantidad']) && $producto['cantidad'] !== null) {
+                    $updateStockStmt->execute([$producto['cantidad'], $producto['id']]);
+                }
             }
 
             // 3. Calcular y actualizar el total del pedido (usando subconsulta)

@@ -43,6 +43,19 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((data) => {
         if (data.success) {
           contenedor.innerHTML = data.html;
+          // Limitar el input de cantidad según el stock
+          document.querySelectorAll('#productosContainer .card').forEach(card => {
+            const stockBadge = card.querySelector('.badge.bg-secondary');
+            let stock = null;
+            if (stockBadge) {
+              const match = stockBadge.textContent.match(/Stock:\s*(\d+)/);
+              if (match) stock = parseInt(match[1]);
+            }
+            const input = card.querySelector('input[type=number]');
+            if (input && stock !== null) {
+              input.max = stock;
+            }
+          });
           // Agregar event listeners a los botones de agregar
           document.querySelectorAll('#productosContainer .btn-primary').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -52,7 +65,22 @@ document.addEventListener("DOMContentLoaded", function () {
               const precio = parseFloat(this.getAttribute('data-precio'));
               const input = card.querySelector('input[type=number]');
               const cantidad = parseInt(input.value);
-
+              // Validar stock
+              const stockBadge = card.querySelector('.badge.bg-secondary');
+              let stock = null;
+              if (stockBadge) {
+                const match = stockBadge.textContent.match(/Stock:\s*(\d+)/);
+                if (match) stock = parseInt(match[1]);
+              }
+              if (stock !== null && cantidad > stock) {
+                Swal.fire({
+                  icon: 'warning',
+                  title: 'Cantidad inválida',
+                  text: 'No puedes agregar más que el stock disponible.',
+                  confirmButtonText: 'Entendido'
+                });
+                return;
+              }
               if (!cantidad || cantidad <= 0) {
                 Swal.fire({
                   icon: 'warning',
@@ -98,6 +126,36 @@ document.addEventListener("DOMContentLoaded", function () {
   mesaSelect.addEventListener("change", function() {
     if (select.value) {
       select.dispatchEvent(new Event('change'));
+    }
+    // Cargar pedido activo de la mesa
+    const mesaId = mesaSelect.value;
+    if (mesaId) {
+      fetch("../controllers/pedidos_activos_mesa.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mesa_id: mesaId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.pedidos && data.pedidos.length > 0) {
+          // Tomar el primer pedido activo
+          const productos = data.pedidos[0].productos;
+          pedido = productos.map(prod => ({
+            id: prod.id,
+            nombre: prod.nombre,
+            cantidad: parseInt(prod.cantidad),
+            comentario: prod.comentario,
+            precio: parseFloat(prod.precio)
+          }));
+          actualizarLista();
+        } else {
+          pedido = [];
+          actualizarLista();
+        }
+      });
+    } else {
+      pedido = [];
+      actualizarLista();
     }
   });
 });
@@ -218,13 +276,54 @@ function actualizarLista() {
     </li>`;
 }
 
+function actualizarCantidadEnBD(index, nuevaCantidad) {
+  // Solo si hay pedido activo
+  const mesaId = document.getElementById('mesaSelect').value;
+  if (!mesaId || !window.pedidosActivosGlobal || !window.pedidosActivosGlobal[mesaId]) return;
+  const pedidoActivo = window.pedidosActivosGlobal[mesaId];
+  const prod = pedido[index];
+  fetch('../controllers/actualizar_detalle_pedido.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      pedido_id: pedidoActivo.pedido_id,
+      producto_id: prod.id,
+      comentario: prod.comentario,
+      cantidad: nuevaCantidad
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.success) {
+      Swal.fire('Error', data.message || 'No se pudo actualizar el pedido', 'error');
+    } else {
+      // Actualizar el stock en la card si está visible
+      const card = document.querySelector(`#productosContainer .card[data-id='${prod.id}']`);
+      if (card) {
+        const stockBadge = card.querySelector('.badge.bg-secondary');
+        if (stockBadge) {
+          // Restar la cantidad agregada/eliminada
+          let stock = parseInt(stockBadge.textContent.replace(/\D/g, ''));
+          let diff = nuevaCantidad - (prod.cantidad || 0);
+          stockBadge.textContent = 'Stock: ' + (stock - diff);
+        }
+      }
+    }
+  });
+}
+
 function cambiarCantidad(index, delta) {
   pedido[index].cantidad += delta;
-  if (pedido[index].cantidad <= 0) eliminarProducto(index);
-  else actualizarLista();
+  if (pedido[index].cantidad <= 0) {
+    eliminarProducto(index);
+    return;
+  }
+  actualizarCantidadEnBD(index, pedido[index].cantidad);
+  actualizarLista();
 }
 
 function eliminarProducto(index) {
+  actualizarCantidadEnBD(index, 0);
   pedido.splice(index, 1);
   actualizarLista();
 }
@@ -301,10 +400,18 @@ function confirmarPedido() {
 function generarTokenMesa() {
   const mesaId = document.getElementById('mesaSelect').value;
   if (!mesaId) {
-    Swal.fire('Seleccione una mesa', 'Debe seleccionar una mesa para generar el token', 'warning');
+    if (typeof Swal === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+      script.onload = function() {
+        Swal.fire('Seleccione una mesa', 'Debe seleccionar una mesa para generar el token', 'warning');
+      };
+      document.body.appendChild(script);
+    } else {
+      Swal.fire('Seleccione una mesa', 'Debe seleccionar una mesa para generar el token', 'warning');
+    }
     return;
   }
-  
   fetch('../controllers/generar_token.php', {
     method: 'POST',
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -312,21 +419,41 @@ function generarTokenMesa() {
   })
   .then(res => res.json())
   .then(data => {
-    if (data.success) {
-      Swal.fire({
-        title: 'Token generado',
-        html: 'El token para la mesa es: <b>' + data.token + '</b><br>Expira a las: <b>' + (new Date(data.expira).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})) + '</b>',
-        icon: 'success'
-      }).then(() => {
-        location.reload();
-      });
+    function showTokenSwal() {
+      if (data.success) {
+        Swal.fire({
+          title: 'Token generado',
+          html: 'El token para la mesa es: <b>' + data.token + '</b><br>Expira a las: <b>' + (new Date(data.expira).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})) + '</b>',
+          icon: 'success'
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        Swal.fire('Error', data.message, 'error');
+      }
+    }
+    if (typeof Swal === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+      script.onload = showTokenSwal;
+      document.body.appendChild(script);
     } else {
-      Swal.fire('Error', data.message, 'error');
+      showTokenSwal();
     }
   })
   .catch(error => {
     console.error('Error al generar token:', error);
-    Swal.fire('Error', 'No se pudo generar el token.', 'error');
+    function showErrorSwal() {
+      Swal.fire('Error', 'No se pudo generar el token.', 'error');
+    }
+    if (typeof Swal === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+      script.onload = showErrorSwal;
+      document.body.appendChild(script);
+    } else {
+      showErrorSwal();
+    }
   });
 }
 
@@ -334,71 +461,72 @@ function generarTokenMesa() {
 document.addEventListener("DOMContentLoaded", function () {
   window.confirmarPedido = confirmarPedido;
   window.generarTokenMesa = generarTokenMesa;
-  window.cargarTokensActivosGlobal = cargarTokensActivosGlobal;
-  window.cancelarTokenGlobal = cancelarTokenGlobal;
   
-  // Cargar tokens activos al iniciar la página
-  cargarTokensActivosGlobal();
-});
-
-// Función para cargar tokens activos globalmente
-function cargarTokensActivosGlobal() {
-  fetch('../controllers/generar_token.php?activos=1')
-    .then(res => res.json())
-    .then(data => {
-      const cont = document.getElementById('tokensActivosGlobal');
-      if (data.success && data.tokens.length > 0) {
-        let html = '<div class="card mt-2"><div class="card-body p-2"><ul class="list-group">';
-        data.tokens.forEach(token => {
-          html += `<li class="list-group-item d-flex justify-content-between align-items-center">
-            <span><b>${token.token}</b> <span class="badge bg-secondary ms-2">${token.estado_token}</span><br><small class="text-muted">Mesa: ${token.mesa_nombre} (${token.idmesas})<br>Expira: ${(new Date(token.fecha_hora_expiracion)).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small></span>
-            <button class="btn btn-sm btn-danger" onclick="cancelarTokenGlobal('${token.token}')"><i class='fas fa-times'></i></button>
-          </li>`;
-        });
-        html += '</ul></div></div>';
-        cont.innerHTML = html;
-      } else {
-        cont.innerHTML = '<div class="alert alert-info">No hay tokens activos actualmente.</div>';
-      }
-    })
-    .catch(error => {
-      console.error('Error al cargar tokens activos:', error);
-      const cont = document.getElementById('tokensActivosGlobal');
-      cont.innerHTML = '<div class="alert alert-danger">Error al cargar tokens activos.</div>';
-    });
-}
-
-// Función para cancelar token global
-function cancelarTokenGlobal(token) {
-  Swal.fire({
-    title: '¿Cancelar token?',
-    text: '¿Está seguro de cancelar este token? El usuario ya no podrá usarlo.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sí, cancelar',
-    cancelButtonText: 'No'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      fetch('../controllers/generar_token.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'cancelar_token_por_valor=' + encodeURIComponent(token)
-      })
+  // Cargar todos los pedidos activos de todas las mesas al iniciar
+  function cargarPedidosActivosGlobal() {
+    fetch("../controllers/pedidos_activos.php")
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          Swal.fire('Cancelado', 'El token fue cancelado.', 'success');
-          cargarTokensActivosGlobal();
+        const cont = document.getElementById("pedidosActivosMesa");
+        if (!cont) return;
+        window.pedidosActivosGlobal = {};
+        if (data.success && data.pedidos && data.pedidos.length > 0) {
+          let html = '<div class="accordion" id="accordionPedidosActivos">';
+          data.pedidos.forEach((pedido, idx) => {
+            window.pedidosActivosGlobal[pedido.mesa_id] = pedido;
+            html += `
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="heading${pedido.pedido_id}">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${pedido.pedido_id}" aria-expanded="false" aria-controls="collapse${pedido.pedido_id}">
+                    <strong>${pedido.mesa_nombre || pedido.mesa_id}</strong> 
+                  </button>
+                </h2>
+                <div id="collapse${pedido.pedido_id}" class="accordion-collapse collapse" aria-labelledby="heading${pedido.pedido_id}" data-bs-parent="#accordionPedidosActivos">
+                  <div class="accordion-body">
+                    <div><strong>Pedido #:</strong> ${pedido.pedido_id}</div>
+                    <div><strong>Productos:</strong><ul class='mb-1'>`;
+            pedido.productos.forEach(prod => {
+              html += `<li>${prod.nombre} x${prod.cantidad} ($${parseFloat(prod.precio).toFixed(2)})</li>`;
+            });
+            html += `</ul></div>
+                    <div><strong>Total:</strong> $${pedido.productos.reduce((sum, p) => sum + (parseFloat(p.precio) * parseInt(p.cantidad)), 0).toFixed(2)}</div>
+                    <button class='btn btn-warning btn-sm mt-2' onclick='modificarPedidoActivo(${pedido.pedido_id}, ${pedido.mesa_id})'>Modificar pedido</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+          html += '</div>';
+          cont.innerHTML = html;
         } else {
-          Swal.fire('Error', data.message, 'error');
+          cont.innerHTML = '<div class="text-muted">No hay pedidos activos.</div>';
         }
-      })
-      .catch(error => {
-        console.error('Error al cancelar token:', error);
-        Swal.fire('Error', 'No se pudo cancelar el token.', 'error');
       });
-    }
-  });
+  }
+  cargarPedidosActivosGlobal();
+  setInterval(cargarPedidosActivosGlobal, 10000);
+});
+
+window.modificarPedidoActivo = function(pedidoId, mesaId) {
+  // Buscar el pedido en la variable global
+  const pedidoObj = window.pedidosActivosGlobal[mesaId];
+  if (!pedidoObj || pedidoObj.pedido_id != pedidoId) return;
+  // Cargar productos en el carrito
+  pedido = pedidoObj.productos.map(prod => ({
+    id: prod.id,
+    nombre: prod.nombre,
+    cantidad: parseInt(prod.cantidad),
+    comentario: prod.comentario,
+    precio: parseFloat(prod.precio)
+  }));
+  actualizarLista();
+  // Resaltar el pedido que se está editando
+  document.querySelectorAll('#pedidosActivosMesa .border').forEach(div => div.classList.remove('border-primary'));
+  const divPedido = document.getElementById('pedidoActivo_' + pedidoId);
+  if (divPedido) divPedido.classList.add('border-primary');
+  // Seleccionar la mesa en el select
+  const mesaSelect = document.getElementById('mesaSelect');
+  if (mesaSelect) mesaSelect.value = mesaId;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -422,6 +550,39 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       } catch (err) {
         Swal.fire('Error', 'Error de conexión', 'error');
+      }
+    });
+  }
+
+  // Cierre de sesión con SweetAlert2
+  const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+  if (btnCerrarSesion) {
+    btnCerrarSesion.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (typeof Swal === 'undefined') {
+        // Cargar SweetAlert2 dinámicamente si no está
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+        script.onload = showLogoutSwal;
+        document.body.appendChild(script);
+      } else {
+        showLogoutSwal();
+      }
+      function showLogoutSwal() {
+        Swal.fire({
+          title: '¿Deseas cerrar tu sesión?',
+          text: 'Se cerrará tu sesión y volverás al inicio de sesión.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Sí, cerrar sesión',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = '../controllers/logout.php';
+          }
+        });
       }
     });
   }

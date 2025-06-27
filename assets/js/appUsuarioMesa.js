@@ -98,7 +98,7 @@ function mostrarTiempoExpiracion() {
     }
     const minutos = Math.floor(tiempoRestante / (1000 * 60));
     const segundos = Math.floor((tiempoRestante % (1000 * 60)) / 1000);
-    div.textContent = `Te Quedan: ${minutos}:${segundos.toString().padStart(2, '0')} minutos para confirmar tu pedido`;
+    div.innerHTML = `<h1>Te quedan: </h1><h3>${minutos} minutos y ${segundos.toString().padStart(2, '0')} segundos</h3>`;
 }
 
 function cargarCategorias() {
@@ -148,7 +148,17 @@ function cargarProductos(idcategoria) {
                 const precio = parseFloat(this.getAttribute('data-precio'));
                 const input = card.querySelector('input[type=number]');
                 const cantidad = parseInt(input.value);
-
+                // Validar stock
+                const stockBadge = card.querySelector('.badge.bg-secondary');
+                let stock = null;
+                if (stockBadge) {
+                    const match = stockBadge.textContent.match(/Stock:\s*(\d+)/);
+                    if (match) stock = parseInt(match[1]);
+                }
+                if (stock !== null && cantidad > stock) {
+                    Swal.fire('Cantidad inválida', 'No puedes agregar más que el stock disponible.', 'warning');
+                    return;
+                }
                 if (!cantidad || cantidad <= 0) {
                     Swal.fire('Cantidad inválida', 'Ingrese una cantidad válida', 'warning');
                     return;
@@ -214,32 +224,46 @@ function agregarAlPedido(producto) {
 }
 
 function renderPedido() {
-    const tbody = document.getElementById('productosPedido');
-    tbody.innerHTML = '';
+    const lista = document.getElementById('productosPedido');
+    lista.innerHTML = '';
     let total = 0;
-    pedido.productos.forEach(producto => {
+    pedido.productos.forEach((producto, index) => {
         const subtotal = producto.precio * producto.cantidad;
         total += subtotal;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td data-id="${producto.id}">${producto.nombre}</td>
-            <td>${producto.cantidad}</td>
-            <td>$${producto.precio.toFixed(2)}</td>
-            <td>${producto.comentario || ''}</td>
-            <td>$${subtotal.toFixed(2)}</td>
-            <td><button class="btn btn-sm btn-danger" onclick="eliminarProducto(this)"><i class="fas fa-trash"></i></button></td>
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `
+            <div class="flex-grow-1">
+                <div class="fw-bold">${producto.nombre}</div>
+                <div class="text-muted small">${producto.comentario ? producto.comentario : 'sin obs.'}</div>
+                <div class="fw-semibold">$${producto.precio.toFixed(2)} x ${producto.cantidad}</div>
+            </div>
+            <div class="d-flex flex-column align-items-end ms-3">
+                <div class="mb-2">$${subtotal.toFixed(2)}</div>
+                <div>
+                    <button class="btn btn-sm btn-secondary me-1" onclick="cambiarCantidadUsuarioMesa(${index}, -1)">-</button>
+                    <button class="btn btn-sm btn-secondary me-1" onclick="cambiarCantidadUsuarioMesa(${index}, 1)">+</button>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarProductoUsuarioMesa(${index})">x</button>
+                </div>
+            </div>
         `;
-        tbody.appendChild(tr);
+        lista.appendChild(li);
     });
     pedido.total = total;
     document.getElementById('totalPedido').textContent = '$' + total.toFixed(2);
 }
 
-function eliminarProducto(button) {
-    const tr = button.closest('tr');
-    const id = tr.querySelector('td[data-id]').getAttribute('data-id');
-    const comentario = tr.children[3].textContent;
-    pedido.productos = pedido.productos.filter(p => !(p.id == id && p.comentario == comentario));
+function cambiarCantidadUsuarioMesa(index, delta) {
+    if (!pedido.productos[index]) return;
+    pedido.productos[index].cantidad += delta;
+    if (pedido.productos[index].cantidad < 1) {
+        pedido.productos[index].cantidad = 1;
+    }
+    renderPedido();
+}
+
+function eliminarProductoUsuarioMesa(index) {
+    pedido.productos.splice(index, 1);
     renderPedido();
 }
 
@@ -387,11 +411,10 @@ function cargarResumenCompletoDelUsuario() {
                 console.log('Productos procesados:', todosLosProductos);
                 
                 const resumenHTML = `
-                    <div class="alert alert-success text-center mb-4">
+                    <div class="alert alert-success text-center mb-5">
                         <h4 class="alert-heading">
-                            <i class="fas fa-check-circle me-2"></i>¡Pedido Confirmado!
-                        </h4>
-                        <p class="mb-0">Su pedido está siendo procesado. Gracias por visitarnos.</p>
+                            <i class="fas fa-check-circle me-2"></i>¡Pedido Confirmado!</h4>
+                        <p class="mb-0">Su pedido está siendo preparado. Pronto lo recibiras en la mesa... Gracias por visitarnos!!!.</p>
                     </div>
                     <div class="card shadow-lg border-0 rounded-4 bg-light mb-4">
                         <div class="card-header bg-success text-white">
@@ -400,36 +423,27 @@ function cargarResumenCompletoDelUsuario() {
                             </h5>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                    <thead class="table-success">
-                                        <tr>
-                                            <th>Producto</th>
-                                            <th>Cantidad</th>
-                                            <th>Precio</th>
-                                            <th>Observaciones</th>
-                                            <th>Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${todosLosProductos.map(p => `
-                                            <tr>
-                                                <td>${p.nombre}</td>
-                                                <td>${p.cantidad}</td>
-                                                <td>$${p.precio.toFixed(2)}</td>
-                                                <td>${p.comentario || '-'}</td>
-                                                <td>$${(p.cantidad * p.precio).toFixed(2)}</td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                    <tfoot class="table-success">
-                                        <tr>
-                                            <th colspan="4" class="text-end">Total General:</th>
-                                            <th>$${totalGeneral.toFixed(2)}</th>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
+                            <ul class="list-group mb-3">
+                                ${todosLosProductos.map((producto) => {
+                                    const subtotal = producto.precio * producto.cantidad;
+                                    return `
+                                    <li class='list-group-item d-flex justify-content-between align-items-center'>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold">${producto.nombre}</div>
+                                            <div class="text-muted small">${producto.comentario ? producto.comentario : 'sin obs.'}</div>
+                                            <div class="fw-semibold">$${producto.precio.toFixed(2)} x ${producto.cantidad}</div>
+                                        </div>
+                                        <div class="d-flex flex-column align-items-end ms-3">
+                                            <div class="mb-2">$${subtotal.toFixed(2)}</div>
+                                        </div>
+                                    </li>
+                                    `;
+                                }).join('')}
+                                <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
+                                    <strong>Total</strong>
+                                    <strong>$${totalGeneral.toFixed(2)}</strong>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 `;
@@ -454,11 +468,11 @@ function cargarResumenCompletoDelUsuario() {
 }
 
 function mostrarResumenPedidoActual() {
+    let total = pedido.total || 0;
     const resumenHTML = `
-        <div class="alert alert-success text-center mb-4">
+        <div class="alert alert-success text-center mb-5">
             <h4 class="alert-heading">
-                <i class="fas fa-check-circle me-2"></i>¡Pedido Confirmado!
-            </h4>
+                <i class="fas fa-check-circle me-2"></i>¡Pedido Confirmado!</h4>
             <p class="mb-0">Su pedido está siendo procesado. Gracias por visitarnos.</p>
         </div>
         <div class="card shadow-lg border-0 rounded-4 bg-light mb-4">
@@ -468,36 +482,27 @@ function mostrarResumenPedidoActual() {
                 </h5>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead class="table-success">
-                            <tr>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Precio</th>
-                                <th>Observaciones</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${pedido.productos.map(p => `
-                                <tr>
-                                    <td>${p.nombre}</td>
-                                    <td>${p.cantidad}</td>
-                                    <td>$${p.precio.toFixed(2)}</td>
-                                    <td>${p.comentario || '-'}</td>
-                                    <td>$${(p.cantidad * p.precio).toFixed(2)}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                        <tfoot class="table-success">
-                            <tr>
-                                <th colspan="4" class="text-end">Total:</th>
-                                <th>$${pedido.total.toFixed(2)}</th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                <ul class="list-group mb-3">
+                    ${pedido.productos.map((producto) => {
+                        const subtotal = producto.precio * producto.cantidad;
+                        return `
+                        <li class='list-group-item d-flex justify-content-between align-items-center'>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">${producto.nombre}</div>
+                                <div class="text-muted small">${producto.comentario ? producto.comentario : 'sin obs.'}</div>
+                                <div class="fw-semibold">$${producto.precio.toFixed(2)} x ${producto.cantidad}</div>
+                            </div>
+                            <div class="d-flex flex-column align-items-end ms-3">
+                                <div class="mb-2">$${subtotal.toFixed(2)}</div>
+                            </div>
+                        </li>
+                        `;
+                    }).join('')}
+                    <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
+                        <strong>Total</strong>
+                        <strong>$${total.toFixed(2)}</strong>
+                    </li>
+                </ul>
             </div>
         </div>
     `;
@@ -639,6 +644,18 @@ document.addEventListener('DOMContentLoaded', function() {
     window.mostrarHistorialPedidos = mostrarHistorialPedidos;
     window.cargarResumenCompletoDelUsuario = cargarResumenCompletoDelUsuario;
     window.mostrarResumenPedidoActual = mostrarResumenPedidoActual;
+
+    const buscador = document.querySelector("#buscadorProductos");
+    if (buscador) {
+        buscador.addEventListener("input", function () {
+            const filtro = buscador.value.toLowerCase();
+            const productos = document.querySelectorAll("#productosContainer .card");
+            productos.forEach(card => {
+                const nombre = card.querySelector("h5").textContent.toLowerCase();
+                card.parentElement.style.display = nombre.includes(filtro) ? "" : "none";
+            });
+        });
+    }
 });
 
 // Bloquear el botón atrás si el pedido fue confirmado
@@ -659,4 +676,18 @@ window.addEventListener('popstate', function(event) {
             showConfirmButton: false
         });
     }
-}); 
+});
+
+// Función para mostrar/ocultar contraseña (migrada desde el HTML)
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input && btn) {
+        if (input.type === "password") {
+            input.type = "text";
+            btn.textContent = "🙈";
+        } else {
+            input.type = "password";
+            btn.textContent = "👁";
+        }
+    }
+} 

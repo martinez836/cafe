@@ -24,20 +24,26 @@ try {
         $id = $producto['idproductos'];
         $nombre = $producto['nombre_producto'];
         $precio = $producto['precio_producto'];
+        $stock = isset($producto['stock_producto']) ? $producto['stock_producto'] : null;
         $html .= '<div class="col-md-4 mb-4">
             <div class="card h-100" data-id="' . $id . '">
                 <div class="card-body">
-                    <h5 class="card-title">' . htmlspecialchars($nombre) . '</h5>
-                    <p class="card-text">$' . number_format($precio, 2) . '</p>
-                    <div class="input-group mb-3">
-                        <input type="number" class="form-control" min="1" value="1">
-                        <button class="btn btn-primary" data-precio="' . $precio . '">
-                            Agregar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>';
+                    <h5 class="card-title">' . htmlspecialchars($nombre) . '</h5>';
+        if ($stock !== null) {
+            $html .= '<p class="card-text mb-1"><span class="badge bg-secondary">Stock: ' . (int)$stock . '</span></p>';
+        }
+        $html .= '<p class="card-text">$' . number_format($precio, 2) . '</p>';
+        if ($stock === null || $stock > 0) {
+            $html .= '<div class="input-group mb-3">
+                <input type="number" class="form-control" min="1" value="1">
+                <button class="btn btn-primary" data-precio="' . $precio . '">
+                    Agregar
+                </button>
+            </div>';
+        } else {
+            $html .= '<div class="alert alert-warning py-1 px-2 mb-0">Sin stock</div>';
+        }
+        $html .= '</div></div></div>';
     }
     echo json_encode([
         'success' => true,
