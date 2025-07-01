@@ -1,12 +1,28 @@
 <?php
 require_once '../config/config.php';
+require_once '../config/security.php';
+require_once '../models/consultas.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Conexión a la base de datos
-$mysqli = new mysqli('localhost', 'root', '', 'bd_cafe');
-if ($mysqli->connect_error) {
-    die('Conexión fallida: ' . $mysqli->connect_error);
+// Sanitizar parámetros GET
+$correo = '';
+$codigo = '';
+$token_valido = false;
+
+if (isset($_GET['correo']) && isset($_GET['codigo'])) {
+    try {
+        $correo = SecurityUtils::sanitizeEmail($_GET['correo']);
+        $codigo = SecurityUtils::sanitizeRecoveryCode($_GET['codigo']);
+        
+        // Usar la clase de consultas para validar el token
+        $pdo = config::conectar();
+        $consultas = new ConsultasMesero();
+        $token_data = $consultas->validarTokenRecuperacion($pdo, $correo, $codigo);
+        $token_valido = $token_data !== false;
+    } catch (Exception $e) {
+        $token_valido = false;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -33,30 +49,21 @@ if ($mysqli->connect_error) {
                         <h5 class="card-title mb-3">
                             <i class="fas fa-key me-2"></i>Restaurar Contraseña
                         </h5>
-                        <?php
-                        if (isset($_GET['correo']) && isset($_GET['codigo'])) {
-                            $correo = $_GET['correo'];
-                            $codigo = $_GET['codigo'];
-                            $stmt = $mysqli->prepare("SELECT * FROM recuperacion WHERE correo_recuperacion = ? AND codigo_recuperacion = ?");
-                            $stmt->bind_param("ss", $correo, $codigo);
-                            $stmt->execute();
-                            $resultado = $stmt->get_result();
-                            if ($resultado->num_rows > 0) {
-                        ?>
+                        <?php if ($token_valido): ?>
                         <form id="formNuevaContrasena">
-                            <input type="hidden" name="correo" value="<?php echo htmlspecialchars($correo); ?>">
-                            <input type="hidden" name="codigo" value="<?php echo htmlspecialchars($codigo); ?>">
+                            <input type="hidden" name="correo" value="<?php echo SecurityUtils::escapeHtml($correo); ?>">
+                            <input type="hidden" name="codigo" value="<?php echo SecurityUtils::escapeHtml($codigo); ?>">
                             <div class="mb-4">
                                 <label for="nueva_contrasena" class="form-label fw-semibold">Nueva Contraseña:</label>
                                 <div class="input-group">
-                                    <input type="password" name="nueva_contrasena" id="nueva_contrasena" class="form-control" required>
+                                    <input type="password" name="nueva_contrasena" id="nueva_contrasena" class="form-control" required minlength="5" maxlength="255">
                                     <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('nueva_contrasena', this)" title="Mostrar/Ocultar contraseña">👁</button>
                                 </div>
                             </div>
                             <div class="mb-4">
                                 <label for="confirmar_contrasena" class="form-label fw-semibold">Confirmar Contraseña:</label>
                                 <div class="input-group">
-                                    <input type="password" name="confirmar_contrasena" id="confirmar_contrasena" class="form-control" required>
+                                    <input type="password" name="confirmar_contrasena" id="confirmar_contrasena" class="form-control" required minlength="5" maxlength="255">
                                     <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('confirmar_contrasena', this)" title="Mostrar/Ocultar contraseña">👁</button>
                                 </div>
                             </div>
@@ -66,14 +73,9 @@ if ($mysqli->connect_error) {
                                 </button>
                             </div>
                         </form>
-                        <?php
-                            } else {
-                                echo '<div class="alert alert-danger text-center">El enlace de recuperación ha expirado o es inválido.</div>';
-                            }
-                        } else {
-                            echo '<div class="alert alert-danger text-center">Faltan los parámetros necesarios.</div>';
-                        }
-                        ?>
+                        <?php else: ?>
+                            <div class="alert alert-danger text-center">El enlace de recuperación ha expirado o es inválido.</div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -81,75 +83,6 @@ if ($mysqli->connect_error) {
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function togglePassword(inputId, btn) {
-            const input = document.getElementById(inputId);
-            if (input.type === "password") {
-                input.type = "text";
-                btn.textContent = "🙈";
-            } else {
-                input.type = "password";
-                btn.textContent = "👁";
-            }
-        }
-        const form = document.getElementById('formNuevaContrasena');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const password = document.getElementById('nueva_contrasena').value;
-                const confirm = document.getElementById('confirmar_contrasena').value;
-                if (password.length < 5) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Contraseña muy corta',
-                        text: 'La contraseña debe tener al menos 5 caracteres.',
-                        confirmButtonColor: '#3085d6'
-                    });
-                    return;
-                }
-                if (password !== confirm) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Las contraseñas no coinciden',
-                        text: 'Por favor, asegúrate de que ambas contraseñas sean iguales.',
-                        confirmButtonColor: '#3085d6'
-                    });
-                    return;
-                }
-                fetch('../controllers/actualizar_contrasena.php', {
-                    method: 'POST',
-                    body: new FormData(this)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Contraseña Actualizada!',
-                            text: data.message || 'Tu contraseña ha sido actualizada exitosamente.',
-                            confirmButtonColor: '#3085d6'
-                        }).then(() => {
-                            window.location.href = './InicioSesion.php';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: data.message || 'Hubo un error al actualizar la contraseña.',
-                            confirmButtonColor: '#3085d6'
-                        });
-                    }
-                })
-                .catch(error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Hubo un error al procesar tu solicitud.',
-                        confirmButtonColor: '#3085d6'
-                    });
-                });
-            });
-        }
-    </script>
+    <script src="../assets/js/appNuevaContrasena.js"></script>
 </body>
 </html> 

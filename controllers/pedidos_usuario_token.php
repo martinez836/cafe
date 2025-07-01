@@ -1,32 +1,36 @@
 <?php
 require_once '../models/consultas.php';
 require_once '../config/config.php';
+require_once '../config/security.php';
 
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    
-    if (!isset($data['mesa_id']) || !isset($data['token'])) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Datos incompletos: mesa_id y token son requeridos'
-        ]);
-        exit;
-    }
-    
     try {
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        // Validar que los datos JSON sean válidos
+        $data = SecurityUtils::sanitizeJsonData($data);
+        
+        // Validar campos requeridos
+        SecurityUtils::validateRequiredKeys($data, ['mesa_id', 'token']);
+        
+        // Sanitizar entradas
+        $mesa_id = SecurityUtils::sanitizeId($data['mesa_id'], 'ID de mesa');
+        $token = SecurityUtils::sanitizeToken($data['token']);
+        
         $pdo = config::conectar();
         $consultas = new ConsultasMesero();
-        $pedidos = $consultas->traerPedidosPorMesaYToken($pdo, $data['mesa_id'], $data['token']);
+        $pedidos = $consultas->traerPedidosPorMesaYToken($pdo, $mesa_id, $token);
         $resultado = [];
+        
         foreach ($pedidos as $pedido) {
             $productos = $consultas->traerDetallePedido($pdo, $pedido['idpedidos']);
             $resultado[] = [
-                'pedido_id' => $pedido['idpedidos'],
-                'fecha_hora' => $pedido['fecha_hora_pedido'],
-                'total_pedido' => $pedido['total_pedido'],
-                'token_utilizado' => $pedido['token_utilizado'],
+                'pedido_id' => (int)$pedido['idpedidos'],
+                'fecha_hora' => SecurityUtils::escapeHtml($pedido['fecha_hora_pedido']),
+                'total_pedido' => (float)$pedido['total_pedido'],
+                'token_utilizado' => SecurityUtils::escapeHtml($pedido['token_utilizado']),
                 'productos' => $productos
             ];
         }
@@ -35,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'success' => true,
             'pedidos' => $resultado,
             'debug' => [
-                'mesa_id' => $data['mesa_id'],
-                'token' => $data['token'],
+                'mesa_id' => $mesa_id,
+                'token' => SecurityUtils::escapeHtml($token),
                 'pedidos_encontrados' => count($resultado)
             ]
         ]);

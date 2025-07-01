@@ -1,16 +1,18 @@
 <?php
 require_once '../models/consultas.php';
+require_once '../config/security.php';
 header('Content-Type: application/json');
+
 try {
-    if (!isset($_POST['idcategorias']) || empty($_POST['idcategorias'])) {
-        throw new Exception('Categoría no válida');
-    }
-    $categoria = filter_var($_POST['idcategorias'], FILTER_SANITIZE_NUMBER_INT);
-    if (!$categoria) {
-        throw new Exception('ID de categoría inválido');
-    }
+    // Validar campo requerido
+    SecurityUtils::validateRequiredKeys($_POST, ['idcategorias']);
+    
+    // Sanitizar y validar entrada
+    $categoria = SecurityUtils::sanitizeId($_POST['idcategorias'], 'ID de categoría');
+    
     $consultas = new ConsultasMesero();
     $productos = $consultas->traer_productos_por_categoria($categoria);
+    
     if (!$productos || $productos->rowCount() === 0) {
         echo json_encode([
             'success' => false,
@@ -19,20 +21,25 @@ try {
         ]);
         exit;
     }
+    
     $html = '';
     foreach ($productos as $producto) {
-        $id = $producto['idproductos'];
-        $nombre = $producto['nombre_producto'];
-        $precio = $producto['precio_producto'];
-        $stock = isset($producto['stock_producto']) ? $producto['stock_producto'] : null;
+        $id = (int)$producto['idproductos'];
+        $nombre = SecurityUtils::escapeHtml($producto['nombre_producto']);
+        $precio = (float)$producto['precio_producto'];
+        $stock = isset($producto['stock_producto']) ? (int)$producto['stock_producto'] : null;
+        
         $html .= '<div class="col-md-4 mb-4">
             <div class="card h-100" data-id="' . $id . '">
                 <div class="card-body">
-                    <h5 class="card-title">' . htmlspecialchars($nombre) . '</h5>';
+                    <h5 class="card-title">' . $nombre . '</h5>';
+        
         if ($stock !== null) {
-            $html .= '<p class="card-text mb-1"><span class="badge bg-secondary">Stock: ' . (int)$stock . '</span></p>';
+            $html .= '<p class="card-text mb-1"><span class="badge bg-secondary">Stock: ' . $stock . '</span></p>';
         }
+        
         $html .= '<p class="card-text">$' . number_format($precio, 2) . '</p>';
+        
         if ($stock === null || $stock > 0) {
             $html .= '<div class="input-group mb-3">
                 <input type="number" class="form-control" min="1" value="1">
@@ -43,8 +50,10 @@ try {
         } else {
             $html .= '<div class="alert alert-warning py-1 px-2 mb-0">Sin stock</div>';
         }
+        
         $html .= '</div></div></div>';
     }
+    
     echo json_encode([
         'success' => true,
         'html' => $html
@@ -53,6 +62,6 @@ try {
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage(),
-        'html' => '<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>' . htmlspecialchars($e->getMessage()) . '</div>'
+        'html' => '<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>' . SecurityUtils::escapeHtml($e->getMessage()) . '</div>'
     ]);
 }

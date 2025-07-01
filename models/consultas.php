@@ -100,6 +100,26 @@ class ConsultasMesero
         $stmt->execute([$mesaId]);
     }
 
+    // FUNCIONES FALTANTES PARA CONFIRMAR PEDIDO
+    public function traerDetallePedidoPorProducto($pdo, $pedidoId, $productoId) {
+        $stmt = $pdo->prepare("SELECT iddetalle_pedidos, cantidad_producto as cantidad FROM detalle_pedidos WHERE pedidos_idpedidos = ? AND productos_idproductos = ?");
+        $stmt->execute([$pedidoId, $productoId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function actualizarCantidadDetallePedido($pdo, $pedidoId, $productoId, $nuevaCantidad) {
+        $stmt = $pdo->prepare("UPDATE detalle_pedidos SET cantidad_producto = ?, subtotal = precio_producto * ? WHERE pedidos_idpedidos = ? AND productos_idproductos = ?");
+        $stmt->execute([$nuevaCantidad, $nuevaCantidad, $pedidoId, $productoId]);
+        return $stmt->rowCount();
+    }
+
+    public function calcularTotalPedido($pdo, $pedidoId) {
+        $stmt = $pdo->prepare("SELECT SUM(subtotal) as total FROM detalle_pedidos WHERE pedidos_idpedidos = ?");
+        $stmt->execute([$pedidoId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['total'] ?? 0;
+    }
+
     // TOKENS
     public function obtenerTokensPorMesa($pdo, $mesaId) {
         $stmt = $pdo->prepare("SELECT idtoken_mesa, token, fecha_hora_generacion, fecha_hora_expiracion, estado_token FROM tokens_mesa WHERE mesas_idmesas = ? ORDER BY fecha_hora_generacion DESC");
@@ -107,7 +127,7 @@ class ConsultasMesero
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function obtenerTokensActivosConMesa($pdo) {
+    public function traerTokensActivos($pdo) {
         $stmt = $pdo->query("SELECT t.token, t.fecha_hora_generacion, t.fecha_hora_expiracion, t.estado_token, m.nombre as mesa_nombre, m.idmesas FROM tokens_mesa t JOIN mesas m ON t.mesas_idmesas = m.idmesas WHERE t.estado_token = 'activo' AND t.fecha_hora_expiracion > NOW() ORDER BY t.fecha_hora_generacion DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -212,6 +232,27 @@ class ConsultasMesero
     public function liberarPedidoPorId($pdo, $pedido_id) {
         $stmt = $pdo->prepare("UPDATE pedidos SET estados_idestados = 4 WHERE idpedidos = ?");
         $stmt->execute([$pedido_id]);
+        return $stmt->rowCount();
+    }
+
+    // RECUPERACIÓN DE CONTRASEÑA: Validar token de recuperación
+    public function validarTokenRecuperacion($pdo, $correo, $codigo) {
+        $stmt = $pdo->prepare("SELECT * FROM recuperacion WHERE correo_recuperacion = ? AND codigo_recuperacion = ?");
+        $stmt->execute([$correo, $codigo]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // RECUPERACIÓN DE CONTRASEÑA: Eliminar token usado
+    public function eliminarTokenRecuperacion($pdo, $correo, $codigo) {
+        $stmt = $pdo->prepare("DELETE FROM recuperacion WHERE correo_recuperacion = ? AND codigo_recuperacion = ?");
+        $stmt->execute([$correo, $codigo]);
+        return $stmt->rowCount();
+    }
+
+    // RECUPERACIÓN DE CONTRASEÑA: Actualizar contraseña de usuario
+    public function actualizarContrasenaUsuario($pdo, $correo, $nueva_contrasena_hash) {
+        $stmt = $pdo->prepare("UPDATE usuarios SET contrasena_usuario = ? WHERE email_usuario = ?");
+        $stmt->execute([$nueva_contrasena_hash, $correo]);
         return $stmt->rowCount();
     }
 

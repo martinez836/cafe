@@ -1,14 +1,22 @@
 <?php
 require_once '../models/consultas.php';
 require_once '../config/config.php';
+require_once '../config/security.php';
 
 header('Content-Type: application/json');
 
 try {
     $data = json_decode(file_get_contents('php://input'), true);
-    if (!isset($data['mesa'])) throw new Exception('Mesa no especificada');
-    $mesa = $data['mesa'];
-    $pedido_id = isset($data['pedido_id']) ? $data['pedido_id'] : null;
+    
+    // Validar que los datos JSON sean válidos
+    $data = SecurityUtils::sanitizeJsonData($data);
+    
+    // Validar campo requerido
+    SecurityUtils::validateRequiredKeys($data, ['mesa']);
+    
+    // Sanitizar entradas
+    $mesa = SecurityUtils::sanitizeId($data['mesa'], 'ID de mesa');
+    $pedido_id = isset($data['pedido_id']) ? SecurityUtils::sanitizeId($data['pedido_id'], 'ID de pedido') : null;
 
     $pdo = config::conectar();
     $consultas = new ConsultasMesero();

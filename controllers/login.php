@@ -1,26 +1,40 @@
 <?php
 require_once '../models/consultas.php';
 require_once '../config/config.php';
+require_once '../config/security.php';
 session_start();
 
 header('Content-Type: application/json');
 
 try {
     $data = json_decode(file_get_contents('php://input'), true);
-    if (!isset($data['correo']) || !isset($data['contrasena'])) {
-        throw new Exception('Datos incompletos');
-    }
+    
+    // Validar que los datos JSON sean válidos
+    $data = SecurityUtils::sanitizeJsonData($data);
+    
+    // Validar campos requeridos
+    SecurityUtils::validateRequiredKeys($data, ['correo', 'contrasena']);
+    
+    // Sanitizar y validar entradas
+    $correo = SecurityUtils::sanitizeEmail($data['correo']);
+    $contrasena = SecurityUtils::sanitizePassword($data['contrasena']);
+    
     $pdo = config::conectar();
     $consultas = new ConsultasMesero();
-    $usuario = $consultas->verificarCredencialesUsuario($pdo, $data['correo'], $data['contrasena']);
+    $usuario = $consultas->verificarCredencialesUsuario($pdo, $correo, $contrasena);
+    
     if ($usuario) {
         // Guardar datos mínimos en sesión
         $_SESSION['usuario'] = [
             'id' => $usuario['idusuarios'],
-            'nombre' => $usuario['nombre_usuario'],
-            'email' => $usuario['email_usuario'],
-            'rol' => $usuario['rol_idrol']
+            'nombre' => SecurityUtils::escapeHtml($usuario['nombre_usuario']),
+            'email' => SecurityUtils::escapeHtml($usuario['email_usuario']),
+            'rol' => (int)$usuario['rol_idrol']
         ];
+        
+        // Generar token CSRF para la sesión
+        SecurityUtils::generateCSRFToken();
+        
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Correo o contraseña incorrectos']);
