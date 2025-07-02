@@ -32,6 +32,16 @@ try {
             $response = ['success' => true, 'data' => $data];
             break;
 
+        case 'get_mesas_por_empleado':
+            $data = $consultas->getMesasPorEmpleado();
+            $response = ['success' => true, 'data' => $data];
+            break;
+
+        case 'get_cantidad_mesas_por_empleado':
+            $data = $consultas->getCantidadMesasPorEmpleado();
+            $response = ['success' => true, 'data' => $data];
+            break;
+
         default:
             $response = ['success' => false, 'message' => 'Invalid action provided.'];
             break;

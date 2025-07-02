@@ -7,6 +7,8 @@
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/productos.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="../../assets/css/notificaciones.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -53,7 +55,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="pedidos.php">
-                    <i class="fas fa-receipt me-2"></i>Pedidos
+                    <i class="fas fa-receipt me-2"></i>Ventas
                 </a>
             </li>
             <li class="nav-item">
@@ -129,6 +131,7 @@
                                 <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Precio</th>
+                                <th>Stock</th>
                                 <th>Categoría</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
@@ -162,7 +165,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="productStock" class="form-label">Stock</label>
-                                <input type="number" class="form-control" placeholder="Dejar nulo si no ejerce Stock" id="productStock" required>
+                                <input type="number" class="form-control" placeholder="Cantidad disponible (opcional)" id="productStock" min="0">
                             </div>
                             <div class="mb-3">
                                 <label for="productCategory" class="form-label">Categoría</label>
@@ -173,8 +176,8 @@
                             <div class="mb-3">
                                 <label for="productEstado" class="form-label">Estado</label>    
                                 <select class="form-control" id="productEstado" required>
-                                    <option value="1">Activo</option>
-                                    <option value="2">Inactivo</option>
+                                    <option value="5">Activo</option>
+                                    <option value="6">Inactivo</option>
                                 </select>
                             </div>
                         </form>
@@ -194,5 +197,7 @@
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
     <script src="../../assets/js/appProductos.js"></script>
+    <script src="../../assets/js/notificacionesStock.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

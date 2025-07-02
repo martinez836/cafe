@@ -52,6 +52,27 @@ class ConsultasGraficas
                 ORDER BY año;";
         return $this->mysql->efectuarConsulta($sql);
     }
+
+    public function getMesasPorEmpleado() {
+        $sql = "SELECT
+                usuarios.nombre_usuario AS usuarios,
+                SUM(detalle_pedidos.precio_producto * detalle_pedidos.cantidad_producto) AS total_ingresos
+                FROM detalle_pedidos
+                JOIN pedidos ON pedidos.idpedidos = detalle_pedidos.pedidos_idpedidos
+                JOIN usuarios ON pedidos.usuarios_idusuarios = usuarios.idusuarios
+                GROUP BY usuarios.nombre_usuario
+                ORDER BY total_ingresos DESC;";
+        return $this->mysql->efectuarConsulta($sql);
+    }
+
+    public function getCantidadMesasPorEmpleado() {
+        $sql = "SELECT usuarios.nombre_usuario AS usuario, COUNT(DISTINCT pedidos.mesas_idmesas) AS cantidad_mesas
+                FROM pedidos
+                JOIN usuarios ON pedidos.usuarios_idusuarios = usuarios.idusuarios
+                GROUP BY usuarios.nombre_usuario
+                ORDER BY cantidad_mesas DESC;";
+        return $this->mysql->efectuarConsulta($sql);
+    }
 }
 
 ?>

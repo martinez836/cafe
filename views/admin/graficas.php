@@ -6,6 +6,7 @@
     <title>Gráficas - Tienda de Café</title>
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet"  href="../../assets/css/graficas.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -93,7 +94,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="pedidos.php">
-                        <i class="fas fa-receipt me-2"></i>Pedidos
+                        <i class="fas fa-receipt me-2"></i>Ventas
                     </a>
                 </li>
                 <li class="nav-item">
@@ -117,7 +118,7 @@
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-chart-bar me-2"></i>Ventas por Categoría
+                        <i class="fas fa-chart-bar me-2"></i>Recaudo Mensual
                     </div>
                     <div class="card-body">
                         <canvas id="ventasCategoriaChart"></canvas>
@@ -137,20 +138,20 @@
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-chart-line me-2"></i>Tendencia de Pedidos (Mensual)
+                        <i class="fas fa-chart-line me-2"></i>Ingresos por empleado
                     </div>
                     <div class="card-body">
-                        <canvas id="tendenciaPedidosChart"></canvas>
+                        <canvas id="ingresosEmpleadoChart"></canvas>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-chart-area me-2"></i>Ingresos Anuales
+                        <i class="fas fa-chart-line me-2"></i>Mesas atendidas por empleado
                     </div>
                     <div class="card-body">
-                        <canvas id="ingresosAnualesChart"></canvas>
+                        <canvas id="mesasEmpleadoChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -161,5 +162,6 @@
     <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../assets/js/appGraficas.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

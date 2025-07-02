@@ -20,7 +20,7 @@ class ConsultasCocina
                     pedidos.idpedidos, 
                     pedidos.fecha_hora_pedido, 
                     mesas.nombre AS nombre_mesa, 
-                    GROUP_CONCAT(CONCAT(detalle_pedidos.cantidad_producto, 'x ', productos.nombre_producto, ' (', IFNULL(detalle_pedidos.producto, ''), ')') SEPARATOR ' || ') AS items_list, 
+                    GROUP_CONCAT(CONCAT(detalle_pedidos.cantidad_producto, 'x ', productos.nombre_producto, ' (', IFNULL(detalle_pedidos.observaciones, ''), ')') SEPARATOR ' || ') AS items_list, 
                     pedidos.estados_idestados as status_id 
                 FROM pedidos JOIN detalle_pedidos ON pedidos.idpedidos = detalle_pedidos.pedidos_idpedidos 
                 JOIN productos ON detalle_pedidos.productos_idproductos = productos.idproductos 
@@ -69,7 +69,7 @@ class ConsultasCocina
                     SELECT
                         detalle_pedidos.cantidad_producto,
                         productos.nombre_producto,
-                        detalle_pedidos.producto AS observaciones
+                        detalle_pedidos.observaciones AS observaciones
                     FROM detalle_pedidos
                     JOIN productos ON detalle_pedidos.productos_idproductos = productos.idproductos
                     WHERE detalle_pedidos.pedidos_idpedidos = ?

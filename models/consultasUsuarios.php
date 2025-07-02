@@ -15,9 +15,16 @@ class ConsultasUsuarios
     public function getAllUsuarios() {
         try {
             // Asumiendo que la tabla de usuarios se llama 'usuarios' y tiene campos como idusuarios, nombre_usuario, email_usuario, rol_idrol
-            $sql = "SELECT usuarios.idusuarios, usuarios.nombre_usuario, usuarios.email_usuario, roles.nombre_rol, roles.idrol,usuarios.estados_idestados,usuarios.rol_idrol
-                        FROM usuarios JOIN roles ON 
-                        usuarios.rol_idrol = roles.idrol where usuarios.estados_idestados = 1;";
+            $sql = "SELECT usuarios.idusuarios,
+                estados.estado, 
+                usuarios.nombre_usuario, 
+                usuarios.email_usuario, 
+                roles.nombre_rol, 
+                roles.idrol,
+                usuarios.estados_idestados,
+                usuarios.rol_idrol
+                FROM usuarios
+                JOIN roles ON usuarios.rol_idrol = roles.idrol JOIN estados ON usuarios.estados_idestados = estados.idestados WHERE usuarios.estados_idestados = 1;";
             return $this->mysql->efectuarConsulta($sql);
         } catch (Exception $e) {
             error_log("Error getAllUsuarios: " . $e->getMessage());
@@ -36,13 +43,25 @@ class ConsultasUsuarios
         }
     }
 
-    public function insertarUsuarios($nombre_usuario,$contrasena_usuario,$email_usuario,$rol_idrol)
+    public function traerEstados()
+    {
+        try {
+            // Asumiendo que la tabla de estados se llama 'estados' y tiene campos como idestados, nombre_estado
+            $sql = "SELECT idestados,estado FROM estados";
+            return $this->mysql->efectuarConsulta($sql);
+        } catch (Exception $e) {
+            error_log("Error traerEstados: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function insertarUsuarios($nombre_usuario,$contrasena_usuario,$email_usuario,$rol_idrol,$estado_idestado)
     {
         try {
             //code...
             $sql = "insert into usuarios(nombre_usuario,contrasena_usuario,email_usuario,estados_idestados,rol_idrol)
             values (?,?,?,?,?)";
-            $parametros = [$nombre_usuario, $contrasena_usuario, $email_usuario, 1, $rol_idrol];
+            $parametros = [$nombre_usuario, $contrasena_usuario, $email_usuario, $estado_idestado, $rol_idrol];
             $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, "sssii", $parametros);
             if ($stmt->rowCount() > 0) {
                 return true; // Usuario insertado correctamente
@@ -76,12 +95,12 @@ class ConsultasUsuarios
         }
     }
 
-    public function editarUsuario($id,$nombre,$email,$rol)
+    public function editarUsuario($id,$nombre,$email,$rol,$estado)
     {
         try {
-            $sql = "update usuarios set nombre_usuario = ?, email_usuario = ?, rol_idrol = ? where idusuarios = ?";
-            $parametros = [$nombre,$email,$rol,$id];
-            $stm = $this->mysql->ejecutarSentenciaPreparada($sql,'ssii', $parametros);  
+            $sql = "update usuarios set nombre_usuario = ?, email_usuario = ?, rol_idrol = ?, estados_idestados = ? where idusuarios = ?";
+            $parametros = [$nombre,$email,$rol,$estado,$id];
+            $stm = $this->mysql->ejecutarSentenciaPreparada($sql,'ssiii', $parametros);  
             if($stm->rowCount() > 0)
             {
                 return true;

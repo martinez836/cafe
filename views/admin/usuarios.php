@@ -55,7 +55,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="pedidos.php">
-                    <i class="fas fa-receipt me-2"></i>Pedidos
+                    <i class="fas fa-receipt me-2"></i>Ventas
                 </a>
             </li>
             <li class="nav-item">
@@ -130,6 +130,7 @@
                                 <th>Nombre</th>
                                 <th>Email</th>
                                 <th>Rol</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -168,6 +169,12 @@
                             <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Rol</label><br>
                                 <select id="rolUsuario">
+
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Estado</label><br>
+                                <select id="estadoUsuario">
 
                                 </select>
                             </div>

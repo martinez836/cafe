@@ -101,3 +101,12 @@ function eliminarProducto(index) {
   actualizarLista();
   // Aquí se podría marcar la mesa como ocupada en la DB
 } */
+
+function showSwalError(msg) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: msg || 'Ocurrió un error.',
+        confirmButtonText: 'Aceptar'
+    });
+}

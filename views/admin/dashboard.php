@@ -6,6 +6,8 @@
     <title>Admin Dashboard - Tienda de Café</title>
     <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet"  href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../../assets/css/notificaciones.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -20,6 +22,14 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="#">Bienvenido, Admin</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="#" id="btnNotificaciones" title="Notificaciones de Stock">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="badgeNotificaciones" style="display: none;">
+                                0
+                            </span>
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
@@ -55,7 +65,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="pedidos.php">
-                    <i class="fas fa-receipt me-2"></i>Pedidos
+                    <i class="fas fa-receipt me-2"></i>Ventas
                 </a>
             </li>
             <li class="nav-item">
@@ -163,6 +173,26 @@
             </div>
         </div>
 
+        <!-- Alertas de Stock -->
+        <div class="row mb-4" id="alertasStock">
+            <div class="col-12">
+                <div class="card border-0">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Alertas de Stock
+                        </h5>
+                    </div>
+                    <div class="card-body" id="contenidoAlertasStock">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card mb-4">
             <div class="card-header">
                 <i class="fas fa-chart-area me-2"></i>Ventas Diarias
@@ -203,5 +233,7 @@
     <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../../assets/js/appDashboard.js"></script>
+    <script src="../../assets/js/notificacionesStock.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
