@@ -41,14 +41,18 @@ try {
             $estado_idestado = $_POST['estado_idestado'] ?? 5;
             $contrasenaEncriptada = password_hash($contrasena_usuario, PASSWORD_BCRYPT);
 
+            $debug = [];
+            $debug[] = "[DEBUG] Insertar usuario: nombre=$nombre_usuario, email=$email_usuario, estado=$estado_idestado, rol=$rol_idrol";
+
             if (empty($nombre_usuario) || empty($contrasena_usuario) || empty($email_usuario) || $rol_idrol <= 0) {
-                $response = ['success' => false, 'message' => 'Datos invalidos'];
+                $response = ['success' => false, 'message' => 'Datos invalidos', 'debug' => $debug];
             } else {
-                $insertar = $consultas->insertarUsuarios($nombre_usuario, $contrasenaEncriptada, $email_usuario, $rol_idrol, $estado_idestado);
+                $insertar = $consultas->insertarUsuarios($nombre_usuario, $contrasenaEncriptada, $email_usuario, $estado_idestado, $rol_idrol);
+                $debug[] = "[DEBUG] Resultado insertarUsuarios: " . ($insertar ? 'true' : 'false');
                 if ($insertar) {
-                    $response = ['success' => true, 'message' => 'Usuario creado exitosamente'];
+                    $response = ['success' => true, 'message' => 'Usuario creado exitosamente', 'debug' => $debug];
                 } else {
-                    $response = ['success' => false, 'message' => 'Fallo en crear el usuario'];
+                    $response = ['success' => false, 'message' => 'Fallo en crear el usuario', 'debug' => $debug];
                 }
             }
             break;

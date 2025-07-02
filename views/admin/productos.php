@@ -172,7 +172,7 @@
                                 <label for="productTipo" class="form-label">Tipo de producto</label>
                                 <select class="form-control" id="productTipo" required>
                                     <option value="1">Sin Stock</option>
-                                    <option value="2">Con stock</option>
+                                    <option value="2">Con Stock</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -184,8 +184,8 @@
                             <div class="mb-3">
                                 <label for="productEstado" class="form-label">Estado</label>    
                                 <select class="form-control" id="productEstado" required>
-                                    <option value="5">Activo</option>
-                                    <option value="6">Inactivo</option>
+                                    <option value="1">Activo</option>
+                                    <option value="2">Inactivo</option>
                                 </select>
                             </div>
                         </form>

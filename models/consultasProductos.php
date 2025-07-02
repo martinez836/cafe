@@ -39,7 +39,7 @@ class ConsultasProductos
     public function createProducto($data) {
         try {
             $sql = "INSERT INTO productos (nombre_producto, precio_producto, stock_producto, fk_categoria, tipo_producto_idtipo_producto, estados_idestados) 
-                    VALUES (?, ?, ?, ?, ?, 5)";
+                    VALUES (?, ?, ?, ?, ?, 1)";
             $params = [
                 $data['nombre'],
                 $data['precio'],
@@ -80,7 +80,7 @@ class ConsultasProductos
 
     public function deleteProducto($id) {
         try {
-            $sql = "UPDATE productos SET estados_idestados = 6 WHERE idproductos = ?";
+            $sql = "UPDATE productos SET estados_idestados = 2 WHERE idproductos = ?";
             $params = [$id];
             return $this->mysql->ejecutarSentenciaPreparada($sql, 'i', $params);
         } catch (Exception $e) {
@@ -95,7 +95,7 @@ class ConsultasProductos
             JOIN tipo_producto ON tipo_producto.idtipo_producto = productos.tipo_producto_idtipo_producto 
             WHERE productos.stock_producto IS NOT NULL 
             AND productos.stock_producto <= 10 
-            AND productos.estados_idestados = 5 
+            AND productos.estados_idestados = 1 
             AND productos.tipo_producto_idtipo_producto = 2 
             ORDER BY productos.stock_producto ASC; ";
             return $this->mysql->efectuarConsulta($sql);
@@ -110,7 +110,7 @@ class ConsultasProductos
             FROM productos LEFT JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
             JOIN tipo_producto ON tipo_producto.idtipo_producto = productos.tipo_producto_idtipo_producto 
             WHERE (productos.stock_producto IS NULL OR productos.stock_producto = 0) 
-            AND productos.estados_idestados = 5 
+            AND productos.estados_idestados = 1 
             AND productos.tipo_producto_idtipo_producto = 2 
             ORDER BY productos.nombre_producto ASC; ";
             return $this->mysql->efectuarConsulta($sql);
@@ -127,7 +127,7 @@ class ConsultasProductos
                         COUNT(CASE WHEN stock_producto IS NOT NULL AND stock_producto <= 10 AND stock_producto > 0 THEN 1 END) as bajo_stock,
                         COUNT(CASE WHEN stock_producto IS NULL OR stock_producto = 0 THEN 1 END) as sin_stock
                     FROM productos 
-                    WHERE estados_idestados = 5 AND tipo_producto_idtipo_producto = 2";
+                    WHERE estados_idestados = 1 AND tipo_producto_idtipo_producto = 2";
             return $this->mysql->efectuarConsulta($sql);
         } catch (Exception $e) {
             throw new Exception('Error al obtener resumen de stock: ' . $e->getMessage());

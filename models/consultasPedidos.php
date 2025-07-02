@@ -20,7 +20,7 @@ class ConsultasPedidos
                     pedidos.fecha_hora_pedido,
                     mesas.nombre AS nombre_mesa,
                     estados.estado AS estado_pedido,
-                    usuarios.nombre_usuario AS nombre_usuario -- Usar el nombre de columna correcto de la tabla usuarios
+                    usuarios.nombre_usuario AS nombre_usuario
                 FROM pedidos
                 JOIN mesas ON pedidos.mesas_idmesas = mesas.idmesas
                 JOIN estados ON pedidos.estados_idestados = estados.idestados
@@ -66,7 +66,7 @@ class ConsultasPedidos
                     detalle_pedidos.cantidad_producto,
                     detalle_pedidos.precio_producto,
                     detalle_pedidos.subtotal,
-                    detalle_pedidos.producto AS observaciones,
+                    detalle_pedidos.observaciones AS observaciones,
                     productos.nombre_producto
                 FROM detalle_pedidos
                 JOIN productos ON detalle_pedidos.productos_idproductos = productos.idproductos

@@ -140,10 +140,10 @@ function cargarEstados(idSeleccionado = null)
             {
                 const formData = new FormData();
                 formData.append('nombre_usuario', nombreUsuario.value);
-                formData.append('email_usuario', emailUsuario.value);
                 formData.append('contrasena_usuario', contrasenaUsuario.value);
-                formData.append('rol_idrol', idRol);
+                formData.append('email_usuario', emailUsuario.value);
                 formData.append('estado_idestado', idEstado);
+                formData.append('rol_idrol', idRol);
 
                 fetch('../../controllers/admin/usuarios.php?action=crear_usuario', {
                     method: 'POST',
