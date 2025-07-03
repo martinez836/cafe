@@ -86,7 +86,7 @@ try {
     $token = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
 
     // Tiempo de expiración: 15 minutos desde ahora
-    $expiracion = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+    $expiracion = date('Y-m-d H:i:s', strtotime('+30 minutes'));
 
     // Usar función del modelo para insertar el token
     $consultas = new ConsultasMesero();

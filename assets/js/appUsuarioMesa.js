@@ -170,6 +170,7 @@ function cargarProductos(idcategoria) {
                 document.getElementById('productoPrecioSeleccionado').textContent = `$${precio.toFixed(2)}`;
                 document.getElementById('productoId').value = id;
                 document.getElementById('observaciones').value = '';
+                document.getElementById('productoId').setAttribute('data-stock', stock);
 
                 // Mostrar el modal
                 const modalElement = document.getElementById('modalObservaciones');
@@ -190,19 +191,36 @@ function agregarProductoAlPedido() {
     const cantidad = parseInt(document.getElementById('productoCantidadSeleccionada').textContent);
     const precio = parseFloat(document.getElementById('productoPrecioSeleccionado').textContent.replace('$', '').trim());
     const comentario = document.getElementById('observaciones').value;
+    const stock = parseInt(document.getElementById('productoId').getAttribute('data-stock'));
 
     if (isNaN(precio) || isNaN(cantidad)) {
         Swal.fire('Error', 'Error en los valores del producto', 'error');
         return;
     }
 
-    agregarAlPedido({
-        id: id,
-        nombre: nombre,
-        cantidad: cantidad,
-        precio: precio,
-        comentario: comentario
-    });
+    // Validar stock antes de agregar
+    const existente = pedido.productos.find(p => p.id == id && p.comentario == comentario);
+    if (existente) {
+        if (existente.cantidad + cantidad > stock) {
+            Swal.fire('Stock insuficiente', 'No puedes agregar más que el stock disponible.', 'warning');
+            return;
+        }
+        existente.cantidad += cantidad;
+    } else {
+        if (cantidad > stock) {
+            Swal.fire('Stock insuficiente', 'No puedes agregar más que el stock disponible.', 'warning');
+            return;
+        }
+        pedido.productos.push({
+            id: id,
+            nombre: nombre,
+            cantidad: cantidad,
+            precio: precio,
+            comentario: comentario,
+            stock: stock
+        });
+    }
+    renderPedido();
 
     // Cerrar el modal
     const modalElement = document.getElementById('modalObservaciones');
@@ -210,17 +228,6 @@ function agregarProductoAlPedido() {
     if (modal) {
         modal.hide();
     }
-}
-
-function agregarAlPedido(producto) {
-    // Si el producto ya está, suma cantidad y comentario
-    const idx = pedido.productos.findIndex(p => p.id == producto.id && p.comentario == producto.comentario);
-    if (idx >= 0) {
-        pedido.productos[idx].cantidad += producto.cantidad;
-    } else {
-        pedido.productos.push(producto);
-    }
-    renderPedido();
 }
 
 function renderPedido() {
@@ -255,6 +262,14 @@ function renderPedido() {
 
 function cambiarCantidadUsuarioMesa(index, delta) {
     if (!pedido.productos[index]) return;
+    // Solo permitir incrementar si no supera el stock
+    if (delta > 0) {
+        const item = pedido.productos[index];
+        if (item.stock !== undefined && item.cantidad + 1 > item.stock) {
+            Swal.fire('Stock insuficiente', 'No puedes agregar más que el stock disponible.', 'warning');
+            return;
+        }
+    }
     pedido.productos[index].cantidad += delta;
     if (pedido.productos[index].cantidad < 1) {
         pedido.productos[index].cantidad = 1;
@@ -410,12 +425,7 @@ function cargarResumenCompletoDelUsuario() {
                 console.log('Total general:', totalGeneral);
                 console.log('Productos procesados:', todosLosProductos);
                 
-                const resumenHTML = `
-                    <div class="alert alert-success text-center mb-5">
-                        <h4 class="alert-heading">
-                            <i class="fas fa-check-circle me-2"></i>¡Pedido Confirmado!</h4>
-                        <p class="mb-0">Su pedido está siendo preparado. Pronto lo recibiras en la mesa... Gracias por visitarnos!!!.</p>
-                    </div>
+                const resumenPedidosHTML = `
                     <div class="card shadow-lg border-0 rounded-4 bg-light mb-4">
                         <div class="card-header bg-success text-white">
                             <h5 class="mb-0">
@@ -447,7 +457,16 @@ function cargarResumenCompletoDelUsuario() {
                         </div>
                     </div>
                 `;
-                document.getElementById('pedidoActual').innerHTML = resumenHTML;
+                const mensajeConfirmacionHTML = `
+                    <div class="alert alert-success text-center mt-4" id="alertPedidoConfirmado">
+                        <h4 class="alert-heading">
+                            <i class="fas fa-check-circle me-2"></i>¡Pedido Confirmado!</h4>
+                        <p class="mb-0">Su pedido está siendo preparado. Pronto lo recibiras en la mesa... Gracias por visitarnos!!!.</p>
+                    </div>
+                `;
+                const pedidoActualDiv = document.getElementById('pedidoActual');
+                pedidoActualDiv.innerHTML = resumenPedidosHTML;
+                pedidoActualDiv.insertAdjacentHTML('afterend', mensajeConfirmacionHTML);
 
                 // Reemplazar el historial para evitar volver atrás
                 window.history.replaceState({pedidoConfirmado: true}, '', window.location.href);
@@ -469,12 +488,7 @@ function cargarResumenCompletoDelUsuario() {
 
 function mostrarResumenPedidoActual() {
     let total = pedido.total || 0;
-    const resumenHTML = `
-        <div class="alert alert-success text-center mb-5">
-            <h4 class="alert-heading">
-                <i class="fas fa-check-circle me-2"></i>¡Pedido Confirmado!</h4>
-            <p class="mb-0">Su pedido está siendo procesado. Gracias por visitarnos.</p>
-        </div>
+    const resumenPedidosHTML = `
         <div class="card shadow-lg border-0 rounded-4 bg-light mb-4">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">
@@ -506,7 +520,19 @@ function mostrarResumenPedidoActual() {
             </div>
         </div>
     `;
-    document.getElementById('pedidoActual').innerHTML = resumenHTML;
+    const mensajeConfirmacionHTML = `
+        <div class="alert alert-success text-center mt-4" id="alertPedidoConfirmado">
+            <h4 class="alert-heading">
+                <i class="fas fa-check-circle me-2"></i>¡Pedido Confirmado!</h4>
+            <p class="mb-0">Su pedido está siendo procesado. Gracias por visitarnos.</p>
+        </div>
+    `;
+    const pedidoActualDiv = document.getElementById('pedidoActual');
+    // Elimina mensaje anterior si existe
+    const prevAlert = document.getElementById('alertPedidoConfirmado');
+    if (prevAlert) prevAlert.remove();
+    pedidoActualDiv.innerHTML = resumenPedidosHTML;
+    pedidoActualDiv.insertAdjacentHTML('afterend', mensajeConfirmacionHTML);
 }
 
 function cargarTodosLosProductosDelUsuario() {

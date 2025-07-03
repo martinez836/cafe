@@ -18,9 +18,11 @@ class ConsultasMesero
         $consulta = "SELECT m.*, 
             (SELECT COUNT(*) FROM tokens_mesa t WHERE t.mesas_idmesas = m.idmesas AND t.estado_token = 'activo' AND t.fecha_hora_expiracion > NOW()) as tiene_token_activo,
             (SELECT t.token FROM tokens_mesa t WHERE t.mesas_idmesas = m.idmesas AND t.estado_token = 'activo' AND t.fecha_hora_expiracion > NOW() ORDER BY t.fecha_hora_generacion DESC LIMIT 1) as token_activo,
-            (SELECT COUNT(*) FROM pedidos p WHERE p.mesas_idmesas = m.idmesas AND p.estados_idestados = 1) as tiene_pedido_activo
+            (SELECT COUNT(*) FROM pedidos p WHERE p.mesas_idmesas = m.idmesas AND p.estados_idestados = 3) as tiene_pedido_confirmado,
+            (SELECT COUNT(*) FROM pedidos p WHERE p.mesas_idmesas = m.idmesas AND p.estados_idestados = 4) as tiene_pedido_entregado,
+            (SELECT COUNT(*) FROM pedidos p WHERE p.mesas_idmesas = m.idmesas AND p.estados_idestados = 5) as tiene_pedido_procesado
         FROM mesas m
-        WHERE m.estados_idestados IN (1,4,3) ORDER BY m.nombre;";
+        WHERE m.estados_idestados IN (1,5) ORDER BY m.nombre;";
         return $this->mysql->efectuarConsulta($consulta);
     }
 
@@ -61,7 +63,7 @@ class ConsultasMesero
 
     // PEDIDOS
     public function guardarPedido($pdo, $mesaId, $usuarioId, $token = null) {
-        $stmt = $pdo->prepare("INSERT INTO pedidos (fecha_hora_pedido, total_pedido, estados_idestados, mesas_idmesas, usuarios_idusuarios, token_utilizado) VALUES (NOW(), 0, 1, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO pedidos (fecha_hora_pedido, total_pedido, estados_idestados, mesas_idmesas, usuarios_idusuarios, token_utilizado) VALUES (NOW(), 0, 3, ?, ?, ?)");
         $stmt->execute([$mesaId, $usuarioId, $token]);
         return $pdo->lastInsertId();
     }
@@ -84,7 +86,7 @@ class ConsultasMesero
     }
 
     public function traerPedidosActivosPorMesa($pdo, $mesaId) {
-        $stmt = $pdo->prepare("SELECT idpedidos, fecha_hora_pedido, total_pedido, token_utilizado FROM pedidos WHERE mesas_idmesas = ? AND estados_idestados = 1 ORDER BY fecha_hora_pedido DESC");
+        $stmt = $pdo->prepare("SELECT idpedidos, fecha_hora_pedido, total_pedido, token_utilizado, estados_idestados FROM pedidos WHERE mesas_idmesas = ? AND estados_idestados IN (1,3,4) ORDER BY fecha_hora_pedido DESC");
         $stmt->execute([$mesaId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -145,53 +147,56 @@ class ConsultasMesero
 
     // PEDIDOS POR TOKEN (usuario mesa)
     public function traerPedidosPorMesaYToken($pdo, $mesaId, $token) {
-        $stmt = $pdo->prepare("SELECT p.idpedidos, p.fecha_hora_pedido, p.total_pedido, p.token_utilizado FROM pedidos p WHERE p.mesas_idmesas = ? AND p.token_utilizado = ? AND p.estados_idestados = 1 ORDER BY p.fecha_hora_pedido DESC");
+        $stmt = $pdo->prepare("SELECT p.idpedidos, p.fecha_hora_pedido, p.total_pedido, p.token_utilizado FROM pedidos p WHERE p.mesas_idmesas = ? AND p.token_utilizado = ? AND p.estados_idestados IN (1,3,4) ORDER BY p.fecha_hora_pedido DESC");
         $stmt->execute([$mesaId, $token]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // CONFIRMAR PEDIDO (desde confirmar_pedido.php)
     public function confirmarPedidoCliente($pdo, $mesaId, $productos, $token = null) {
-        try {
-            $pdo->beginTransaction();
-            // 1. Crear el pedido (con tipo_pedido y token_utilizado)
-            $stmt = $pdo->prepare("INSERT INTO pedidos (fecha_hora_pedido, total_pedido, estados_idestados, mesas_idmesas, usuarios_idusuarios, tipo_pedido, token_utilizado) VALUES (NOW(), 0, 1, ?, 1, 'cliente', ?)");
-            $stmt->execute([$mesaId, $token]);
-            $pedido_id = $pdo->lastInsertId();
+        // 1. Crear el pedido (con tipo_pedido y token_utilizado)
+        $stmt = $pdo->prepare("INSERT INTO pedidos (fecha_hora_pedido, total_pedido, estados_idestados, mesas_idmesas, usuarios_idusuarios, tipo_pedido, token_utilizado) VALUES (NOW(), 0, 3, ?, 1, 'cliente', ?)");
+        $stmt->execute([$mesaId, $token]);
+        $pedido_id = $pdo->lastInsertId();
 
-            // 2. Insertar los productos del pedido
-            $stmt = $pdo->prepare("INSERT INTO detalle_pedidos (observaciones, precio_producto, cantidad_producto, subtotal, pedidos_idpedidos, productos_idproductos) VALUES (?, ?, ?, ?, ?, ?)");
-            $updateStockStmt = $pdo->prepare("UPDATE productos SET stock_producto = stock_producto - ? WHERE idproductos = ?");
-            foreach ($productos as $producto) {
-                $subtotal = $producto['precio'] * $producto['cantidad'];
-                $stmt->execute([
-                    $producto['comentario'] ?? null,
-                    $producto['precio'],
-                    $producto['cantidad'],
-                    $subtotal,
-                    $pedido_id,
-                    $producto['id']
-                ]);
-                // Descontar stock si no es null
-                if (isset($producto['cantidad']) && $producto['cantidad'] !== null) {
-                    $updateStockStmt->execute([$producto['cantidad'], $producto['id']]);
-                }
+        // 2. Insertar los productos del pedido
+        $stmt = $pdo->prepare("INSERT INTO detalle_pedidos (observaciones, precio_producto, cantidad_producto, subtotal, pedidos_idpedidos, productos_idproductos) VALUES (?, ?, ?, ?, ?, ?)");
+        $updateStockStmt = $pdo->prepare("UPDATE productos SET stock_producto = stock_producto - ? WHERE idproductos = ?");
+        $checkStockStmt = $pdo->prepare("SELECT stock_producto FROM productos WHERE idproductos = ?");
+        foreach ($productos as $producto) {
+            // Validar stock antes de insertar
+            $checkStockStmt->execute([$producto['id']]);
+            $row = $checkStockStmt->fetch(PDO::FETCH_ASSOC);
+            $stockDisponible = isset($row['stock_producto']) ? (int)$row['stock_producto'] : null;
+            if ($stockDisponible !== null && $producto['cantidad'] > $stockDisponible) {
+                // Eliminar el pedido creado para no dejar basura
+                $pdo->prepare("DELETE FROM pedidos WHERE idpedidos = ?")->execute([$pedido_id]);
+                throw new Exception("Stock insuficiente para el producto ID " . $producto['id']);
             }
-
-            // 3. Calcular y actualizar el total del pedido (usando subconsulta)
-            $stmt = $pdo->prepare("UPDATE pedidos SET total_pedido = (SELECT SUM(subtotal) FROM detalle_pedidos WHERE pedidos_idpedidos = ?) WHERE idpedidos = ?");
-            $stmt->execute([$pedido_id, $pedido_id]);
-
-            // 4. Invalidar el token
-            $stmt = $pdo->prepare("UPDATE tokens_mesa SET estado_token = 'usado' WHERE mesas_idmesas = ? AND estado_token = 'activo'");
-            $stmt->execute([$mesaId]);
-
-            $pdo->commit();
-            return $pedido_id;
-        } catch (Exception $e) {
-            if (isset($pdo)) $pdo->rollBack();
-            throw $e;
+            $subtotal = $producto['precio'] * $producto['cantidad'];
+            $stmt->execute([
+                $producto['comentario'] ?? null,
+                $producto['precio'],
+                $producto['cantidad'],
+                $subtotal,
+                $pedido_id,
+                $producto['id']
+            ]);
+            // Descontar stock si no es null
+            if (isset($producto['cantidad']) && $producto['cantidad'] !== null) {
+                $updateStockStmt->execute([$producto['cantidad'], $producto['id']]);
+            }
         }
+
+        // 3. Calcular y actualizar el total del pedido (usando subconsulta)
+        $stmt = $pdo->prepare("UPDATE pedidos SET total_pedido = (SELECT SUM(subtotal) FROM detalle_pedidos WHERE pedidos_idpedidos = ?) WHERE idpedidos = ?");
+        $stmt->execute([$pedido_id, $pedido_id]);
+
+        // 4. Invalidar el token
+        $stmt = $pdo->prepare("UPDATE tokens_mesa SET estado_token = 'usado' WHERE mesas_idmesas = ? AND estado_token = 'activo'");
+        $stmt->execute([$mesaId]);
+
+        return $pedido_id;
     }
 
     // TOKENS: Insertar nuevo token para una mesa

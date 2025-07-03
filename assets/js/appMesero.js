@@ -1,4 +1,5 @@
 let pedido = [];
+let pedidoIdModificar = null;
 
 // funcion para cargar productos al seleccionar una categoria de productos
 document.addEventListener("DOMContentLoaded", function () {
@@ -100,6 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
               document.getElementById("productoSeleccionado").setAttribute("data-precio", precio);
               document.getElementById("productoSeleccionado").setAttribute("data-nombre", nombre);
               document.getElementById("productoSeleccionado").setAttribute("data-cantidad", cantidad);
+              document.getElementById("productoSeleccionado").setAttribute("data-stock", stock);
 
               // Mostrar el modal
               const modalElement = document.getElementById("observacionModal");
@@ -200,6 +202,7 @@ function abrirModal(button, id_producto, nombre_producto) {
   document.getElementById("productoSeleccionado").setAttribute("data-precio", precio);
   document.getElementById("productoSeleccionado").setAttribute("data-nombre", nombre_producto);
   document.getElementById("productoSeleccionado").setAttribute("data-cantidad", cantidad);
+  document.getElementById("productoSeleccionado").setAttribute("data-stock", stock);
 
   // Mostrar el modal
   new bootstrap.Modal(document.getElementById("observacionModal")).show();
@@ -211,6 +214,7 @@ function agregarAlPedido() {
   const precio = parseFloat(document.getElementById("productoSeleccionado").getAttribute("data-precio"));
   const nombre = document.getElementById("productoSeleccionado").getAttribute("data-nombre");
   const cantidad = parseInt(document.getElementById("productoSeleccionado").getAttribute("data-cantidad"));
+  const stock = parseInt(document.getElementById("productoSeleccionado").getAttribute("data-stock"));
 
   if (!cantidad || cantidad <= 0) {
     Swal.fire({
@@ -224,19 +228,41 @@ function agregarAlPedido() {
   const existente = pedido.find(p => p.id === id && p.comentario === comentario);
 
   if (existente) {
+    if (existente.cantidad + cantidad > stock) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Stock insuficiente',
+        text: 'No puedes agregar más que el stock disponible.',
+        confirmButtonText: 'Entendido'
+      });
+      return;
+    }
     existente.cantidad += cantidad;
   } else {
+    if (cantidad > stock) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Stock insuficiente',
+        text: 'No puedes agregar más que el stock disponible.',
+        confirmButtonText: 'Entendido'
+      });
+      return;
+    }
     pedido.push({
       id: id,
       nombre: nombre,
       cantidad: cantidad,
       comentario: comentario,
-      precio: precio
+      precio: precio,
+      stock: stock
     });
   }
 
   actualizarLista();
-  bootstrap.Modal.getInstance(document.getElementById("observacionModal")).hide();
+  // Antes de mostrar cualquier SweetAlert de error, cerrar el modal si está abierto
+  const modalElement = document.getElementById('observacionModal');
+  const modal = bootstrap.Modal.getInstance(modalElement);
+  if (modal) modal.hide();
 }
 
 function actualizarLista() {
@@ -313,6 +339,19 @@ function actualizarCantidadEnBD(index, nuevaCantidad) {
 }
 
 function cambiarCantidad(index, delta) {
+  // Solo permitir incrementar si no supera el stock
+  if (delta > 0) {
+    const item = pedido[index];
+    if (item.stock !== undefined && item.cantidad + 1 > item.stock) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Stock insuficiente',
+        text: 'No puedes agregar más que el stock disponible.',
+        confirmButtonText: 'Entendido'
+      });
+      return;
+    }
+  }
   pedido[index].cantidad += delta;
   if (pedido[index].cantidad <= 0) {
     eliminarProducto(index);
@@ -362,7 +401,8 @@ function confirmarPedido() {
     body: JSON.stringify({
       mesa_id: parseInt(mesa),
       productos: pedido,
-      total: total
+      total: total,
+      pedido_id: pedidoIdModificar
     }),
   })
     .then((res) => res.json())
@@ -374,6 +414,7 @@ function confirmarPedido() {
           text: data.message,
         });
         pedido = [];
+        pedidoIdModificar = null;
         actualizarLista();
         // Limpiar los inputs seleccion de mesa y categoria
         document.getElementById("mesaSelect").value = "";
@@ -490,7 +531,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             html += `</ul></div>
                     <div><strong>Total:</strong> $${pedido.productos.reduce((sum, p) => sum + (parseFloat(p.precio) * parseInt(p.cantidad)), 0).toFixed(2)}</div>
-                    <button class='btn btn-warning btn-sm mt-2' onclick='modificarPedidoActivo(${pedido.pedido_id}, ${pedido.mesa_id})'>Modificar pedido</button>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                      <button class='btn btn-warning btn-sm' onclick='modificarPedidoActivo(${pedido.pedido_id}, ${pedido.mesa_id})'>Modificar pedido</button>
+                      <span class="badge bg-info text-dark ms-2">${pedido.estado_nombre || 'Desconocido'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -527,6 +571,7 @@ window.modificarPedidoActivo = function(pedidoId, mesaId) {
   // Seleccionar la mesa en el select
   const mesaSelect = document.getElementById('mesaSelect');
   if (mesaSelect) mesaSelect.value = mesaId;
+  pedidoIdModificar = pedidoId;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

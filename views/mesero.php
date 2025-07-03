@@ -24,6 +24,8 @@ try {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tienda de Café</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+  <!-- Respaldo: -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="../assets/css/estiloMesero.css" />
 </head>
@@ -59,9 +61,9 @@ try {
                 <?php 
                 if ($mesas && is_array($mesas)) {
                     foreach ($mesas as $mesa) {
-                        $disabled = ($mesa['estados_idestados'] == 3 || $mesa['tiene_token_activo'] > 0 || $mesa['tiene_pedido_activo'] > 0) ? 'disabled' : '';
-                        $msg = $mesa['estados_idestados'] == 3 ? ' (Ocupada)' :
-                               ($mesa['tiene_pedido_activo'] > 0 ? ' (Pedido activo)' : '');
+                        $deshabilitar = ($mesa['tiene_pedido_confirmado'] > 0 || $mesa['tiene_pedido_entregado'] > 0 || $mesa['tiene_token_activo'] > 0);
+                        $disabled = $deshabilitar ? 'disabled' : '';
+                        $msg = $mesa['tiene_pedido_confirmado'] > 0 ? ' (Confirmado)' : ($mesa['tiene_pedido_entregado'] > 0 ? ' (Entregado)' : '');
                         $token = isset($mesa['token_activo']) && $mesa['token_activo'] ? ' | Token #' . htmlspecialchars($mesa['token_activo']) : '';
                         echo '<option value="' . (int)$mesa['idmesas'] . '" ' . $disabled . '>' . htmlspecialchars($mesa['nombre']) . $token . $msg . '</option>';
                     }

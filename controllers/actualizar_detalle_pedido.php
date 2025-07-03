@@ -13,12 +13,12 @@ try {
     $comentario = isset($data['comentario']) ? $data['comentario'] : null;
     $cantidad = (int)$data['cantidad'];
     $pdo = config::conectar();
-    // Verificar que el pedido esté activo
+    // Verificar que el pedido esté activo o confirmado
     $stmt = $pdo->prepare('SELECT estados_idestados FROM pedidos WHERE idpedidos = ?');
     $stmt->execute([$pedido_id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$row || $row['estados_idestados'] != 1) {
-        throw new Exception('El pedido no está activo');
+    if (!$row || ($row['estados_idestados'] != 1 && $row['estados_idestados'] != 3)) {
+        throw new Exception('El pedido no está activo ni confirmado');
     }
     // Buscar el detalle
     $stmt = $pdo->prepare('SELECT iddetalle_pedidos, cantidad_producto FROM detalle_pedidos WHERE pedidos_idpedidos = ? AND productos_idproductos = ? AND observaciones '.($comentario === null ? 'IS NULL' : '= ?'));

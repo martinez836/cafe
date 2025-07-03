@@ -44,35 +44,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo = config::conectar();
         $consultas = new ConsultasMesero();
         
+        $pedido_id_modificar = isset($data['pedido_id']) ? (int)$data['pedido_id'] : null;
         // Buscar pedido activo para la mesa
         $pedidoActivo = $consultas->traerPedidosActivosPorMesa($pdo, $mesa_id);
-        
-        if ($pedidoActivo && count($pedidoActivo) > 0) {
-            // Hay pedido activo, actualizamos detalle_pedidos
+        $pedido_id = null;
+        if ($pedido_id_modificar) {
+            // Buscar el pedido específico por id
+            foreach ($pedidoActivo as $p) {
+                if ((int)$p['idpedidos'] === $pedido_id_modificar) {
+                    $pedido_id = $pedido_id_modificar;
+                    break;
+                }
+            }
+            if (!$pedido_id) {
+                throw new Exception('El pedido seleccionado no está activo o no existe');
+            }
+        } else if ($pedidoActivo && count($pedidoActivo) > 0) {
             $pedido_id = (int)$pedidoActivo[0]['idpedidos'];
+        }
+        
+        if ($pedido_id) {
+            // 1. Obtener todos los productos actuales del pedido
+            $productos_actuales = $consultas->traerDetallePedido($pdo, $pedido_id);
+            $ids_actuales = array_map(function($p) { return $p['id']; }, $productos_actuales);
+            $ids_nuevos = array_map(function($p) { return $p['id']; }, $productos_sanitizados);
             
-            // 1. Para cada producto recibido:
+            // 2. Eliminar productos que ya no están en el nuevo pedido
+            foreach ($ids_actuales as $id_existente) {
+                if (!in_array($id_existente, $ids_nuevos)) {
+                    $stmt = $pdo->prepare("DELETE FROM detalle_pedidos WHERE pedidos_idpedidos = ? AND productos_idproductos = ?");
+                    $stmt->execute([$pedido_id, $id_existente]);
+                }
+            }
+            
+            // 3. Para cada producto recibido:
             foreach ($productos_sanitizados as $producto) {
-                // 2. Verificar si ya existe en detalle_pedidos
                 $detalleExistente = $consultas->traerDetallePedidoPorProducto($pdo, $pedido_id, $producto['id']);
-                
                 if ($detalleExistente) {
-                    // 3. Si existe, actualizar cantidad
-                    $nueva_cantidad = $detalleExistente['cantidad'] + $producto['cantidad'];
-                    $consultas->actualizarCantidadDetallePedido($pdo, $pedido_id, $producto['id'], $nueva_cantidad);
+                    $consultas->actualizarCantidadDetallePedido($pdo, $pedido_id, $producto['id'], $producto['cantidad']);
                 } else {
-                    // 4. Si no existe, insertar nuevo detalle
                     $consultas->guardarDetallePedido($pdo, $producto, $pedido_id);
                 }
             }
             
-            // 5. Actualizar total del pedido
+            // 4. Actualizar total del pedido
             $total_actual = $consultas->calcularTotalPedido($pdo, $pedido_id);
             $consultas->actualizarTotalPedido($pdo, $total_actual, $pedido_id);
-            
             echo json_encode([
                 'success' => true,
-                'message' => 'Productos agregados al pedido existente',
+                'message' => 'Pedido actualizado correctamente',
                 'pedido_id' => $pedido_id
             ]);
         } else {
@@ -81,15 +101,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $pedido_id = $consultas->confirmarPedidoCliente($pdo, $mesa_id, $productos_sanitizados, $token_utilizado);
                 $pdo->commit();
-                
                 echo json_encode([
                     'success' => true,
                     'message' => 'Nuevo pedido creado correctamente',
                     'pedido_id' => $pedido_id
                 ]);
             } catch (Exception $e) {
-                $pdo->rollBack();
-                throw $e;
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                $msg = $e->getMessage();
+                if (strpos($msg, 'Stock insuficiente') !== false) {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => $msg
+                    ]);
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Error al procesar el pedido: ' . $msg
+                    ]);
+                }
             }
         }
     } catch (Exception $e) {
