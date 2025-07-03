@@ -22,7 +22,7 @@ class config {
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $pdo;
         } catch (PDOException $e) {
-            die('Error de conexión: ' . $e->getMessage());
+            throw new PDOException('Error de conexión: ' . $e->getMessage());
         }
     }
 

@@ -13,10 +13,30 @@ var opcion = ""; // Variable para determinar si es crear o editar
 
 document.addEventListener('DOMContentLoaded', function() {
     const tablaUsuarios = $('#tablaUsuarios').DataTable({
-        responsive: true,
-        language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+       responsive: {
+        details: {
+            renderer: function (api, rowIdx, columns) {
+                let data = columns
+                    .filter(col => col.hidden)
+                    .map(col => {
+                        return `<tr>
+                                    <td class="text-end fw-bold">${col.title}</td>
+                                    <td>${col.data}</td>
+                                </tr>`;
+                    })
+                    .join('');
+                return data ? $('<table class="table table-sm table-bordered mb-0 w-100"/>').append(data) : false;
+            }
         }
+    },
+    columnDefs: [
+        { responsivePriority: 1, targets: 1 }, // Nombre
+        { responsivePriority: 2, targets: 2 }, // Email
+        { responsivePriority: 3, targets: -1 }, // Acciones
+    ],
+    language: {
+        url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+    }
     });
 
     function loadUsers() {
@@ -24,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 tablaUsuarios.clear(); // Limpia la tabla de DataTables
-
+                console.log(data);
                 if (data.success && data.data.length > 0) {
                     data.data.forEach(user => {
                         // Determinar el color del badge según el estado
@@ -245,7 +265,7 @@ function cargarEstados(idSeleccionado = null)
                             loadUsers(); // Recargar inventario
                         } else {
                             Swal.fire(
-                                'Error!',
+                                'Error!'+idUsuario,
                                 data.message || 'No se pudo eliminar el artículo.',
                                 'error'
                             );
@@ -260,17 +280,13 @@ function cargarEstados(idSeleccionado = null)
             idusuario = fila.children[0].textContent;
             const nombre = fila.children[1].textContent;
             const email = fila.children[2].textContent;
-            const rol = fila.children[3].dataset.idrol;
-            const estado = fila.children[4].dataset.idestado;
-
-            console.log(idusuario)
-            console.log(rol)
-            console.log(estado)
+            const rol = fila.children[3].querySelector('span').dataset.idrol;
+            const estado = fila.children[4].querySelector('span').dataset.idestado;
 
             document.querySelector("#nombre_usuario").value = nombre;
             document.querySelector("#email_usuario").value = email;
-            cargarRoles(rol)
-            cargarEstados(estado)
+            cargarRoles(rol);
+            cargarEstados(estado);
 
             opcion = "editar";
             document.querySelector("#contrasena_usuario").style.display = 'none';
