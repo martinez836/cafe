@@ -134,6 +134,7 @@
                                 <th>Stock</th>
                                 <th>Categoría</th>
                                 <th>Estado</th>
+                                <th>Tipo</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -166,6 +167,13 @@
                             <div class="mb-3">
                                 <label for="productStock" class="form-label">Stock</label>
                                 <input type="number" class="form-control" placeholder="Cantidad disponible (opcional)" id="productStock" min="0">
+                            </div>
+                            <div class="mb-3">
+                                <label for="productTipo" class="form-label">Tipo de producto</label>
+                                <select class="form-control" id="productTipo" required>
+                                    <option value="1">Sin Stock</option>
+                                    <option value="2">Con stock</option>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label for="productCategory" class="form-label">Categoría</label>

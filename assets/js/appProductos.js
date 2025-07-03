@@ -18,6 +18,10 @@ function editarProducto(id) {
                 document.getElementById('productStock').value = producto.stock_producto;
                 document.getElementById('productCategory').value = producto.fk_categoria;
                 document.getElementById('productEstado').value = producto.estados_idestados;
+                document.getElementById('productTipo').value =
+                    (producto.tipo_producto_idtipo_producto === undefined || producto.tipo_producto_idtipo_producto === null)
+                        ? '1'
+                        : String(producto.tipo_producto_idtipo_producto);
                 modalProducto.show();
             }
         })
@@ -86,7 +90,8 @@ document.addEventListener('DOMContentLoaded', function() {
         { responsivePriority: 3, targets: 3 }, // Stock
         { responsivePriority: 4, targets: 4 }, // Categoría
         { responsivePriority: 5, targets: 5 }, // Estado
-        { responsivePriority: 6, targets: 6 }  // Acciones
+        { responsivePriority: 6, targets: 6 }, // Tipo
+        { responsivePriority: 7, targets: 7 }  // Acciones
     ],
     language: {
         url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
@@ -121,24 +126,29 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('../../controllers/admin/productos.php?action=getAllProductos')
             .then(respuesta => respuesta.json())
             .then(datos => {
-                tablaProductos.clear(); // Limpia la tabla de DataTables
-
+                tablaProductos.clear();
                 if (datos.success && datos.data.length > 0) {
                     datos.data.forEach(producto => {
                         // Formatear el stock - mostrar "Sin stock" si es null o 0
                         const stockDisplay = producto.stock_producto === null || producto.stock_producto === 0 
                             ? '<span class="badge bg-warning">Sin stock</span>' 
                             : producto.stock_producto;
-                        
+                        // Estado
+                        const estadoBadge = producto.estados_idestados == 5
+                            ? '<span class="badge bg-success">Activo</span>'
+                            : '<span class="badge bg-danger">Inactivo</span>';
+                        // Tipo de producto
+                        const tipoBadge = producto.tipo_producto_idtipo_producto == 1
+                            ? '<span class="badge bg-secondary">Sin stock</span>'
+                            : '<span class="badge bg-primary">Con stock</span>';
                         tablaProductos.row.add([
                             producto.idproductos,
                             producto.nombre_producto,
                             `$${parseFloat(producto.precio_producto).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                             stockDisplay,
                             producto.nombre_categoria,
-                            producto.nombre_estado === 'Activo'
-                                ? '<span class="badge bg-success">Activo</span>'
-                                : '<span class="badge bg-danger">Inactivo</span>',
+                            estadoBadge,
+                            tipoBadge,
                             `<button class="btn btn-sm btn-warning me-1" onclick="editarProducto(${producto.idproductos})">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -149,13 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 } else {
                     tablaProductos.row.add([
-                        '',
-                        '',
-                        '',
-                        '',
-                        '',
-                        '',
-                        '<span class="text-center">No hay productos para mostrar.</span>'
+                        '', '', '', '', '', '', '', '<span class="text-center">No hay productos para mostrar.</span>'
                     ]);
                 }
                 tablaProductos.draw();
@@ -163,13 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 tablaProductos.clear();
                 tablaProductos.row.add([
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    `<span class="text-danger">Error al cargar productos: ${error.message}</span>`
+                    '', '', '', '', '', '', '', `<span class="text-danger">Error al cargar productos: ${error.message}</span>`
                 ]);
                 tablaProductos.draw();
             });
@@ -181,7 +179,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('productModalLabel').textContent = 'Agregar Producto';
         formularioProducto.reset();
         document.getElementById('productId').value = '';
-        document.getElementById('productEstado').value = '1'; // Por defecto, estado activo
+        document.getElementById('productEstado').value = '5';
+        document.getElementById('productTipo').value = '2';
         modalProducto.show();
     });
 
@@ -194,11 +193,10 @@ document.addEventListener('DOMContentLoaded', function() {
             precio: document.getElementById('productPrice').value,
             stock: stockValue === '' ? null : parseInt(stockValue),
             categoria: document.getElementById('productCategory').value,
-            estado: document.getElementById('productEstado').value
+            estado: document.getElementById('productEstado').value,
+            tipo_producto_idtipo_producto: document.getElementById('productTipo').value || '2'
         };
-
         const accion = estaEditando ? 'updateProducto' : 'createProducto';
-
         fetch(`../../controllers/admin/productos.php?action=${accion}`, {
             method: 'POST',
             headers: {

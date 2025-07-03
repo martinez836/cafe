@@ -38,15 +38,16 @@ class ConsultasProductos
 
     public function createProducto($data) {
         try {
-            $sql = "INSERT INTO productos (nombre_producto, precio_producto, stock_producto, fk_categoria, estados_idestados) 
-                    VALUES (?, ?, ?, ?, 1)";
+            $sql = "INSERT INTO productos (nombre_producto, precio_producto, stock_producto, fk_categoria, tipo_producto_idtipo_producto, estados_idestados) 
+                    VALUES (?, ?, ?, ?, ?, 5)";
             $params = [
                 $data['nombre'],
                 $data['precio'],
                 $data['stock'],
-                $data['categoria']
+                $data['categoria'],
+                $data['tipo_producto_idtipo_producto']
             ];
-            return $this->mysql->ejecutarSentenciaPreparada($sql, 'sdii', $params);
+            return $this->mysql->ejecutarSentenciaPreparada($sql, 'sdiii', $params);
         } catch (Exception $e) {
             throw new Exception('Error al crear producto: ' . $e->getMessage());
         }
@@ -59,7 +60,8 @@ class ConsultasProductos
                         precio_producto = ?, 
                         stock_producto = ?, 
                         fk_categoria = ?, 
-                        estados_idestados = ? 
+                        estados_idestados = ?,
+                        tipo_producto_idtipo_producto = ?
                     WHERE idproductos = ?";
             $params = [
                 $data['nombre'],
@@ -67,9 +69,10 @@ class ConsultasProductos
                 $data['stock'],
                 $data['categoria'],
                 $data['estado'],
+                $data['tipo_producto_idtipo_producto'],
                 $data['id']
             ];
-            return $this->mysql->ejecutarSentenciaPreparada($sql, 'sdiiis', $params);
+            return $this->mysql->ejecutarSentenciaPreparada($sql, 'sdiiiii', $params);
         } catch (Exception $e) {
             throw new Exception('Error al actualizar producto: ' . $e->getMessage());
         }
@@ -77,7 +80,7 @@ class ConsultasProductos
 
     public function deleteProducto($id) {
         try {
-            $sql = "UPDATE productos SET estados_idestados = 2 WHERE idproductos = ?";
+            $sql = "UPDATE productos SET estados_idestados = 6 WHERE idproductos = ?";
             $params = [$id];
             return $this->mysql->ejecutarSentenciaPreparada($sql, 'i', $params);
         } catch (Exception $e) {
@@ -87,13 +90,14 @@ class ConsultasProductos
 
     public function getProductosBajoStock() {
         try {
-            $sql = "SELECT productos.*, categorias.nombre_categoria 
-                    FROM productos
-                    LEFT JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
-                    WHERE productos.stock_producto IS NOT NULL 
-                    AND productos.stock_producto <= 10 
-                    AND productos.estados_idestados = 5
-                    ORDER BY productos.stock_producto ASC";
+            $sql = "SELECT productos.*, categorias.nombre_categoria
+            FROM productos LEFT JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
+            JOIN tipo_producto ON tipo_producto.idtipo_producto = productos.tipo_producto_idtipo_producto 
+            WHERE productos.stock_producto IS NOT NULL 
+            AND productos.stock_producto <= 10 
+            AND productos.estados_idestados = 5 
+            AND productos.tipo_producto_idtipo_producto = 2 
+            ORDER BY productos.stock_producto ASC; ";
             return $this->mysql->efectuarConsulta($sql);
         } catch (Exception $e) {
             throw new Exception('Error al obtener productos con bajo stock: ' . $e->getMessage());
@@ -103,11 +107,12 @@ class ConsultasProductos
     public function getProductosSinStock() {
         try {
             $sql = "SELECT productos.*, categorias.nombre_categoria 
-                    FROM productos
-                    LEFT JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
-                    WHERE (productos.stock_producto IS NULL OR productos.stock_producto = 0)
-                    AND productos.estados_idestados = 5
-                    ORDER BY productos.nombre_producto ASC";
+            FROM productos LEFT JOIN categorias ON productos.fk_categoria = categorias.idcategorias 
+            JOIN tipo_producto ON tipo_producto.idtipo_producto = productos.tipo_producto_idtipo_producto 
+            WHERE (productos.stock_producto IS NULL OR productos.stock_producto = 0) 
+            AND productos.estados_idestados = 5 
+            AND productos.tipo_producto_idtipo_producto = 2 
+            ORDER BY productos.nombre_producto ASC; ";
             return $this->mysql->efectuarConsulta($sql);
         } catch (Exception $e) {
             throw new Exception('Error al obtener productos sin stock: ' . $e->getMessage());
@@ -122,7 +127,7 @@ class ConsultasProductos
                         COUNT(CASE WHEN stock_producto IS NOT NULL AND stock_producto <= 10 AND stock_producto > 0 THEN 1 END) as bajo_stock,
                         COUNT(CASE WHEN stock_producto IS NULL OR stock_producto = 0 THEN 1 END) as sin_stock
                     FROM productos 
-                    WHERE estados_idestados = 5";
+                    WHERE estados_idestados = 5 AND tipo_producto_idtipo_producto = 2";
             return $this->mysql->efectuarConsulta($sql);
         } catch (Exception $e) {
             throw new Exception('Error al obtener resumen de stock: ' . $e->getMessage());
