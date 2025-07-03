@@ -55,22 +55,19 @@ class ConsultasUsuarios
         }
     }
 
-    public function insertarUsuarios($nombre_usuario,$contrasena_usuario,$email_usuario,$rol_idrol,$estado_idestado)
+    public function insertarUsuarios($nombre_usuario, $contrasena_usuario, $email_usuario, $estado_idestado, $rol_idrol)
     {
         try {
-            //code...
-            $sql = "insert into usuarios(nombre_usuario,contrasena_usuario,email_usuario,estados_idestados,rol_idrol)
+            $sql = "insert into usuarios(nombre_usuario,contraseña_usuario,email_usuario,estados_idestados,rol_idrol)
             values (?,?,?,?,?)";
             $parametros = [$nombre_usuario, $contrasena_usuario, $email_usuario, $estado_idestado, $rol_idrol];
             $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, "sssii", $parametros);
             if ($stmt->rowCount() > 0) {
-                return true; // Usuario insertado correctamente
+                return true;
             } else {
-                return false; // No se insertó ningún usuario
+                return false;
             }
         } catch (\Throwable $th) {
-            //throw $th;
-            error_log("Error insertarUsuarios: " . $th->getMessage());
             return false;
         }
     }

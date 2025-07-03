@@ -137,8 +137,8 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3 class="mb-0">1,250</h3>
-                                <p class="mb-0">Pedidos Totales</p>
+                                <h3>0</h3>
+                                <small class="text-white">Total Pedidos</small>
                             </div>
                             <i class="fas fa-receipt fa-3x"></i>
                         </div>
@@ -150,8 +150,8 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3 class="mb-0">$25,000</h3>
-                                <p class="mb-0">Ingresos del Mes</p>
+                                <h3>$0.00</h3>
+                                <small class="text-white">Ingresos del Mes</small>
                             </div>
                             <i class="fas fa-dollar-sign fa-3x"></i>
                         </div>
@@ -163,8 +163,8 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3 class="mb-0">15</h3>
-                                <p class="mb-0">Usuarios</p>
+                                <h3>0</h3>
+                                <small class="text-white">Nuevos Usuarios</small>
                             </div>
                             <i class="fas fa-user-plus fa-3x"></i>
                         </div>
@@ -209,20 +209,7 @@
                         <i class="fas fa-list me-2"></i>Últimos Pedidos
                     </div>
                     <div class="card-body">
-                        <ul class="list-group list-group-flush" id="ultimosPedidosList">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Pedido #123 - Mesa 1
-                                <span class="badge bg-info rounded-pill">Pendiente</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Pedido #122 - Mesa 3
-                                <span class="badge bg-success rounded-pill">Completado</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Pedido #121 - Para llevar
-                                <span class="badge bg-success rounded-pill">Completado</span>
-                            </li>
-                        </ul>
+                        <ul class="list-group" id="ultimosPedidosList"></ul>
                     </div>
                 </div>
             </div>

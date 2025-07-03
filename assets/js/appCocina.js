@@ -6,21 +6,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para obtener y mostrar pedidos pendientes
     function obtenerPedidosPendientes() {
-        fetch('../controllers/cosina.php?action=traerPedidosPendientes')
+        fetch('../controllers/cosina.php?action=traer_pedidos_pendientes')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+            console.log('Obteniendo pedidos pendientes...', response);
             return response.json();
         })
         .then(data => {
-            if (data.success && Array.isArray(data.data)) {
+            if (data.success) {
                 renderizarPedidosPendientes(data.data);
+                console.log('Pedidos pendientes obtenidos:', data.data);
             } else {
                 renderizarPedidosPendientes([]);
+                console.log('No se encontraron pedidos pendientes o la respuesta no es válida.');
             }
         })
-        .catch(error => showSwalError('Error al obtener pedidos pendientes.'));
+        .catch(error => {
+            showSwalError('Error al obtener pedidos pendientes.');
+            console.log('Error al obtener pedidos pendientes:', error);
+        });
+
     }
 
     // Función para renderizar los pedidos pendientes en la lista

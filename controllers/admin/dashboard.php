@@ -18,7 +18,6 @@ try {
             $nuevosUsuariosMesActual = $consultas->getNuevosUsuariosMesActual();
             $ventasDiarias = $consultas->getVentasDiarias();
             $ultimosPedidos = $consultas->getUltimosPedidos();
-            $comentariosRecientes = $consultas->getComentariosRecientes(); // Esta función devuelve datos estáticos/vacíos por ahora
 
             // Formatear ventasDiarias para Chart.js
             $labelsVentas = [];
@@ -34,7 +33,7 @@ try {
                 $pedidosFormateados[] = [
                     'id' => $pedido['idpedidos'],
                     'table' => $pedido['nombre_mesa'],
-                    'status' => ($pedido['status_id'] == 1) ? 'Pendiente' : (($pedido['status_id'] == 2) ? 'Completado' : 'Desconocido'),
+                    'status' => ($pedido['status_id'] == 5) ? 'Activo' : (($pedido['status_id'] == 6) ? 'Inactivo' : 'Desconocido'),
                 ];
             }
 
@@ -49,7 +48,7 @@ try {
                         'data' => $dataVentas
                     ],
                     'ultimosPedidos' => $pedidosFormateados,
-                    'comentariosRecientes' => $comentariosRecientes
+                    'debugUltimosPedidos' => $ultimosPedidos
                 ]
             ];
             break;

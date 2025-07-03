@@ -33,7 +33,7 @@ switch ($accion) {
                 ];
             }
         }
-        echo json_encode($pedidosFormateados);
+        echo json_encode(['success' => true, 'data' => $pedidosFormateados]);
         break;
 
     case 'marcarPedidoComoListo':
