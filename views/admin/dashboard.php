@@ -1,12 +1,27 @@
+<?php
+require_once '../../config/config.php';
+config::iniciarSesion();
+
+// Verificar si está logueado
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: ../login.php');
+    exit();
+}
+
+$usuario = [
+    'nombre' => $_SESSION['usuario_nombre'] ?? 'Usuario',
+    'rol' => $_SESSION['usuario_rol'] ?? 'Usuario'
+];
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Tienda de Café</title>
-    <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet"  href="../../assets/css/dashboard.css">
-    <link rel="stylesheet" href="../../assets/css/notificaciones.css">
+    <title>Admin Dashboard - Sistema de Café</title>
+    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet"  href="/Cafe/assets/css/dashboard.css">
+    <link rel="stylesheet" href="/Cafe/assets/css/notificaciones.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
@@ -21,7 +36,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Bienvenido, Admin</a>
+                        <a class="nav-link" href="#">Bienvenido, <?php echo htmlspecialchars($usuario['nombre']); ?></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link position-relative" href="#" id="btnNotificaciones" title="Notificaciones de Stock">
@@ -38,7 +53,7 @@
                         <a class="nav-link" href="../cajero.php">Módulo de Cajero</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Cerrar Sesión</a>
+                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -217,10 +232,10 @@
 
     </div>
 
-    <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../../assets/js/appDashboard.js"></script>
-    <script src="../../assets/js/notificacionesStock.js"></script>
+    <script src="/Cafe/assets/js/appDashboard.js"></script>
+    <script src="/Cafe/assets/js/notificacionesStock.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

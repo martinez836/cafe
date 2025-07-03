@@ -33,7 +33,7 @@ try {
                 $pedidosFormateados[] = [
                     'id' => $pedido['idpedidos'],
                     'table' => $pedido['nombre_mesa'],
-                    'status' => ($pedido['status_id'] == 5) ? 'Activo' : (($pedido['status_id'] == 6) ? 'Inactivo' : 'Desconocido'),
+                    'status' => ($pedido['status_id'] == 1) ? 'Activo' : (($pedido['status_id'] == 2) ? 'Inactivo' : 'Desconocido'),
                 ];
             }
 

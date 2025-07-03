@@ -87,6 +87,8 @@ class ConsultasUsuarios
         }
     }
 
+
+
     public function editarUsuario($id,$nombre,$email,$rol,$estado)
     {
         try {

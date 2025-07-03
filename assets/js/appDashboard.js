@@ -13,18 +13,19 @@ document.addEventListener('DOMContentLoaded', function() {
                             const dashboardData = data.data;
 
                             // Actualizar tarjetas de resumen
-                            document.querySelector('.card.bg-primary h3').textContent = dashboardData.totalPedidos.toLocaleString();
-                            document.querySelector('.card.bg-success h3').textContent = `$${dashboardData.ingresosMesActual.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                            document.querySelector('.card.bg-warning h3').textContent = dashboardData.nuevosUsuariosMesActual.toLocaleString();
+                            document.querySelector('.card.bg-primary h3').textContent = (dashboardData.totalPedidos ?? 0).toLocaleString();
+                            document.querySelector('.card.bg-success h3').textContent = `$${(dashboardData.ingresosMesActual ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                            document.querySelector('.card.bg-warning h3').textContent = (dashboardData.nuevosUsuariosMesActual ?? 0).toLocaleString();
 
                             // Actualizar gráfica de Ventas Diarias
-                            updateVentasDiariasChart(dashboardData.ventasDiarias.labels, dashboardData.ventasDiarias.data);
+                            const ventasDiarias = dashboardData.ventasDiarias ?? { labels: [], data: [] }; 
+                            createOrUpdateVentasDiariasChart(ventasDiarias.labels ?? [], ventasDiarias.data ?? []);
 
                             // Actualizar últimos pedidos
                             const ultimosPedidosList = document.querySelector('#ultimosPedidosList');
                             if (ultimosPedidosList) {
                                 ultimosPedidosList.innerHTML = '';
-                                if (dashboardData.ultimosPedidos.length > 0) {
+                                if (Array.isArray(dashboardData.ultimosPedidos) && dashboardData.ultimosPedidos.length > 0) {
                                     dashboardData.ultimosPedidos.forEach(pedido => {
                                         const li = document.createElement('li');
                                         li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
@@ -70,39 +71,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Chart para Ventas Diarias (inicialización y actualización)
             const ventasDiariasCtx = document.getElementById('ventasDiariasChart').getContext('2d');
-            let ventasDiariasChart = new Chart(ventasDiariasCtx, {
-                type: 'line',
-                data: {
-                    labels: [], // Se llenarán con datos reales
-                    datasets: [{
-                        label: 'Ventas ($)',
-                        data: [], // Se llenarán con datos reales
-                        borderColor: '#8B5E3C',
-                        backgroundColor: 'rgba(139, 94, 60, 0.2)',
-                        fill: true,
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: false,
-                            text: 'Ventas Diarias'
-                        }
+            let ventasDiariasChart = null;
+
+            function createOrUpdateVentasDiariasChart(ctx, labels, data) {
+                if (ventasDiariasChart) {
+                    ventasDiariasChart.destroy();
+                }
+                
+                ventasDiariasChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Ventas ($)',
+                            data: data,
+                            borderColor: '#8B5E3C',
+                            backgroundColor: 'rgba(139, 94, 60, 0.2)',
+                            fill: true,
+                            tension: 0.1
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: false,
+                                text: 'Ventas Diarias'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
                         }
                     }
-                }
-            });
-
-            function updateVentasDiariasChart(labels, data) {
-                ventasDiariasChart.data.labels = labels;
-                ventasDiariasChart.data.datasets[0].data = data;
-                ventasDiariasChart.update();
+                });
             }
 
             // Cargar datos al iniciar la página
@@ -112,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cargarAlertasStock();
             
             // Configurar gráfico de ventas (placeholder)
-            configurarGraficoVentas();
+            // configurarGraficoVentas(); // Eliminado para evitar datos ficticios
         });
 
 async function cargarAlertasStock() {
@@ -243,32 +246,6 @@ function verTodosProductosBajoStock() {
     if (notificacionesStock) {
         notificacionesStock.obtenerProductosBajoStock().then(productos => {
             notificacionesStock.mostrarModalDetalles(productos);
-        });
-    }
-}
-
-function configurarGraficoVentas() {
-    const ctx = document.getElementById('ventasDiariasChart');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-                datasets: [{
-                    label: 'Ventas Diarias',
-                    data: [12, 19, 3, 5, 2, 3, 7],
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
         });
     }
 }

@@ -1,11 +1,21 @@
+<?php
+require_once '../../config/config.php';
+config::iniciarSesion();
+
+// Verificar si está logueado
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: ../login.php');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gráficas - Tienda de Café</title>
-    <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet"  href="../../assets/css/graficas.css">
+    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet"  href="/Cafe/assets/css/graficas.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
@@ -22,11 +32,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Bienvenido, Admin</a>
                     </li>
+                    
                     <li class="nav-item">
-                        <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Cerrar Sesión</a>
+                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -159,9 +167,9 @@
 
     </div>
 
-    <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../../assets/js/appGraficas.js"></script>
+    <script src="/Cafe/assets/js/appGraficas.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

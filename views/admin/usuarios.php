@@ -1,11 +1,21 @@
+<?php
+require_once '../../config/config.php';
+config::iniciarSesion();
+
+// Verificar si está logueado
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: ../login.php');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios - Tienda de Café</title>
-    <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/usuarios.css">
+    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/Cafe/assets/css/usuarios.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head> 
@@ -25,10 +35,7 @@
                         <a class="nav-link" href="#">Bienvenido, Admin</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Cerrar Sesión</a>
+                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -193,7 +200,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/js/appUsuario.js"></script>
+    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/Cafe/assets/js/appUsuario.js"></script>
 </body>
 </html>

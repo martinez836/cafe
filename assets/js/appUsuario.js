@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success && data.data.length > 0) {
                     data.data.forEach(user => {
                         // Determinar el color del badge según el estado
-                        const estadoClass = user.estados_idestados == 5 ? 'badge bg-success' : 'badge bg-danger';
+                        const estadoClass = user.estados_idestados == 1 ? 'badge bg-success' : 'badge bg-danger';
                         
                         tablaUsuarios.row.add([
                             user.idusuarios,

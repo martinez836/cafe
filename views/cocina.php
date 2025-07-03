@@ -1,20 +1,30 @@
+<?php
+session_start();
+
+// Verificar si está logueado
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: login.php');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cocina - Tienda de Café</title>
-    <link href="../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/estiloCocina.css">
+    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/Cafe/assets/css/estiloCocina.css">
 </head>
 <body>
     <div class="header">
-        <div class="container">
-            <div class="text-center">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="text-center flex-grow-1">
                 <i class="fas fa-coffee coffee-icon"></i>
                 <h1 class="d-inline">Tienda de Café</h1>
                 <p class="mb-0 mt-2">Módulo de Cocina</p>
             </div>
+            <a href="../controllers/logout.php" class="btn btn-outline-danger ms-3">Cerrar Sesión <i class="fas fa-sign-out-alt"></i></a>
         </div>
     </div>
 
@@ -63,6 +73,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="../assets/js/appCocina.js"></script>
+    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/Cafe/assets/js/appCocina.js"></script>
 </body>
 </html> 
