@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['usuario'])) {
-    header('Location: ../views/inicioSesion.php');
-    exit();
+if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['rol'] !== 2) {
+  header('Location: InicioSesion.php');
+  exit;
 }
 
 require_once '../models/consultas.php';
@@ -65,7 +65,8 @@ try {
                         $disabled = $deshabilitar ? 'disabled' : '';
                         $msg = $mesa['tiene_pedido_confirmado'] > 0 ? ' (Confirmado)' : ($mesa['tiene_pedido_entregado'] > 0 ? ' (Entregado)' : '');
                         $token = isset($mesa['token_activo']) && $mesa['token_activo'] ? ' | Token #' . htmlspecialchars($mesa['token_activo']) : '';
-                        echo '<option value="' . (int)$mesa['idmesas'] . '" ' . $disabled . '>' . htmlspecialchars($mesa['nombre']) . $token . $msg . '</option>';
+                        $tokenActivo = isset($mesa['token_activo']) && $mesa['token_activo'] ? '1' : '0';
+                        echo '<option value="' . (int)$mesa['idmesas'] . '" data-token-activo="' . $tokenActivo . '" ' . $disabled . '>' . htmlspecialchars($mesa['nombre']) . $token . $msg . '</option>';
                     }
                 }
                 ?>
@@ -74,7 +75,6 @@ try {
                 <i class="fas fa-key me-2"></i>Generar Token para la Mesa
               </button>
             </div>
-
             <!-- Categorías -->
             <div class="mb-4">
               <h5 class="card-title mb-3">
@@ -94,6 +94,32 @@ try {
             </div>
           </div>
         </div>
+        <!-- Tarjeta de mesas con token activo -->
+        <?php
+        $mesasConToken = array_filter($mesas, function($m) {
+          return isset($m['token_activo']) && $m['token_activo'];
+        });
+        if (count($mesasConToken) > 0): ?>
+          <div class="card shadow-lg border-0 rounded-4 bg-light mt-4">
+            <div class="card-body p-4">
+              <h5 class="card-title mb-3 text-danger">
+                <i class="fas fa-key me-2"></i>Mesas con Token Activo
+              </h5>
+              <ul class="list-group">
+                <?php foreach ($mesasConToken as $mesa): ?>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                      <strong><?php echo htmlspecialchars($mesa['nombre']); ?></strong>                      
+                    </span>
+                    <button class="btn btn-danger btn-sm" onclick="cancelarTokenMesa(<?php echo (int)$mesa['idmesas']; ?>, '<?php echo htmlspecialchars($mesa['nombre']); ?>')">
+                      <i class="fas fa-ban me-1"></i>Cancelar Token
+                    </button>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            </div>
+          </div>
+        <?php endif; ?>
       </div>
 
       <!-- Panel de Productos -->
@@ -179,5 +205,55 @@ try {
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/js/appMesero.js"></script>
+  <script>
+  // Mostrar/ocultar botón cancelar token según mesa seleccionada
+  const mesaSelect = document.getElementById('mesaSelect');
+  const btnCancelarToken = document.getElementById('btnCancelarToken');
+  mesaSelect.addEventListener('change', function() {
+    const selected = mesaSelect.options[mesaSelect.selectedIndex];
+    if (selected && selected.getAttribute('data-token-activo') === '1') {
+      btnCancelarToken.style.display = '';
+    } else {
+      btnCancelarToken.style.display = 'none';
+    }
+  });
+
+  function cancelarTokenMesa(mesaId, nombreMesa) {
+    Swal.fire({
+      title: '¿Cancelar token?',
+      text: '¿Estás seguro de cancelar el token activo de la mesa ' + nombreMesa + '?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'No'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch('../controllers/cancelar_token.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mesa_id: mesaId })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire('Token cancelado', '', 'success').then(() => location.reload());
+          } else {
+            Swal.fire('Error', data.message || 'No se pudo cancelar el token', 'error');
+          }
+        })
+        .catch(() => Swal.fire('Error', 'No se pudo cancelar el token', 'error'));
+      }
+    });
+  }
+  // Mostrar el botón si la opción seleccionada al cargar ya tiene token activo
+  window.addEventListener('DOMContentLoaded', function() {
+    const selected = mesaSelect.options[mesaSelect.selectedIndex];
+    if (selected && selected.getAttribute('data-token-activo') === '1') {
+      btnCancelarToken.style.display = '';
+    } else {
+      btnCancelarToken.style.display = 'none';
+    }
+  });
+  </script>
 </body>
 </html>

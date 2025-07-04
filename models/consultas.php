@@ -23,7 +23,15 @@ class ConsultasMesero
             (SELECT COUNT(*) FROM pedidos p WHERE p.mesas_idmesas = m.idmesas AND p.estados_idestados = 5) as tiene_pedido_procesado
         FROM mesas m
         WHERE m.estados_idestados IN (1,5) ORDER BY m.nombre;";
-        return $this->mysql->efectuarConsulta($consulta);
+        $mesas = $this->mysql->efectuarConsulta($consulta);
+        // Refuerza: si token_activo es null o vacío, tiene_token_activo debe ser 0
+        foreach ($mesas as &$mesa) {
+            if (empty($mesa['token_activo']) || $mesa['tiene_token_activo'] == 0) {
+                $mesa['token_activo'] = null;
+                $mesa['tiene_token_activo'] = 0;
+            }
+        }
+        return $mesas;
     }
 
     public function traerMesasOcupadas($pdo)
@@ -86,7 +94,19 @@ class ConsultasMesero
     }
 
     public function traerPedidosActivosPorMesa($pdo, $mesaId) {
-        $stmt = $pdo->prepare("SELECT idpedidos, fecha_hora_pedido, total_pedido, token_utilizado, estados_idestados FROM pedidos WHERE mesas_idmesas = ? AND estados_idestados IN (1,3,4) ORDER BY fecha_hora_pedido DESC");
+        // Solo pedidos con productos y token activo/vigente
+        $stmt = $pdo->prepare("
+            SELECT p.idpedidos, p.fecha_hora_pedido, p.total_pedido, p.token_utilizado, p.estados_idestados
+            FROM pedidos p
+            INNER JOIN detalle_pedidos dp ON dp.pedidos_idpedidos = p.idpedidos
+            INNER JOIN tokens_mesa t ON t.token = p.token_utilizado
+            WHERE p.mesas_idmesas = ?
+              AND p.estados_idestados IN (1,3,4)
+              AND t.estado_token = 'activo'
+              AND t.fecha_hora_expiracion > NOW()
+            GROUP BY p.idpedidos
+            ORDER BY p.fecha_hora_pedido DESC
+        ");
         $stmt->execute([$mesaId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -147,7 +167,19 @@ class ConsultasMesero
 
     // PEDIDOS POR TOKEN (usuario mesa)
     public function traerPedidosPorMesaYToken($pdo, $mesaId, $token) {
-        $stmt = $pdo->prepare("SELECT p.idpedidos, p.fecha_hora_pedido, p.total_pedido, p.token_utilizado FROM pedidos p WHERE p.mesas_idmesas = ? AND p.token_utilizado = ? AND p.estados_idestados IN (1,3,4) ORDER BY p.fecha_hora_pedido DESC");
+        $stmt = $pdo->prepare("
+            SELECT p.idpedidos, p.fecha_hora_pedido, p.total_pedido, p.token_utilizado
+            FROM pedidos p
+            INNER JOIN detalle_pedidos dp ON dp.pedidos_idpedidos = p.idpedidos
+            INNER JOIN tokens_mesa t ON t.token = p.token_utilizado
+            WHERE p.mesas_idmesas = ?
+              AND p.token_utilizado = ?
+              AND p.estados_idestados IN (1,3,4)
+              AND t.estado_token = 'activo'
+              AND t.fecha_hora_expiracion > NOW()
+            GROUP BY p.idpedidos
+            ORDER BY p.fecha_hora_pedido DESC
+        ");
         $stmt->execute([$mesaId, $token]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -270,6 +302,17 @@ class ConsultasMesero
             return $usuario;
         }
         return false;
+    }
+
+    // TOKENS: Obtener solo el token activo y vigente de una mesa (PDO)
+    public function obtenerTokensActivosPorMesa($pdo, $mesaId) {
+        $stmt = $pdo->prepare("SELECT idtoken_mesa, token, fecha_hora_generacion, fecha_hora_expiracion, estado_token 
+            FROM tokens_mesa 
+            WHERE mesas_idmesas = ? AND estado_token = 'activo' AND fecha_hora_expiracion > NOW()
+            ORDER BY fecha_hora_generacion DESC
+            LIMIT 1");
+        $stmt->execute([$mesaId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 
