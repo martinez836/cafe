@@ -59,9 +59,9 @@ class ConsultasUsuarios
     {
         try {
             $sql = "insert into usuarios(nombre_usuario,contrasena_usuario,email_usuario,estados_idestados,rol_idrol)
-            values (?,?,?,1,?)";
-            $parametros = [$nombre_usuario, $contrasena_usuario, $email_usuario, $rol_idrol];
-            $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, "sssi", $parametros);
+            values (?,?,?,?,?)";
+            $parametros = [$nombre_usuario, $contrasena_usuario, $email_usuario, $estado_idestado, $rol_idrol];
+            $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, "sssii", $parametros);
             if ($stmt->rowCount() > 0) {
                 return true;
             } else {

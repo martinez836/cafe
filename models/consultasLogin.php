@@ -23,7 +23,7 @@ class ConsultasLogin
                     FROM usuarios 
                     JOIN roles ON usuarios.rol_idrol = roles.idrol 
                     JOIN estados ON usuarios.estados_idestados = estados.idestados
-                    WHERE usuarios.email_usuario = ? AND estados.estado = 'Activo'";
+                    WHERE usuarios.email_usuario = ? and estados.estado = 'Activo'";
             
             $parametros = [$email];
             $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, 's', $parametros);
