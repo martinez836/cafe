@@ -18,7 +18,7 @@ class ConsultasLogin
     public function autenticarUsuario($email, $password)
     {
         try {
-            $sql = "SELECT usuarios.idusuarios, usuarios.nombre_usuario, usuarios.email_usuario, usuarios.contraseña_usuario, 
+            $sql = "SELECT usuarios.idusuarios, usuarios.nombre_usuario, usuarios.email_usuario, usuarios.contrasena_usuario, 
                         roles.nombre_rol, roles.idrol, estados.estado
                     FROM usuarios 
                     JOIN roles ON usuarios.rol_idrol = roles.idrol 
@@ -29,7 +29,7 @@ class ConsultasLogin
             $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, 's', $parametros);
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($usuario && password_verify($password, $usuario['contraseña_usuario'])) {
+            if ($usuario && password_verify($password, $usuario['contrasena_usuario'])) {
                 return $usuario;
             }
             
@@ -88,7 +88,7 @@ class ConsultasLogin
         try {
             $passwordHash = password_hash($nuevaPassword, PASSWORD_BCRYPT);
             
-            $sql = "UPDATE usuarios SET contraseña_usuario = ? WHERE idusuarios = ?";
+            $sql = "UPDATE usuarios SET contrasena_usuario = ? WHERE idusuarios = ?";
             $parametros = [$passwordHash, $idUsuario];
             $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, 'si', $parametros);
             

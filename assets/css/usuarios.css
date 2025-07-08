@@ -38,6 +38,21 @@ body {
     color: white !important;
     filter: invert(1) grayscale(1) brightness(2);
 }
+.select-rol {
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    background-color: #fff;
+    color: #212529;
+    font-weight: 400;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 0.375rem 0.75rem;
+    height: calc(2.25rem + 2px);
+}
+.select-rol:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+}
 @media (min-width: 992px) {
     .sidebar {
         position: fixed;
