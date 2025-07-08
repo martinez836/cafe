@@ -1,10 +1,20 @@
+<?php
+require_once '../../config/config.php';
+config::iniciarSesion();
+
+// Verificar si está logueado
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: ../login.php');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../assets/css/cssBalance.css">
-    <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/Cafe/assets/css/cssBalance.css">
+    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <title>Balance General</title>
@@ -24,14 +34,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#">Bienvenido, Admin</a>
                         </li>
+                        
                         <li class="nav-item">
-                            <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="../cajero.php">Módulo de Cajero</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Cerrar Sesión</a>
+                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
                         </li>
                     </ul>
                 </div>
@@ -83,7 +88,7 @@
             <div class="offcanvas-body p-0">
                 <ul class="nav flex-column pt-3">
                     <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.php">
+                        <a class="nav-link" href="dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
@@ -99,7 +104,12 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="pedidos.php">
-                            <i class="fas fa-receipt me-2"></i>Pedidos
+                            <i class="fas fa-receipt me-2"></i>Ventas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="balanceGeneral.php">
+                            <i class="fas fa-receipt me-2"></i>Balance
                         </a>
                     </li>
                     <li class="nav-item">
@@ -148,7 +158,8 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="../../assets/js/appBalance.js"></script>
+    <script src="/Cafe/assets/js/appBalance.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ? '<span class="badge bg-warning">Sin stock</span>' 
                             : producto.stock_producto;
                         // Estado
-                        const estadoBadge = producto.estados_idestados == 5
+                        const estadoBadge = producto.estados_idestados == 1
                             ? '<span class="badge bg-success">Activo</span>'
                             : '<span class="badge bg-danger">Inactivo</span>';
                         // Tipo de producto

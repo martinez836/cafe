@@ -1,11 +1,21 @@
+<?php
+require_once '../../config/config.php';
+config::iniciarSesion();
+
+// Verificar si está logueado
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: ../login.php');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Pedidos - Tienda de Café</title>
-    <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/pedidos.css">
+    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/Cafe/assets/css/pedidos.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -25,10 +35,7 @@
                         <a class="nav-link" href="#">Bienvenido, Admin</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Cerrar Sesión</a>
+                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -96,7 +103,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" href="pedidos.php">
-                        <i class="fas fa-receipt me-2"></i>Pedidos
+                        <i class="fas fa-receipt me-2"></i>Ventas
                     </a>
                 </li>
                 <li class="nav-item">
@@ -114,12 +121,12 @@
     </div>
 
     <div class="content">
-        <h2 class="mb-4">Gestión de Pedidos</h2>
+        <h2 class="mb-4">Gestión de Ventas</h2>
 
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
-                    <i class="fas fa-clipboard-list me-2"></i>Lista de Pedidos
+                    <i class="fas fa-clipboard-list me-2"></i>Lista de Ventas
                 </div>
                 <button id="refreshOrders" class="btn btn-outline-primary btn-sm">
                     <i class="fas fa-sync-alt me-1"></i>Actualizar
