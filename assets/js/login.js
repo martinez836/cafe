@@ -32,7 +32,11 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
 
-        const formData = new FormData(form);
+        // Enviar datos como FormData
+        const formData = new FormData();
+        formData.append('email', emailInput.value.trim());
+        formData.append('password', passwordInput.value.trim());
+
         fetch('../controllers/login.php', {
             method: 'POST',
             body: formData

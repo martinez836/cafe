@@ -1,44 +1,21 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_name('cafe_session');
-    session_start();
-}
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-require_once '../config/config.php';
-
-
-// Verificar si está logueado
-if (!isset($_SESSION['usuario_id'])) {
-    header('Location: ../views/login.php');
-    exit();
-}
-
-// Permitir acceso a Cocina y Administrador
-if ($_SESSION['usuario_rol'] !== 'Cocina' && $_SESSION['usuario_rol'] !== 'Administrador') {
-    header('Location: ../views/login.php');
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cocina - Tienda de Café</title>
-    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/Cafe/assets/css/estiloCocina.css">
+    <link href="../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/estiloCocina.css">
 </head>
 <body>
     <div class="header">
-        <div class="container d-flex justify-content-between align-items-center">
-            <div class="text-center flex-grow-1">
+        <div class="container">
+            <div class="text-center">
                 <i class="fas fa-coffee coffee-icon"></i>
                 <h1 class="d-inline">Tienda de Café</h1>
                 <p class="mb-0 mt-2">Módulo de Cocina</p>
             </div>
-            <a href="../controllers/logout.php" class="btn btn-outline-danger ms-3">Cerrar Sesión <i class="fas fa-sign-out-alt"></i></a>
         </div>
     </div>
 
@@ -86,9 +63,8 @@ if ($_SESSION['usuario_rol'] !== 'Cocina' && $_SESSION['usuario_rol'] !== 'Admin
         </div>
     </div>
 
-    <script src="../assets/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
-    <script src="/Cafe/assets/js/appCocina.js"></script>
+    <script src="../assets/js/appCocina.js"></script>
 </body>
 </html> 

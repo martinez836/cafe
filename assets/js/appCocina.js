@@ -6,28 +6,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para obtener y mostrar pedidos pendientes
     function obtenerPedidosPendientes() {
-        fetch('../controllers/cocina.php?action=traer_pedidos_pendientes')
+        fetch('../controllers/cosina.php?action=traer_pedidos_pendientes')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            console.log('Obteniendo pedidos pendientes...', response);
             return response.json();
         })
         .then(data => {
-            if (data.success) {
-                renderizarPedidosPendientes(data.data);
-                console.log('Pedidos pendientes obtenidos:', data.data);
-            } else {
-                renderizarPedidosPendientes([]);
-                console.log('No se encontraron pedidos pendientes o la respuesta no es válida.');
-            }
+            renderizarPedidosPendientes(data);
         })
         .catch(error => {
-            showSwalError('Error al obtener pedidos pendientes.');
-            console.log('Error al obtener pedidos pendientes:', error);
+            console.error('Error al obtener pedidos pendientes:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al cargar pedidos',
+                text: 'No se pudieron cargar los pedidos pendientes. Por favor, intenta recargar la página.',
+            });
+            pedidos_pendientes.innerHTML = `
+                <div class="estado-vacio texto-centrado py-5">
+                    <i class="fas fa-exclamation-circle fa-3x texto-peligro mb-3"></i>
+                    <h5>Error al cargar pedidos</h5>
+                    <p>Intenta recargar la página.</p>
+                </div>
+            `;
         });
-
     }
 
     // Función para renderizar los pedidos pendientes en la lista
@@ -128,7 +131,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             }
         })
-        .catch(error => showSwalError('Error al obtener detalles del pedido.'));
+        .catch(error => {
+            console.error('Error al obtener detalles del pedido:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'Hubo un problema al comunicarse con el servidor para obtener los detalles del pedido.',
+            });
+            detalles_pedido.innerHTML = `
+                <div class="estado-vacio texto-centrado py-5">
+                    <i class="fas fa-exclamation-circle fa-3x texto-peligro mb-3"></i>
+                    <h5>Error de red</h5>
+                    <p>Verifica tu conexión y recarga la página.</p>
+                </div>
+            `;
+        });
     }
 
     // Función para renderizar los detalles del pedido en el panel
@@ -217,20 +234,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         );
                     }
                 })
-                .catch(error => showSwalError('Error al marcar el pedido como listo.'));
+                .catch(error => {
+                    console.error('Error al marcar el pedido como listo:', error);
+                    Swal.fire(
+                        'Error de conexión!',
+                        'Ocurrió un error al intentar comunicarse con el servidor.',
+                        'error'
+                    );
+                });
             }
         });
     };
 
     // Carga inicial de pedidos pendientes cuando la página se carga
     obtenerPedidosPendientes();
-});
-
-function showSwalError(msg) {
-    Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: msg || 'Ocurrió un error.',
-        confirmButtonText: 'Aceptar'
-    });
-} 
+}); 

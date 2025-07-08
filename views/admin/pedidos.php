@@ -1,24 +1,11 @@
-<?php
-require_once '../../config/config.php';
-config::iniciarSesion();
-
-// Verificar si está logueado
-if (!isset($_SESSION['usuario_id'])) {
-    header('Location: ../login.php');
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Pedidos - Tienda de Café</title>
-    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/Cafe/assets/css/pedidos.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/pedidos.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -35,7 +22,10 @@ if (!isset($_SESSION['usuario_id'])) {
                         <a class="nav-link" href="#">Bienvenido, Admin</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
+                        <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -61,20 +51,15 @@ if (!isset($_SESSION['usuario_id'])) {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="gestion_mesas.php">
+                <a class="nav-link active" href="gestion_mesas.php">
                     <i class="fas fa-mug-hot me-2"></i>Gestión Mesas
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link active" href="pedidos.php">
-                    <i class="fas fa-receipt me-2"></i>Ventas
+                    <i class="fas fa-receipt me-2"></i>Pedidos
                 </a>
             </li>
-            <li class="nav-item">
-                    <a class="nav-link" href="balanceGeneral.php">
-                        <i class="fas fa-receipt me-2"></i>Balance
-                    </a>
-                </li>
             <li class="nav-item">
                 <a class="nav-link" href="graficas.php">
                     <i class="fas fa-chart-bar me-2"></i>Gráficas
@@ -102,6 +87,11 @@ if (!isset($_SESSION['usuario_id'])) {
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="inventario.php">
+                        <i class="fas fa-boxes me-2"></i>Inventario
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="productos.php">
                         <i class="fas fa-mug-hot me-2"></i>Productos
                     </a>
@@ -113,12 +103,7 @@ if (!isset($_SESSION['usuario_id'])) {
             </li>
                 <li class="nav-item">
                     <a class="nav-link active" href="pedidos.php">
-                        <i class="fas fa-receipt me-2"></i>Ventas
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="balanceGeneral.php">
-                        <i class="fas fa-receipt me-2"></i>Balance
+                        <i class="fas fa-receipt me-2"></i>Pedidos
                     </a>
                 </li>
                 <li class="nav-item">
@@ -131,12 +116,12 @@ if (!isset($_SESSION['usuario_id'])) {
     </div>
 
     <div class="content">
-        <h2 class="mb-4">Gestión de Ventas</h2>
+        <h2 class="mb-4">Gestión de Pedidos</h2>
 
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
-                    <i class="fas fa-clipboard-list me-2"></i>Lista de Ventas
+                    <i class="fas fa-clipboard-list me-2"></i>Lista de Pedidos
                 </div>
                 <button id="refreshOrders" class="btn btn-outline-primary btn-sm">
                     <i class="fas fa-sync-alt me-1"></i>Actualizar
@@ -145,7 +130,7 @@ if (!isset($_SESSION['usuario_id'])) {
             <div class="card-body">
                 <p>Aquí se mostrará una tabla con la lista de pedidos y sus estados.</p>
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover" id="tablaPedidos">
+                    <table class="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>ID Pedido</th>
@@ -158,6 +143,9 @@ if (!isset($_SESSION['usuario_id'])) {
                         </thead>
                         <tbody id="ordersTableBody">
                             <!-- Datos de pedidos se cargarán aquí -->
+                            <tr>
+                                <td colspan="6" class="text-center">Cargando pedidos...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -188,11 +176,7 @@ if (!isset($_SESSION['usuario_id'])) {
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/appPedidos.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

@@ -1,90 +1,43 @@
 <?php
+require_once '../models/consultas.php';
 require_once '../config/config.php';
-require_once '../models/consultasLogin.php';
+require_once '../config/security.php';
+session_start();
 
-// Configurar headers para JSON
 header('Content-Type: application/json');
 
-// Verificar que sea una petición POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Método no permitido.'
-    ]);
-    exit;
-}
-
-// Obtener datos del formulario
-$email = trim($_POST['email'] ?? '');
-$password = $_POST['password'] ?? '';
-
-// Validar que los campos no estén vacíos
-if (empty($email) || empty($password)) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Por favor, completa todos los campos.'
-    ]);
-    exit;
-}
-
 try {
-    // Iniciar sesión
-    config::iniciarSesion();
+    // Obtener datos del formulario POST
+    if (!isset($_POST['email']) || !isset($_POST['password'])) {
+        echo json_encode(['success' => false, 'message' => 'Faltan datos de acceso.']);
+        exit;
+    }
+    $correo = SecurityUtils::sanitizeEmail($_POST['email']);
+    $contrasena = SecurityUtils::sanitizePassword($_POST['password']);
     
-    // Crear instancia de consultas de login
-    $consultasLogin = new ConsultasLogin();
-    
-    // Intentar autenticar usuario
-    $usuario = $consultasLogin->autenticarUsuario($email, $password);
+    $pdo = config::conectar();
+    $consultas = new ConsultasMesero();
+    $usuario = $consultas->verificarCredencialesUsuario($pdo, $correo, $contrasena);
     
     if ($usuario) {
-        // Login exitoso - crear sesión
-        $_SESSION['usuario_id'] = $usuario['idusuarios'];
-        $_SESSION['usuario_nombre'] = $usuario['nombre_usuario'];
-        $_SESSION['usuario_email'] = $usuario['email_usuario'];
-        $_SESSION['usuario_rol'] = $usuario['nombre_rol'];
-
-        // Bloquear acceso a Mesero desde este login
-        
-
-        // Determinar la página de destino según el rol
-        $redirect = '../views/admin/dashboard.php'; // Por defecto
-        switch ($usuario['nombre_rol']) {
-            case 'Administrador':
-                $redirect = '../views/admin/dashboard.php';
-                break;
-            case 'Cajero':
-                $redirect = '../views/cajero.php';
-                break;
-            case 'Cocina':
-                $redirect = '../views/cocina.php';
-                break;
-            case 'Mesero':
-                $redirect = '../views/mesero.php';
-                break;
-            // No incluir Mesero aquí
+        if ((int)$usuario['rol_idrol'] === 2) {
+            // Guardar datos mínimos en sesión
+            $_SESSION['usuario'] = [
+                'id' => $usuario['idusuarios'],
+                'nombre' => SecurityUtils::escapeHtml($usuario['nombre_usuario']),
+                'email' => SecurityUtils::escapeHtml($usuario['email_usuario']),
+                'rol' => (int)$usuario['rol_idrol']
+            ];
+            // Generar token CSRF para la sesión
+            SecurityUtils::generateCSRFToken();
+            echo json_encode(['success' => true, 'redirect' => '../views/mesero.php']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Acceso solo permitido para meseros']);
         }
-
-        echo json_encode([
-            'success' => true,
-            'redirect' => $redirect,
-            'message' => 'Login exitoso'
-        ]);
-        
+        exit;
     } else {
-        // Credenciales incorrectas
-        echo json_encode([
-            'success' => false,
-            'message' => 'Credenciales incorrectas o usuario inactivo.'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Correo o contraseña incorrectos']);
     }
-    
 } catch (Exception $e) {
-    // Error del sistema
-    error_log("Error en login: " . $e->getMessage());
-    echo json_encode([
-        'success' => false,
-        'message' => 'Error en el sistema. Por favor, intenta nuevamente.'
-    ]);
-}
-?>
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+} 

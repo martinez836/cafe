@@ -1,24 +1,11 @@
-<?php
-require_once '../../config/config.php';
-config::iniciarSesion();
-
-// Verificar si está logueado
-if (!isset($_SESSION['usuario_id'])) {
-    header('Location: ../login.php');
-    exit();
-}
-?>
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Productos - Tienda de Café</title>
-    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/Cafe/assets/css/productos.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="/Cafe/assets/css/notificaciones.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/productos.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -35,7 +22,10 @@ if (!isset($_SESSION['usuario_id'])) {
                         <a class="nav-link" href="#">Bienvenido, Admin</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
+                        <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -61,20 +51,15 @@ if (!isset($_SESSION['usuario_id'])) {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="gestion_mesas.php">
+                <a class="nav-link active" href="gestion_mesas.php">
                     <i class="fas fa-mug-hot me-2"></i>Gestión Mesas
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="pedidos.php">
-                    <i class="fas fa-receipt me-2"></i>Ventas
+                    <i class="fas fa-receipt me-2"></i>Pedidos
                 </a>
             </li>
-            <li class="nav-item">
-                    <a class="nav-link" href="balanceGeneral.php">
-                        <i class="fas fa-receipt me-2"></i>Balance
-                    </a>
-                </li>
             <li class="nav-item">
                 <a class="nav-link" href="graficas.php">
                     <i class="fas fa-chart-bar me-2"></i>Gráficas
@@ -102,6 +87,11 @@ if (!isset($_SESSION['usuario_id'])) {
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="inventario.php">
+                        <i class="fas fa-boxes me-2"></i>Inventario
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link active" href="productos.php">
                         <i class="fas fa-mug-hot me-2"></i>Productos
                     </a>
@@ -113,12 +103,7 @@ if (!isset($_SESSION['usuario_id'])) {
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="pedidos.php">
-                        <i class="fas fa-receipt me-2"></i>Ventas
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="balanceGeneral.php">
-                        <i class="fas fa-receipt me-2"></i>Balance
+                        <i class="fas fa-receipt me-2"></i>Pedidos
                     </a>
                 </li>
                 <li class="nav-item">
@@ -142,20 +127,22 @@ if (!isset($_SESSION['usuario_id'])) {
                 <button class="btn btn-primary mb-3" id="addProductBtn">
                     <i class="fas fa-plus me-2"></i>Agregar Producto
                 </button>
-                    <table class="table table-striped table-hover" id="tablaProductos">
+                    <table class="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Precio</th>
-                                <th>Stock</th>
                                 <th>Categoría</th>
                                 <th>Estado</th>
-                                <th>Tipo</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="productsTableBody">
+                            <!-- Datos de productos se cargarán aquí -->
+                            <tr>
+                                <td colspan="6" class="text-center">Cargando productos...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -183,14 +170,7 @@ if (!isset($_SESSION['usuario_id'])) {
                             </div>
                             <div class="mb-3">
                                 <label for="productStock" class="form-label">Stock</label>
-                                <input type="number" class="form-control" placeholder="Cantidad disponible (opcional)" id="productStock" min="0">
-                            </div>
-                            <div class="mb-3">
-                                <label for="productTipo" class="form-label">Tipo de producto</label>
-                                <select class="form-control" id="productTipo" required>
-                                    <option value="1">Sin Stock</option>
-                                    <option value="2">Con Stock</option>
-                                </select>
+                                <input type="number" class="form-control" placeholder="Dejar nulo si no ejerce Stock" id="productStock" required>
                             </div>
                             <div class="mb-3">
                                 <label for="productCategory" class="form-label">Categoría</label>
@@ -215,14 +195,8 @@ if (!isset($_SESSION['usuario_id'])) {
             </div>
         </div>
     </div>
-    
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
-    <script src="/Cafe/assets/js/appProductos.js"></script>
-    <script src="/Cafe/assets/js/notificacionesStock.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="../../assets/jsBootstrap/bootstrap.bundle.js"></script>
+    <script src="../../assets/js/appProductos.js"></script>
 </body>
 </html>

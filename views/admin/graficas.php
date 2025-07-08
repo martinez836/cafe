@@ -1,22 +1,11 @@
-<?php
-require_once '../../config/config.php';
-config::iniciarSesion();
-
-// Verificar si está logueado
-if (!isset($_SESSION['usuario_id'])) {
-    header('Location: ../login.php');
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gráficas - Tienda de Café</title>
-    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet"  href="/Cafe/assets/css/graficas.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet"  href="../../assets/css/graficas.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -32,9 +21,11 @@ if (!isset($_SESSION['usuario_id'])) {
                     <li class="nav-item">
                         <a class="nav-link" href="#">Bienvenido, Admin</a>
                     </li>
-                    
                     <li class="nav-item">
-                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
+                        <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -60,7 +51,7 @@ if (!isset($_SESSION['usuario_id'])) {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="gestion_mesas.php">
+                <a class="nav-link active" href="gestion_mesas.php">
                     <i class="fas fa-mug-hot me-2"></i>Gestión Mesas
                 </a>
             </li>
@@ -70,10 +61,10 @@ if (!isset($_SESSION['usuario_id'])) {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="balanceGeneral.php">
-                    <i class="fas fa-receipt me-2"></i>Balance
-                </a>
-            </li>
+                    <a class="nav-link" href="balanceGeneral.php">
+                        <i class="fas fa-receipt me-2"></i>Balance
+                    </a>
+                </li>
             <li class="nav-item">
                 <a class="nav-link active" href="graficas.php">
                     <i class="fas fa-chart-bar me-2"></i>Gráficas
@@ -112,12 +103,7 @@ if (!isset($_SESSION['usuario_id'])) {
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="pedidos.php">
-                        <i class="fas fa-receipt me-2"></i>Ventas
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="balanceGeneral.php">
-                        <i class="fas fa-receipt me-2"></i>Balance
+                        <i class="fas fa-receipt me-2"></i>Pedidos
                     </a>
                 </li>
                 <li class="nav-item">
@@ -136,7 +122,7 @@ if (!isset($_SESSION['usuario_id'])) {
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-chart-bar me-2"></i>Recaudo Mensual
+                        <i class="fas fa-chart-bar me-2"></i>Ventas por Categoría
                     </div>
                     <div class="card-body">
                         <canvas id="ventasCategoriaChart"></canvas>
@@ -156,20 +142,20 @@ if (!isset($_SESSION['usuario_id'])) {
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-chart-line me-2"></i>Ingresos por empleado
+                        <i class="fas fa-chart-line me-2"></i>Tendencia de Pedidos (Mensual)
                     </div>
                     <div class="card-body">
-                        <canvas id="ingresosEmpleadoChart"></canvas>
+                        <canvas id="tendenciaPedidosChart"></canvas>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-chart-line me-2"></i>Mesas atendidas por empleado
+                        <i class="fas fa-chart-area me-2"></i>Ingresos Anuales
                     </div>
                     <div class="card-body">
-                        <canvas id="mesasEmpleadoChart"></canvas>
+                        <canvas id="ingresosAnualesChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -177,9 +163,8 @@ if (!isset($_SESSION['usuario_id'])) {
 
     </div>
 
-    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/Cafe/assets/js/appGraficas.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/appGraficas.js"></script>
 </body>
 </html>
