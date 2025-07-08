@@ -10,6 +10,7 @@ if (!isset($_SESSION['usuario_id'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,6 +20,7 @@ if (!isset($_SESSION['usuario_id'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <title>Balance General</title>
 </head>
+
 <body>
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -34,9 +36,9 @@ if (!isset($_SESSION['usuario_id'])) {
                         <li class="nav-item">
                             <a class="nav-link" href="#">Bienvenido, Admin</a>
                         </li>
-                        
+
                         <li class="nav-item">
-                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
+                            <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
                         </li>
                     </ul>
                 </div>
@@ -46,36 +48,36 @@ if (!isset($_SESSION['usuario_id'])) {
         <!-- Sidebar fija para escritorio -->
         <div class="sidebar d-none d-lg-block">
             <ul class="nav flex-column pt-3">
-            <li class="nav-item">
-                <a class="nav-link " href="dashboard.php">
-                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="usuarios.php">
-                    <i class="fas fa-users me-2"></i>Usuarios
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="productos.php">
-                    <i class="fas fa-mug-hot me-2"></i>Productos
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="pedidos.php">
-                    <i class="fas fa-receipt me-2"></i>Ventas
-                </a>
-            </li>
-            <li class="nav-item active">
+                <li class="nav-item">
+                    <a class="nav-link " href="dashboard.php">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="usuarios.php">
+                        <i class="fas fa-users me-2"></i>Usuarios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="productos.php">
+                        <i class="fas fa-mug-hot me-2"></i>Productos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="pedidos.php">
+                        <i class="fas fa-receipt me-2"></i>Ventas
+                    </a>
+                </li>
+                <li class="nav-item active">
                     <a class="nav-link" href="balanceGeneral.php">
                         <i class="fas fa-receipt me-2"></i>Balance
                     </a>
                 </li>
-            <li class="nav-item">
-                <a class="nav-link" href="graficas.php">
-                    <i class="fas fa-chart-bar me-2"></i>Gráficas
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="graficas.php">
+                        <i class="fas fa-chart-bar me-2"></i>Gráficas
+                    </a>
+                </li>
             </ul>
         </div>
 
@@ -100,6 +102,11 @@ if (!isset($_SESSION['usuario_id'])) {
                     <li class="nav-item">
                         <a class="nav-link" href="productos.php">
                             <i class="fas fa-mug-hot me-2"></i>Productos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="gestion_mesas.php">
+                            <i class="fas fa-mug-hot me-2"></i>Gestión Mesas
                         </a>
                     </li>
                     <li class="nav-item">
@@ -131,20 +138,20 @@ if (!isset($_SESSION['usuario_id'])) {
                     </div>
 
                     <!-- Tabla del balance -->
-                     <table class="table mt-4">
-                         <thead>
-                             <tr>
-                                 <th>Pedido #</th>
-                                 <th>Fecha</th>
-                                 <th>Mesero</th>
-                                 <th>Total</th>
-                                 <th>Productos</th>
-                             </tr>
-                         </thead>
-                         <tbody id="TablaBalance">
-                             
-                         </tbody>
-                     </table>
+                    <table class="table mt-4">
+                        <thead>
+                            <tr>
+                                <th>Pedido #</th>
+                                <th>Fecha</th>
+                                <th>Mesero</th>
+                                <th>Total</th>
+                                <th>Productos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="TablaBalance">
+
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </main>
@@ -157,4 +164,5 @@ if (!isset($_SESSION['usuario_id'])) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

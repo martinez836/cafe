@@ -13,14 +13,14 @@ if (!isset($_SESSION['usuario_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Usuarios - Tienda de Café</title>
+    <title>Gestión de Productos - Tienda de Café</title>
     <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/Cafe/assets/css/usuarios.css">
+    <link rel="stylesheet" href="/Cafe/assets/css/productos.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
-</head> 
+    <link rel="stylesheet" href="/Cafe/assets/css/notificaciones.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+</head>
 <body>
-<div class="container-fluid">
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
@@ -51,12 +51,12 @@ if (!isset($_SESSION['usuario_id'])) {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="usuarios.php">
+                <a class="nav-link" href="usuarios.php">
                     <i class="fas fa-users me-2"></i>Usuarios
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="productos.php">
+                <a class="nav-link active" href="productos.php">
                     <i class="fas fa-mug-hot me-2"></i>Productos
                 </a>
             </li>
@@ -97,12 +97,12 @@ if (!isset($_SESSION['usuario_id'])) {
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="usuarios.php">
+                    <a class="nav-link" href="usuarios.php">
                         <i class="fas fa-users me-2"></i>Usuarios
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="productos.php">
+                    <a class="nav-link active" href="productos.php">
                         <i class="fas fa-mug-hot me-2"></i>Productos
                     </a>
                 </li>
@@ -112,7 +112,7 @@ if (!isset($_SESSION['usuario_id'])) {
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="pedidos.php">
+                    <a class="nav-link" href="balanceGeneral.php">
                         <i class="fas fa-receipt me-2"></i>Balance
                     </a>
                 </li>
@@ -126,86 +126,67 @@ if (!isset($_SESSION['usuario_id'])) {
     </div>
 
     <div class="content">
-        <h2 class="mb-4">Gestión de Usuarios</h2>
+        <h2 class="mb-4">Gestión de Mesas</h2>
 
         <div class="card mb-4">
             <div class="card-header">
-                <i class="fas fa-table me-2"></i>Lista de Usuarios
+                <i class="fas fa-list-alt me-2"></i>Listado de Mesas
             </div>
             <div class="card-body">
-                <button id="btnCrearUsuario" class="btn btn-primary">Crear Usuario </button>
-                <div class="table">
-                    <table class="table table-striped table-hover" id="tablaUsuarios">
+                <div class="table-responsive">
+                <button class="btn btn-primary mb-3" id="addMesasBtn">
+                    <i class="fas fa-plus me-2"></i>Agregar Mesas
+                </button>
+                    <table class="table table-striped table-hover" id="tablaMesas">
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>Rol</th>
+                                <th>Nombre Mesa</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="usersTableBody">
-
+                        <tbody id="mesasTableBody">
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="modalUsuario" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="modalUsuarioTitle">Modal title</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                <form id="frmUsuario">
-                        <div class="modal-body">
+        <!-- Modal para Agregar/Editar Producto -->
+        <div class="modal fade" id="mesasModal" tabindex="-1" aria-labelledby="mesasModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="mesasModalLabel">Gestión de Mesas</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="mesasForm">
+                            <input type="hidden" id="mesaId">
                             <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">Nombre del usuario</label>
-                                <input type="text" class="form-control" id="nombre_usuario" aria-describedby="emailHelp">
+                                <label for="nombreMesa" class="form-label">Nombre Mesa</label>
+                                <input type="text" class="form-control" id="nombreMesa" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email_usuario" aria-describedby="emailHelp">
-                            </div>
-                             <div class="mb-3">
-                                <label for="exampleInputEmail1" id="lblContrasena" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="contrasena_usuario" aria-describedby="emailHelp">
-                            </div>
-                            <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">Rol</label><br>
-                                <select id="rolUsuario">
 
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">Estado</label><br>
-                                <select id="estadoUsuario">
-
-                                </select>
-                            </div>
-                        </div>
-                
+                        </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="saveMesa">Guardar</button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <script src="/Cafe/assets/js/appGestion_mesas.js"></script>
+    <script src="/Cafe/assets/js/notificacionesStock.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/js/appUsuario.js"></script>
 </body>
 </html>
