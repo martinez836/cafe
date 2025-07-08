@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gráficas - Tienda de Café</title>
-    <link href="../../assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet"  href="../../assets/css/graficas.css">
+    <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet"  href="/Cafe/assets/css/graficas.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -62,7 +64,7 @@
             </li>
             <li class="nav-item">
                     <a class="nav-link" href="balanceGeneral.php">
-                        <i class="fas fa-receipt me-2"></i>Balance
+                        <i class="fa-solid fa-file-pdf"></i>Balance
                     </a>
                 </li>
             <li class="nav-item">
@@ -97,13 +99,18 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="gestion_mesas.php">
-                        <i class="fas fa-mug-hot me-2"></i>Gestión Mesas
+                    <a class="nav-link active" href="gestion_mesas.php">
+                        <i class="fas fa-chair me-2"></i>Gestión Mesas
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="pedidos.php">
-                        <i class="fas fa-receipt me-2"></i>Pedidos
+                        <i class="fas fa-receipt me-2"></i>Ventas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="balanceGeneral.php">
+                        <i class="fa-solid fa-file-pdf"></i>Balance
                     </a>
                 </li>
                 <li class="nav-item">

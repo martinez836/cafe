@@ -25,7 +25,7 @@ class ConsultasCocina
                 FROM pedidos JOIN detalle_pedidos ON pedidos.idpedidos = detalle_pedidos.pedidos_idpedidos 
                 JOIN productos ON detalle_pedidos.productos_idproductos = productos.idproductos 
                 JOIN mesas ON pedidos.mesas_idmesas = mesas.idmesas 
-                WHERE pedidos.estados_idestados = 1
+                WHERE pedidos.estados_idestados = 3
                 GROUP BY pedidos.idpedidos, pedidos.fecha_hora_pedido, mesas.nombre 
                 ORDER BY pedidos.fecha_hora_pedido ASC
             ";

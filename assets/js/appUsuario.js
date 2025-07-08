@@ -155,51 +155,91 @@ document.addEventListener('DOMContentLoaded', function() {
     usersTableBody.addEventListener('click', (e) => {
         const botonEliminar = e.target.closest('.btnEliminar');
         const botonEditar = e.target.closest('.btnEditar');
-        if (botonEliminar) {
-            const fila = botonEliminar.closest('tr');
-            const idEliminar = fila.children[0].textContent;
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: 'Esta acción no se puede deshacer',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const formData = new FormData();
-                    formData.append('idusuario', idEliminar);
-                    fetch('../../controllers/admin/usuarios.php?action=eliminar', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Eliminado!', 'El usuario ha sido eliminado.', 'success');
-                            loadUsers();
-                        } else {
-                            Swal.fire('Error!', data.message || 'No se pudo eliminar el usuario.', 'error');
-                        }
-                    });
-                }
-            });
-        } else if (botonEditar) {
-            const fila = botonEditar.closest('tr');
-            idusuario = fila.children[0].textContent;
-            const nombre = fila.children[1].textContent;
-            const email = fila.children[2].textContent;
-            const rol = fila.children[3].dataset.idrol;
-            nombreUsuario.value = nombre;
-            emailUsuario.value = email;
-            cargarRoles(rol);
-            opcion = "editar";
-            // Ocultar campo de contraseña al editar
-            contrasenaUsuario.value = '';
-            contrasenaUsuario.style.display = 'none';
-            document.querySelector('#lblContrasena').style.display = 'none';
-            document.querySelector('#modalUsuarioTitle').textContent = 'Editar Usuario';
-            modalUsuario.show();
+        const tabla = $('#tablaUsuarios').DataTable();
+
+        if (botonEliminar || botonEditar) {
+            // Encuentra el tr más cercano al botón
+            let tr = $(e.target).closest('tr')[0];
+
+            // Si es una child row, busca la fila principal (la siguiente o anterior con clase 'parent')
+            if (tr && tr.classList.contains('child')) {
+                // Busca hacia arriba y hacia abajo por si acaso
+                let prev = tr.previousElementSibling;
+                let next = tr.nextElementSibling;
+                while (prev && !prev.classList.contains('parent')) prev = prev.previousElementSibling;
+                while (next && !next.classList.contains('parent')) next = next.nextElementSibling;
+                tr = prev && prev.classList.contains('parent') ? prev : (next && next.classList.contains('parent') ? next : null);
+            }
+
+            if (!tr) {
+                Swal.fire('Error', 'No se pudo obtener la información de la fila.', 'error');
+                return;
+            }
+
+            const row = tabla.row(tr);
+            const data = row.data();
+            if (!data) {
+                console.log('row:', row);
+            console.log('data:', data);
+            console.log('tr:', tr);
+            console.log('tbody HTML:', usersTableBody.innerHTML);
+                Swal.fire('Error', 'No se pudo obtener la información de la fila.', 'error');
+                return;
+            }
+
+            if (botonEliminar) {
+                const idUsuario = data[0];
+                opcion = "eliminar";
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "¡No podrás deshacer esta acción!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar'
+                }).then((result)=>{
+                    if(result.isConfirmed)
+                    {
+                        const formData = new FormData();
+                        formData.append('id',idUsuario);
+                        fetch('../../controllers/admin/usuarios.php?action=eliminar',{
+                            method:'POST',
+                            body:formData
+                        })
+                        .then((response)=>response.json())
+                        .then((data)=>{
+                            if (data.success) {
+                                Swal.fire(
+                                    'Eliminado!',
+                                    'El usuario ha sido eliminado.',
+                                    'success'
+                                );
+                                loadUsers(); // Recargar inventario
+                            } else {
+                                Swal.fire(
+                                    'Error!'+idUsuario,
+                                    data.message || 'No se pudo eliminar el artículo.',
+                                    'error'
+                                );
+                            }
+                        })
+                    }
+                })
+            } else if (botonEditar) {
+                idusuario = data[0];
+                const nombre = data[1];
+                const email = data[2];
+                const rol = $(data[3]).data('idrol');
+                document.querySelector("#nombre_usuario").value = nombre;
+                document.querySelector("#email_usuario").value = email;
+                cargarRoles(rol);
+                opcion = "editar";
+                document.querySelector("#contrasena_usuario").style.display = 'none';
+                document.querySelector("#lblContrasena").style.display = "none";
+                document.querySelector('#modalUsuarioTitle').textContent = 'Editar Usuario';
+                modalUsuario.show();
+            }
         }
     });
 
