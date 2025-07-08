@@ -3,10 +3,10 @@ require_once '../../config/config.php';
 config::iniciarSesion();
 
 // Verificar si está logueado
-if (!isset($_SESSION['usuario_id'])) {
+/* if (!isset($_SESSION['usuario_id'])) {
     header('Location: ../login.php');
     exit();
-}
+} */
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -19,6 +19,7 @@ if (!isset($_SESSION['usuario_id'])) {
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="/Cafe/assets/css/notificaciones.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -62,7 +63,7 @@ if (!isset($_SESSION['usuario_id'])) {
             </li>
             <li class="nav-item">
                 <a class="nav-link active" href="gestion_mesas.php">
-                    <i class="fas fa-mug-hot me-2"></i>Gestión Mesas
+                    <i class="fas fa-chair me-2"></i>Gestión Mesas
                 </a>
             </li>
             <li class="nav-item">
@@ -135,15 +136,15 @@ if (!isset($_SESSION['usuario_id'])) {
             <div class="card-body">
                 <div class="table-responsive">
                 <button class="btn btn-primary mb-3" id="addMesasBtn">
-                    <i class="fas fa-plus me-2"></i>Agregar Mesas
+                    <i class="fas fa-plus"> Mesa</i>
                 </button>
-                    <table class="table table-striped table-hover" id="tablaMesas">
+                    <table class="table table-striped table-hover table-sm w-100 align-middle" id="tablaMesas">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Nombre Mesa</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
+                                <th style="width: 8%; min-width: 60px;" class="text-center">ID</th>
+                                <th style="width: 50%;">Nombre Mesa</th>
+                                <th style="width: 20%;" class="text-center">Estado</th>
+                                <th style="width: 22%;" class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="mesasTableBody">
@@ -173,7 +174,7 @@ if (!isset($_SESSION['usuario_id'])) {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" id="saveMesa">Guardar</button>
+                        <button type="button" class="btn btn-primary" id="saveMesa"><i class="fas fa-save me-1"></i>Guardar</button>
                     </div>
                 </div>
             </div>

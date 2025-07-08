@@ -38,17 +38,17 @@ const llenarTablaMesas = () =>{
                 const estado = `<span class="badge ${cfg.badge}">${cfg.label}</span>`;
 
             fila.innerHTML = `
-                <td>${mesa.idmesas}</td>
+                <td class="text-center">${mesa.idmesas}</td>
                 <td>${mesa.nombre}</td>
-                <td>${estado}</td>
-                <td class="d-none d-md-table-cell">
-                    <button class="btn btn-warning btn-sm me-1" onclick="editarMesa(${mesa.idmesas})">Editar Nombre</button>
-                    <button class="btn btn-danger btn-sm" onclick="eliminarMesa(${mesa.idmesas})">Eliminar</button>
+                <td class="text-center">${estado}</td>
+                <td class="d-none d-md-table-cell text-center">
+                    <button class="btn btn-warning btn-sm me-1" onclick="editarMesa(${mesa.idmesas})"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-danger btn-sm" onclick="eliminarMesa(${mesa.idmesas})"><i class="fas fa-trash"></i></button>
                 </td>
-                <td class="d-md-none">
+                <td class="d-md-none text-center">
                     <div class="d-flex flex-column gap-1">
-                        <button class="btn btn-warning btn-sm w-100" onclick="editarMesa(${mesa.idmesas})">Editar</button>
-                        <button class="btn btn-danger btn-sm w-100" onclick="eliminarMesa(${mesa.idmesas})">Eliminar</button>
+                        <button class="btn btn-warning btn-sm w-100" onclick="editarMesa(${mesa.idmesas})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger btn-sm w-100" onclick="eliminarMesa(${mesa.idmesas})"><i class="fas fa-trash"></i></button>
                     </div>
                 </td>
             `;
