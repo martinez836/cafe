@@ -58,9 +58,9 @@ class ConsultasUsuarios
     public function insertarUsuarios($nombre_usuario, $contrasena_usuario, $email_usuario, $rol_idrol)
     {
         try {
-            $sql = "insert into usuarios(nombre_usuario,contrasena_usuario,email_usuario,estados_idestados,rol_idrol)
+            $sql = "insert into usuarios(nombre_usuario,contrasena_usuario,email_usuario,rol_idrol,estados_idestados)
             values (?,?,?,?,?)";
-            $parametros = [$nombre_usuario, $contrasena_usuario, $email_usuario, $estado_idestado, $rol_idrol];
+            $parametros = [$nombre_usuario, $contrasena_usuario, $email_usuario, $rol_idrol, 1]; // 1 = Activo
             $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, "sssii", $parametros);
             if ($stmt->rowCount() > 0) {
                 return true;

@@ -22,7 +22,7 @@ class ProcesarPagoCajero
             $consultas = new consultasCajero();
 
             
-            $resultado = $consultas->cambiarEstadoPedido($idpedido, 2);
+            $resultado = $consultas->cambiarEstadoPedido($idpedido, 5);
 
             if ($resultado) {
                 $detalles = $consultas->obtenerDetallesPedido($idpedido);

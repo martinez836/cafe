@@ -73,7 +73,7 @@ if (!isset($_SESSION['usuario_id'])) {
             </li>
             <li class="nav-item">
                     <a class="nav-link" href="balanceGeneral.php">
-                        <i class="fas fa-receipt me-2"></i>Balance
+                        <i class="fa-solid fa-file-pdf"></i>Balance
                     </a>
                 </li>
             <li class="nav-item">
@@ -114,7 +114,7 @@ if (!isset($_SESSION['usuario_id'])) {
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="balanceGeneral.php">
-                        <i class="fas fa-receipt me-2"></i>Balance
+                        <i class="fa-solid fa-file-pdf"></i>Balance
                     </a>
                 </li>
                 <li class="nav-item">

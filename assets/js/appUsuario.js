@@ -274,11 +274,9 @@ btnCrearUsuario.addEventListener('click', () => {
                 const nombre = data[1];
                 const email = data[2];
                 const rol = $(data[3]).data('idrol');
-                const estado = $(data[4]).data('idestado');
                 document.querySelector("#nombre_usuario").value = nombre;
                 document.querySelector("#email_usuario").value = email;
                 cargarRoles(rol);
-                cargarEstados(estado);
                 opcion = "editar";
                 document.querySelector("#contrasena_usuario").style.display = 'none';
                 document.querySelector("#lblContrasena").style.display = "none";
