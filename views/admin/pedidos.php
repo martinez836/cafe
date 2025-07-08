@@ -102,7 +102,7 @@ if (!isset($_SESSION['usuario_id'])) {
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" href="pedidos.php">
-                        <i class="fas fa-receipt me-2"></i>Pedidos
+                        <i class="fas fa-receipt me-2"></i>Ventas
                     </a>
                 </li>
                 <li class="nav-item">
@@ -120,12 +120,12 @@ if (!isset($_SESSION['usuario_id'])) {
     </div>
 
     <div class="content">
-        <h2 class="mb-4">Gestión de Pedidos</h2>
+        <h2 class="mb-4">Gestión de Ventas</h2>
 
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
-                    <i class="fas fa-clipboard-list me-2"></i>Lista de Pedidos
+                    <i class="fas fa-clipboard-list me-2"></i>Lista de Ventas
                 </div>
                 <button id="refreshOrders" class="btn btn-outline-primary btn-sm">
                     <i class="fas fa-sync-alt me-1"></i>Actualizar

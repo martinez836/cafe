@@ -119,3 +119,43 @@ p {
     background-color: #218838;
     border-color: #1e7e34;
 } 
+@media (max-width: 991.98px) {
+    .sidebar {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1045;
+    }
+    .content {
+        margin-left: 0 !important;
+    }
+    .offcanvas.offcanvas-start {
+        width: 80vw !important;
+        min-width: 220px;
+        max-width: 400px;
+        background-color: #343a40 !important;
+        color: white;
+    }
+    .offcanvas.offcanvas-start .offcanvas-body {
+        padding: 0;
+    }
+}
+.offcanvas.offcanvas-start {
+    background-color: #343a40 !important;
+    color: white;
+}
+.sidebar .nav-link, .offcanvas.offcanvas-start .offcanvas-body .nav-link {
+    color: rgba(255, 255, 255, 0.75);
+    padding: 10px 15px;
+}
+.sidebar .nav-link.active,
+.sidebar .nav-link:hover,
+.offcanvas.offcanvas-start .offcanvas-body .nav-link.active,
+.offcanvas.offcanvas-start .offcanvas-body .nav-link:hover {
+    color: white;
+    background-color: #495057;
+} 

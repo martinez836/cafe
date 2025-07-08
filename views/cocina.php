@@ -1,9 +1,23 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('cafe_session');
+    session_start();
+}
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+require_once '../config/config.php';
+
 
 // Verificar si está logueado
 if (!isset($_SESSION['usuario_id'])) {
-    header('Location: login.php');
+    header('Location: ../views/login.php');
+    exit();
+}
+
+// Permitir acceso a Cocina y Administrador
+if ($_SESSION['usuario_rol'] !== 'Cocina' && $_SESSION['usuario_rol'] !== 'Administrador') {
+    header('Location: ../views/login.php');
     exit();
 }
 ?>

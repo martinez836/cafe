@@ -88,7 +88,7 @@ if (!isset($_SESSION['usuario_id'])) {
             <div class="offcanvas-body p-0">
                 <ul class="nav flex-column pt-3">
                     <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.php">
+                        <a class="nav-link" href="dashboard.php">
                             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                         </a>
                     </li>
@@ -104,7 +104,12 @@ if (!isset($_SESSION['usuario_id'])) {
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="pedidos.php">
-                            <i class="fas fa-receipt me-2"></i>Pedidos
+                            <i class="fas fa-receipt me-2"></i>Ventas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="balanceGeneral.php">
+                            <i class="fas fa-receipt me-2"></i>Balance
                         </a>
                     </li>
                     <li class="nav-item">
