@@ -3,10 +3,10 @@ require_once '../../config/config.php';
 config::iniciarSesion();
 
 // Verificar si está logueado
-/* if (!isset($_SESSION['usuario_id'])) {
+if (!isset($_SESSION['usuario_id'])) {
     header('Location: ../login.php');
     exit();
-} */
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
