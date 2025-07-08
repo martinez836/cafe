@@ -7,39 +7,34 @@ session_start();
 header('Content-Type: application/json');
 
 try {
-    $data = json_decode(file_get_contents('php://input'), true);
-    
-    // Validar que los datos JSON sean válidos
-    $data = SecurityUtils::sanitizeJsonData($data);
-    
-    // Validar campos requeridos
-    SecurityUtils::validateRequiredKeys($data, ['correo', 'contrasena']);
-    
-    // Sanitizar y validar entradas
-    $correo = SecurityUtils::sanitizeEmail($data['correo']);
-    $contrasena = SecurityUtils::sanitizePassword($data['contrasena']);
+    // Obtener datos del formulario POST
+    if (!isset($_POST['email']) || !isset($_POST['password'])) {
+        echo json_encode(['success' => false, 'message' => 'Faltan datos de acceso.']);
+        exit;
+    }
+    $correo = SecurityUtils::sanitizeEmail($_POST['email']);
+    $contrasena = SecurityUtils::sanitizePassword($_POST['password']);
     
     $pdo = config::conectar();
     $consultas = new ConsultasMesero();
     $usuario = $consultas->verificarCredencialesUsuario($pdo, $correo, $contrasena);
     
     if ($usuario) {
-        if ((int)$usuario['rol_idrol'] !== 2) {
+        if ((int)$usuario['rol_idrol'] === 2) {
+            // Guardar datos mínimos en sesión
+            $_SESSION['usuario'] = [
+                'id' => $usuario['idusuarios'],
+                'nombre' => SecurityUtils::escapeHtml($usuario['nombre_usuario']),
+                'email' => SecurityUtils::escapeHtml($usuario['email_usuario']),
+                'rol' => (int)$usuario['rol_idrol']
+            ];
+            // Generar token CSRF para la sesión
+            SecurityUtils::generateCSRFToken();
+            echo json_encode(['success' => true, 'redirect' => '../views/mesero.php']);
+        } else {
             echo json_encode(['success' => false, 'message' => 'Acceso solo permitido para meseros']);
-            exit;
         }
-        // Guardar datos mínimos en sesión
-        $_SESSION['usuario'] = [
-            'id' => $usuario['idusuarios'],
-            'nombre' => SecurityUtils::escapeHtml($usuario['nombre_usuario']),
-            'email' => SecurityUtils::escapeHtml($usuario['email_usuario']),
-            'rol' => (int)$usuario['rol_idrol']
-        ];
-        
-        // Generar token CSRF para la sesión
-        SecurityUtils::generateCSRFToken();
-        
-        echo json_encode(['success' => true]);
+        exit;
     } else {
         echo json_encode(['success' => false, 'message' => 'Correo o contraseña incorrectos']);
     }

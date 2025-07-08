@@ -13,4 +13,4 @@ try {
         'success' => false,
         'message' => 'Error al cargar las mesas: ' . $e->getMessage()
     ]);
-} 
+}gi

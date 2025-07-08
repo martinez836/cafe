@@ -1,8 +1,12 @@
 <?php
 session_start();
+// Evitar caché para que no se pueda volver con el botón atrás
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['rol'] !== 2) {
-  header('Location: InicioSesion.php');
+  header('Location: login.php');
   exit;
 }
 
