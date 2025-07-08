@@ -1,10 +1,6 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-
-// Cerrar sesión
-config::cerrarSesion();
-
-// Redirigir al login
-header('Location: ../views/login.php');
-exit();
-?> 
+session_start();
+session_unset();
+session_destroy();
+header('Location: ../views/InicioSesion.php');
+exit(); 

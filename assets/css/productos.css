@@ -19,24 +19,14 @@ body {
     padding: 20px;
 }
 .navbar {
-    background-color: #B49375 !important; /* Color de café */
+    background-color: #8B5E3C !important; /* Color de café */
 }
 .navbar-brand {
     color: white !important;
 }
 .card-header {
-    background-color: #B49375;
+    background-color: #8B5E3C;
     color: white;
-}
-.offcanvas.offcanvas-start .offcanvas-header {
-    background-color: #343a40 !important;
-    color: white !important;
-    border-bottom: 1px solid #23272b;
-}
-.offcanvas.offcanvas-start .offcanvas-title,
-.offcanvas.offcanvas-start .btn-close {
-    color: white !important;
-    filter: invert(1) grayscale(1) brightness(2);
 }
 @media (min-width: 992px) {
     .sidebar {
