@@ -19,12 +19,16 @@ try {
         foreach ($pedidosMesa as $pedido) {
             // Obtener detalles del pedido
             $detalles = $consultas->traerDetallePedido($pdo, $pedido['idpedidos']);
-            
+            // Obtener nombre del estado
+            $stmtEstado = $pdo->prepare('SELECT estado FROM estados WHERE idestados = ?');
+            $stmtEstado->execute([$pedido['estados_idestados']]);
+            $estadoNombre = $stmtEstado->fetchColumn();
             $pedidos[] = [
                 'mesa_id' => $mesa['idmesas'],
                 'mesa_nombre' => $mesa['nombre'],
                 'pedido_id' => $pedido['idpedidos'],
-                'productos' => $detalles
+                'productos' => $detalles,
+                'estado_nombre' => $estadoNombre
             ];
         }
     }

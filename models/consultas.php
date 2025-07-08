@@ -99,11 +99,13 @@ class ConsultasMesero
             SELECT p.idpedidos, p.fecha_hora_pedido, p.total_pedido, p.token_utilizado, p.estados_idestados
             FROM pedidos p
             INNER JOIN detalle_pedidos dp ON dp.pedidos_idpedidos = p.idpedidos
-            INNER JOIN tokens_mesa t ON t.token = p.token_utilizado
+            LEFT JOIN tokens_mesa t ON t.token = p.token_utilizado
             WHERE p.mesas_idmesas = ?
               AND p.estados_idestados IN (1,3,4)
-              AND t.estado_token = 'activo'
-              AND t.fecha_hora_expiracion > NOW()
+              AND (
+                (p.token_utilizado IS NOT NULL AND t.estado_token IN ('activo', 'usado') AND t.fecha_hora_expiracion > NOW())
+                OR p.token_utilizado IS NULL
+              )
             GROUP BY p.idpedidos
             ORDER BY p.fecha_hora_pedido DESC
         ");

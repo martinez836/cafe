@@ -393,6 +393,27 @@ function confirmarPedido() {
   // Calcular el total del pedido
   const total = pedido.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 
+  // Obtener el token activo de la mesa seleccionada
+  let tokenActivo = null;
+  const mesaSelectEl = document.getElementById('mesaSelect');
+  if (mesaSelectEl) {
+    const selectedOption = mesaSelectEl.options[mesaSelectEl.selectedIndex];
+    if (selectedOption) {
+      const match = selectedOption.textContent.match(/Token #(\w+)/);
+      if (match) {
+        tokenActivo = match[1];
+      }
+    }
+  }
+  if (!tokenActivo) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Pedido sin token',
+      text: 'Estás confirmando un pedido sin token. Este pedido no aparecerá como activo para la mesa.',
+      confirmButtonText: 'Entendido'
+    });
+  }
+
   fetch("../controllers/confirmar_pedido.php", {
     method: "POST",
     headers: {
@@ -402,7 +423,8 @@ function confirmarPedido() {
       mesa_id: parseInt(mesa),
       productos: pedido,
       total: total,
-      pedido_id: pedidoIdModificar
+      pedido_id: pedidoIdModificar,
+      token: tokenActivo
     }),
   })
     .then((res) => res.json())
@@ -515,6 +537,16 @@ document.addEventListener("DOMContentLoaded", function () {
           let html = '<div class="accordion" id="accordionPedidosActivos">';
           data.pedidos.forEach((pedido, idx) => {
             window.pedidosActivosGlobal[pedido.mesa_id] = pedido;
+            // Elegir color según el estado
+            let estadoColor = 'bg-secondary';
+            if (pedido.estado_nombre) {
+              const estado = pedido.estado_nombre.toLowerCase();
+              if (estado.includes('activo')) estadoColor = 'bg-primary';
+              else if (estado.includes('confirmado')) estadoColor = 'bg-warning text-dark';
+              else if (estado.includes('entregado')) estadoColor = 'bg-success';
+              else if (estado.includes('procesado')) estadoColor = 'bg-info text-dark';
+              else if (estado.includes('inactivo')) estadoColor = 'bg-dark';
+            }
             html += `
               <div class="accordion-item">
                 <h2 class="accordion-header" id="heading${pedido.pedido_id}">
@@ -533,7 +565,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div><strong>Total:</strong> $${pedido.productos.reduce((sum, p) => sum + (parseFloat(p.precio) * parseInt(p.cantidad)), 0).toFixed(2)}</div>
                     <div class="d-flex justify-content-between align-items-center mt-2">
                       <button class='btn btn-warning btn-sm' onclick='modificarPedidoActivo(${pedido.pedido_id}, ${pedido.mesa_id})'>Modificar pedido</button>
-                      <span class="badge bg-info text-dark ms-2">${pedido.estado_nombre || 'Desconocido'}</span>
+                      <span class="badge ${estadoColor} ms-2">${pedido.estado_nombre || 'Desconocido'}</span>
                     </div>
                   </div>
                 </div>
@@ -572,6 +604,36 @@ window.modificarPedidoActivo = function(pedidoId, mesaId) {
   const mesaSelect = document.getElementById('mesaSelect');
   if (mesaSelect) mesaSelect.value = mesaId;
   pedidoIdModificar = pedidoId;
+}
+
+// Función para actualizar el contenedor de mesas con token activo
+function actualizarMesasConTokenActivo() {
+  fetch('../controllers/mesas_con_token_activo.php')
+    .then(res => res.json())
+    .then(data => {
+      const cont = document.querySelector('.card.mt-4 .card-body ul.list-group');
+      if (!cont) return;
+      if (data.success && data.mesas && data.mesas.length > 0) {
+        let html = '';
+        data.mesas.forEach(mesa => {
+          html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><strong>${mesa.nombre}</strong></span>
+            <button class="btn btn-danger btn-sm" onclick="cancelarTokenMesa(${mesa.idmesas}, '${mesa.nombre}')">
+              <i class="fas fa-ban me-1"></i>Cancelar Token
+            </button>
+          </li>`;
+        });
+        cont.innerHTML = html;
+      } else {
+        cont.innerHTML = '<li class="list-group-item text-center">No hay mesas con token activo.</li>';
+      }
+    });
+}
+
+// Llamar al cargar y cada 10 segundos
+if (document.querySelector('.card.mt-4 .card-body ul.list-group')) {
+  actualizarMesasConTokenActivo();
+  setInterval(actualizarMesasConTokenActivo, 10000);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
