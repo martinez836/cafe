@@ -13,12 +13,13 @@ if (!isset($_SESSION['usuario_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Pedidos - Tienda de Café</title>
+    <title>Gestión de Productos - Tienda de Café</title>
     <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/Cafe/assets/css/pedidos.css">
+    <link rel="stylesheet" href="/Cafe/assets/css/productos.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="/Cafe/assets/css/notificaciones.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -56,17 +57,17 @@ if (!isset($_SESSION['usuario_id'])) {
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="productos.php">
+                <a class="nav-link active" href="productos.php">
                     <i class="fas fa-mug-hot me-2"></i>Productos
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link active" href="gestion_mesas.php">
-                    <i class="fas fa-mug-hot me-2"></i>Gestión Mesas
+                    <i class="fas fa-chair me-2"></i>Gestión Mesas
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="pedidos.php">
+                <a class="nav-link" href="pedidos.php">
                     <i class="fas fa-receipt me-2"></i>Ventas
                 </a>
             </li>
@@ -102,13 +103,13 @@ if (!isset($_SESSION['usuario_id'])) {
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="productos.php">
+                    <a class="nav-link active" href="productos.php">
                         <i class="fas fa-mug-hot me-2"></i>Productos
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="pedidos.php">
-                        <i class="fas fa-receipt me-2"></i>Ventas
+                    <a class="nav-link" href="pedidos.php">
+                        <i class="fas fa-receipt me-2"></i>Pedidos
                     </a>
                 </li>
                 <li class="nav-item">
@@ -126,68 +127,67 @@ if (!isset($_SESSION['usuario_id'])) {
     </div>
 
     <div class="content">
-        <h2 class="mb-4">Gestión de Ventas</h2>
+        <h2 class="mb-4">Gestión de Mesas</h2>
 
         <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <div>
-                    <i class="fas fa-clipboard-list me-2"></i>Lista de Ventas
-                </div>
-                <button id="refreshOrders" class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-sync-alt me-1"></i>Actualizar
-                </button>
+            <div class="card-header">
+                <i class="fas fa-list-alt me-2"></i>Listado de Mesas
             </div>
             <div class="card-body">
-                <p>Aquí se mostrará una tabla con la lista de pedidos y sus estados.</p>
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover" id="tablaPedidos">
+                <button class="btn btn-primary mb-3" id="addMesasBtn">
+                    <i class="fas fa-plus"> Mesa</i>
+                </button>
+                    <table class="table table-striped table-hover table-sm w-100 align-middle" id="tablaMesas">
                         <thead>
                             <tr>
-                                <th>ID Pedido</th>
-                                <th>Fecha y Hora</th>
-                                <th>Mesa</th>
-                                <th>Estado</th>
-                                <th>Usuario</th>
-                                <th>Acciones</th>
+                                <th style="width: 8%; min-width: 60px;" class="text-center">ID</th>
+                                <th style="width: 50%;">Nombre Mesa</th>
+                                <th style="width: 20%;" class="text-center">Estado</th>
+                                <th style="width: 22%;" class="text-center">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="ordersTableBody">
-                            <!-- Datos de pedidos se cargarán aquí -->
+                        <tbody id="mesasTableBody">
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Podrías agregar opciones de filtrado o búsqueda de pedidos aquí -->
+        <!-- Modal para Agregar/Editar Producto -->
+        <div class="modal fade" id="mesasModal" tabindex="-1" aria-labelledby="mesasModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="mesasModalLabel">Gestión de Mesas</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="mesasForm">
+                            <input type="hidden" id="mesaId">
+                            <div class="mb-3">
+                                <label for="nombreMesa" class="form-label">Nombre Mesa</label>
+                                <input type="text" class="form-control" id="nombreMesa" required>
+                            </div>
 
-    </div>
-
-    <!-- Modal para Detalle del Pedido -->
-    <div class="modal fade" id="detallePedidoModal" tabindex="-1" aria-labelledby="detallePedidoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detallePedidoModalLabel">
-                        <i class="fas fa-receipt me-2"></i>Detalle del Pedido
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="detallePedidoContent">
-                    <!-- El contenido del detalle se cargará aquí -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="saveMesa"><i class="fas fa-save me-1"></i>Guardar</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
+    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/js/appPedidos.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+    <script src="/Cafe/assets/js/appGestion_mesas.js"></script>
+    <script src="/Cafe/assets/js/notificacionesStock.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
