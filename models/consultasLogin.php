@@ -88,7 +88,7 @@ class ConsultasLogin
         try {
             $passwordHash = password_hash($nuevaPassword, PASSWORD_BCRYPT);
             
-            $sql = "UPDATE usuarios SET contraseña_usuario = ? WHERE idusuarios = ?";
+            $sql = "UPDATE usuarios SET contrasena_usuario = ? WHERE idusuarios = ?";
             $parametros = [$passwordHash, $idUsuario];
             $stmt = $this->mysql->ejecutarSentenciaPreparada($sql, 'si', $parametros);
             

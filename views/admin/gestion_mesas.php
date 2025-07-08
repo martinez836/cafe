@@ -136,7 +136,7 @@ if (!isset($_SESSION['usuario_id'])) {
             <div class="card-body">
                 <div class="table-responsive">
                 <button class="btn btn-primary mb-3" id="addMesasBtn">
-                    <i class="fas fa-plus"> Mesa</i>
+                    <i class="fas fa-plus"></i>
                 </button>
                     <table class="table table-striped table-hover table-sm w-100 align-middle" id="tablaMesas">
                         <thead>

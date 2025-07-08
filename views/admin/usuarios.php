@@ -180,12 +180,7 @@ if (!isset($_SESSION['usuario_id'])) {
                             </div>
                             <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Rol</label><br>
-                                <select id="rolUsuario">
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">Estado</label><br>
-                                <select id="estadoUsuario">
+                                <select id="rolUsuario" class="form-select select-rol">
                                 </select>
                             </div>
                         </div>

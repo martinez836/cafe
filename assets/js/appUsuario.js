@@ -113,51 +113,19 @@ function cargarRoles(idSeleccionado = null)
         .catch(error => showSwalError('Error al cargar roles.'));
 }
 
-function cargarEstados(idSeleccionado = null)
-{
-    fetch('../../controllers/admin/usuarios.php?action=traer_estados')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const selectEstado = document.querySelector('#estadoUsuario');
-            selectEstado.innerHTML = '<option value="">Seleccione un estado</option>'; // Limpiar el select
-
-            if (data.success && data.data.length > 0) {
-                data.data.forEach(estado => {
-                    const option = document.createElement('option');
-                    option.value = estado.idestados;
-                    option.textContent = `${estado.estado}`;
-                    if(idSeleccionado && estado.idestados == idSeleccionado){
-                        option.selected = true;
-                    }
-                    selectEstado.appendChild(option);
-                });
-            } else {
-                const option = document.createElement('option');
-                option.textContent = 'No hay estados disponibles';
-                selectEstado.appendChild(option);
-            }
-        })
-        .catch(error => showSwalError('Error al cargar estados.'));
-}
-
-    btnCrearUsuario.addEventListener('click', () =>
-        {
-        document.querySelector('#modalUsuarioTitle').textContent = 'Crear Usuario';
-        cargarRoles(); // Cargar roles al crear un usuario
-        cargarEstados(); // Cargar estados al crear un usuario
-        opcion = "crear";
-        modalUsuario.show();
-        })
+btnCrearUsuario.addEventListener('click', () => {
+    document.querySelector('#modalUsuarioTitle').textContent = 'Crear Usuario';
+    cargarRoles(); // Cargar roles al crear un usuario
+    opcion = "crear";
+    // Mostrar el campo y label de contraseña
+    document.querySelector("#contrasena_usuario").style.display = '';
+    document.querySelector("#lblContrasena").style.display = "";
+    modalUsuario.show();
+})
 
     frmUsuario.addEventListener('submit', (e) => {
         e.preventDefault();
         const idRol = document.querySelector('#rolUsuario').value;
-        const idEstado = document.querySelector('#estadoUsuario').value;
         
         if (opcion === "crear")
             {
@@ -165,7 +133,6 @@ function cargarEstados(idSeleccionado = null)
                 formData.append('nombre_usuario', nombreUsuario.value);
                 formData.append('contrasena_usuario', contrasenaUsuario.value);
                 formData.append('email_usuario', emailUsuario.value);
-                formData.append('estado_idestado', idEstado);
                 formData.append('rol_idrol', idRol);
 
                 fetch('../../controllers/admin/usuarios.php?action=crear_usuario', {
@@ -200,7 +167,6 @@ function cargarEstados(idSeleccionado = null)
                 formData.append('nombre_usuario', nombreUsuario.value);
                 formData.append('email_usuario', emailUsuario.value);
                 formData.append('rol_idrol', idRol);
-                formData.append('estado_idestado', idEstado);
 
                 fetch('../../controllers/admin/usuarios.php?action=editar',{
                     method:'POST',
