@@ -1,9 +1,19 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_name('cafe_session');
+    session_start();
+}
+require_once '../config/config.php';
 
 // Verificar si está logueado
 if (!isset($_SESSION['usuario_id'])) {
-    header('Location: login.php');
+    header('Location: ../views/login.php');
+    exit();
+}
+
+// Permitir acceso a Mesero y Administrador
+if ($_SESSION['usuario_rol'] !== 'Mesero' && $_SESSION['usuario_rol'] !== 'Administrador') {
+    header('Location: ../views/login.php');
     exit();
 }
 

@@ -108,7 +108,7 @@ if (!isset($_SESSION['usuario_id'])) {
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="pedidos.php">
-                        <i class="fas fa-receipt me-2"></i>Pedidos
+                        <i class="fas fa-receipt me-2"></i>Ventas
                     </a>
                 </li>
                 <li class="nav-item">
@@ -174,24 +174,21 @@ if (!isset($_SESSION['usuario_id'])) {
                                 <label for="exampleInputEmail1" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email_usuario" aria-describedby="emailHelp">
                             </div>
-                             <div class="mb-3">
+                            <div class="mb-3">
                                 <label for="exampleInputEmail1" id="lblContrasena" class="form-label">Contraseña</label>
                                 <input type="password" class="form-control" id="contrasena_usuario" aria-describedby="emailHelp">
                             </div>
                             <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Rol</label><br>
                                 <select id="rolUsuario">
-
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Estado</label><br>
                                 <select id="estadoUsuario">
-
                                 </select>
                             </div>
                         </div>
-                
                     </div>
                     <div class="modal-footer">
                         <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

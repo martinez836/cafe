@@ -66,7 +66,7 @@ if (!isset($_SESSION['usuario_id'])) {
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="pedidos.php">
-                    <i class="fas fa-receipt me-2"></i>Pedidos
+                    <i class="fas fa-receipt me-2"></i>Ventas
                 </a>
             </li>
             <li class="nav-item">

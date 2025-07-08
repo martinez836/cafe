@@ -43,7 +43,7 @@ class config {
     public static function verificarAutenticacion() {
         self::iniciarSesion();
         if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['usuario_rol'])) {
-            header('Location: login.php');
+            header('Location: ../views/login.php');
             exit();
         }
     }
