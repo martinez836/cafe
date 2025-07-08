@@ -33,10 +33,14 @@ try {
             $rol_idrol = $_POST['rol_idrol'] ?? 0;
             $contrasenaEncriptada = password_hash($contrasena_usuario, PASSWORD_BCRYPT);
 
+            $debug = [];
+            $debug[] = "[DEBUG] Insertar usuario: nombre=$nombre_usuario, email=$email_usuario, estado=$estado_idestado, rol=$rol_idrol";
+
             if (empty($nombre_usuario) || empty($contrasena_usuario) || empty($email_usuario) || $rol_idrol <= 0) {
                 $response = ['success' => false, 'message' => 'Datos invalidos'];
             } else {
-                $insertar = $consultas->insertarUsuarios($nombre_usuario, $contrasenaEncriptada, $email_usuario, $rol_idrol);
+                $insertar = $consultas->insertarUsuarios($nombre_usuario, $contrasenaEncriptada, $email_usuario, $estado_idestado, $rol_idrol);
+                $debug[] = "[DEBUG] Resultado insertarUsuarios: " . ($insertar ? 'true' : 'false');
                 if ($insertar) {
                     $response = ['success' => true, 'message' => 'Usuario creado exitosamente'];
                 } else {
@@ -53,7 +57,7 @@ try {
                 if($eliminar){
                     $response = ['success'=> true, 'message'=> 'Usuario Eliminado Correctamente'];
                 }else{
-                     $response = ['success'=> false, 'message'=> 'Fallo en eliminar usuario'];
+                    $response = ['success'=> false, 'message'=> 'Fallo en eliminar usuario'];
                 }
             }
             break;
@@ -67,8 +71,8 @@ try {
                 $response = ['success'=> false, 'message'=> "faltan datos"];
             }
             else{
-                $eliminar = $consultas->editarUsuario($idusuario, $nombre, $email, $rol);
-                if($eliminar)
+                $editar = $consultas->editarUsuario($idusuario, $nombre, $email, $rol, $estado);
+                if($editar)
                 {
                     $response = ['success'=> true, 'message'=> 'Usuario Eliminado Correctamente']; 
                 }

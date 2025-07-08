@@ -169,26 +169,11 @@ function cargarRoles(idSeleccionado = null)
     usersTableBody.addEventListener('click', (e) => {
         const botonEliminar = e.target.closest('.btnEliminar');
         const botonEditar = e.target.closest('.btnEditar');
-        if(botonEliminar)
-        {
-            const fila = botonEliminar.closest('tr')
-            const idUsuario = fila.children[0].textContent;
-            opcion = "eliminar"
-            console.log(idUsuario);
+        const tabla = $('#tablaUsuarios').DataTable();
 
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: "¡No podrás deshacer esta acción!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, eliminar'
-            }).then((result)=>{
-                if(result.isConfirmed)
-                {
-                    const formData = new FormData();
-                    formData.append('id',idUsuario);
+        if (botonEliminar || botonEditar) {
+            // Encuentra el tr más cercano al botón
+            let tr = $(e.target).closest('tr')[0];
 
                     fetch('../../controllers/admin/usuarios.php?action=eliminar',{
                         method:'POST',

@@ -55,7 +55,7 @@ class ConsultasUsuarios
         }
     }
 
-    public function insertarUsuarios($nombre_usuario, $contrasena_usuario, $email_usuario, $estado_idestado, $rol_idrol)
+    public function insertarUsuarios($nombre_usuario, $contrasena_usuario, $email_usuario, $rol_idrol)
     {
         try {
             $sql = "insert into usuarios(nombre_usuario,contrasena_usuario,email_usuario,estados_idestados,rol_idrol)
@@ -94,12 +94,12 @@ class ConsultasUsuarios
 
 
 
-    public function editarUsuario($id,$nombre,$email,$rol,$estado)
+    public function editarUsuario($id,$nombre,$email,$rol)
     {
         try {
-            $sql = "update usuarios set nombre_usuario = ?, email_usuario = ?, rol_idrol = ?, estados_idestados = ? where idusuarios = ?";
-            $parametros = [$nombre,$email,$rol,$estado,$id];
-            $stm = $this->mysql->ejecutarSentenciaPreparada($sql,'ssiii', $parametros);  
+            $sql = "update usuarios set nombre_usuario = ?, email_usuario = ?, rol_idrol = ? where idusuarios = ?";
+            $parametros = [$nombre,$email,$rol,$id];
+            $stm = $this->mysql->ejecutarSentenciaPreparada($sql,'ssi', $parametros);  
             if($stm->rowCount() > 0)
             {
                 return true;
