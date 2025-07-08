@@ -64,12 +64,17 @@ if (!isset($_SESSION['usuario_id'])) {
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="gestion_mesas.php">
+                        <i class="fas fa-mug-hot me-2"></i>Gestión Mesas
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="pedidos.php">
                         <i class="fas fa-receipt me-2"></i>Ventas
                     </a>
                 </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="balanceGeneral.php">
+                <li class="nav-item">
+                    <a class="nav-link active" href="balanceGeneral.php">
                         <i class="fas fa-receipt me-2"></i>Balance
                     </a>
                 </li>
@@ -105,7 +110,7 @@ if (!isset($_SESSION['usuario_id'])) {
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="gestion_mesas.php">
+                        <a class="nav-link" href="gestion_mesas.php">
                             <i class="fas fa-mug-hot me-2"></i>Gestión Mesas
                         </a>
                     </li>
