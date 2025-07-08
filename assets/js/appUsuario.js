@@ -1,187 +1,144 @@
-const modalUsuario = new bootstrap.Modal(document.querySelector('#modalUsuario'));
-const frmUsuario = document.querySelector('#frmUsuario');
-const btnCrearUsuario = document.querySelector('#btnCrearUsuario');
-const usersTableBody = document.getElementById('usersTableBody');
-// traigo los datos del formulario 
-let nombreUsuario = document.querySelector('#nombre_usuario');
-let emailUsuario = document.querySelector('#email_usuario');
-let contrasenaUsuario = document.querySelector('#contrasena_usuario');
-let idusuario;
-
-var opcion = ""; // Variable para determinar si es crear o editar
-
-
 document.addEventListener('DOMContentLoaded', function() {
-    const tablaUsuarios = $('#tablaUsuarios').DataTable({
-       responsive: {
-        details: {
-            renderer: function (api, rowIdx, columns) {
-                let data = columns
-                    .filter(col => col.hidden)
-                    .map(col => {
-                        return `<tr>
-                                    <td class="text-end fw-bold">${col.title}</td>
-                                    <td>${col.data}</td>
-                                </tr>`;
-                    })
-                    .join('');
-                return data ? $('<table class="table table-sm table-bordered mb-0 w-100"/>').append(data) : false;
-            }
-        }
-    },
-    columnDefs: [
-        { responsivePriority: 1, targets: -1 }, // Acciones (más importante, nunca se oculta)
-        { responsivePriority: 2, targets: 1 }, // Nombre
-        { responsivePriority: 3, targets: 2 }, // Email
-        { responsivePriority: 4, targets: 3 }, // Rol
-        { responsivePriority: 5, targets: 4 }, // Estado
-        { responsivePriority: 6, targets: 0 }, // ID
-    ],
-    language: {
-        url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-    }
-    });
+    // Elementos del DOM
+    const modalUsuario = new bootstrap.Modal(document.querySelector('#modalUsuario'));
+    const frmUsuario = document.querySelector('#frmUsuario');
+    const btnCrearUsuario = document.querySelector('#btnCrearUsuario');
+    const usersTableBody = document.getElementById('usersTableBody');
+    let nombreUsuario = document.querySelector('#nombre_usuario');
+    let emailUsuario = document.querySelector('#email_usuario');
+    let contrasenaUsuario = document.querySelector('#contrasena_usuario');
+    let idusuario;
+    let opcion = ""; // crear o editar
 
+    // Cargar usuarios
     function loadUsers() {
         fetch('../../controllers/admin/usuarios.php?action=get_all_users')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
             .then(data => {
-                tablaUsuarios.clear(); // Limpia la tabla de DataTables
-                console.log(data);
+                usersTableBody.innerHTML = '';
                 if (data.success && data.data.length > 0) {
                     data.data.forEach(user => {
-                        // Determinar el color del badge según el estado
-                        const estadoClass = user.estados_idestados == 1 ? 'badge bg-success' : 'badge bg-danger';
-                        
-                        tablaUsuarios.row.add([
-                            user.idusuarios,
-                            user.nombre_usuario,
-                            user.email_usuario,
-                            `<span data-idrol="${user.idrol}">${user.nombre_rol}</span>`,
-                            `<span class="${estadoClass}" data-idestado="${user.estados_idestados}">${user.estado}</span>`,
-                            `<button class="btn btn-sm btn-warning me-1 btnEditar"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-danger btnEliminar"><i class="fas fa-trash"></i></button>`
-                        ]);
+                        const row = `
+                            <tr>
+                                <td>${user.idusuarios}</td>
+                                <td>${user.nombre_usuario}</td>
+                                <td>${user.email_usuario}</td>
+                                <td data-idrol="${user.idrol}">${user.nombre_rol}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning me-1 btnEditar"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger btnEliminar"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                        usersTableBody.insertAdjacentHTML('beforeend', row);
                     });
+                } else {
+                    usersTableBody.innerHTML = `<tr><td colspan="5" class="text-center">No hay usuarios para mostrar.</td></tr>`;
                 }
-                tablaUsuarios.draw(); // Redibuja la tabla
             })
             .catch(error => {
-                tablaUsuarios.clear();
-                tablaUsuarios.row.add([
-                    '',
-                    '',
-                    `<span class="text-danger" colspan="6">Error al cargar usuarios: ${error.message}</span>`,
-                    '',
-                    '',
-                    ''
-                ]).draw();
+                usersTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error al cargar usuarios: ${error.message}</td></tr>`;
             });
     }
 
-    loadUsers(); // Cargar usuarios al cargar la página
-
-function cargarRoles(idSeleccionado = null)
-{
-    fetch('../../controllers/admin/usuarios.php?action=traer_roles')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const selectRol = document.querySelector('#rolUsuario');
-            selectRol.innerHTML = '<option value="">Seleccione un rol</option>'; // Limpiar el select
-
-            if (data.success && data.data.length > 0) {
-                data.data.forEach(role => {
+    // Cargar roles
+    function cargarRoles(idSeleccionado = null) {
+        fetch('../../controllers/admin/usuarios.php?action=traer_roles')
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                const selectRol = document.querySelector('#rolUsuario');
+                selectRol.innerHTML = '<option value="">Seleccione un rol</option>';
+                if (data.success && data.data.length > 0) {
+                    data.data.forEach(role => {
+                        const option = document.createElement('option');
+                        option.value = role.idrol;
+                        option.textContent = `${role.nombre_rol}`;
+                        if (idSeleccionado && role.idrol == idSeleccionado) option.selected = true;
+                        selectRol.appendChild(option);
+                    });
+                } else {
                     const option = document.createElement('option');
-                    option.value = role.idrol;
-                    option.textContent = `${role.nombre_rol}`;
-                    if(idSeleccionado && role.idrol == idSeleccionado){
-                        option.selected = true;
-                    }
+                    option.textContent = 'No hay roles disponibles';
                     selectRol.appendChild(option);
-                });
-            } else {
-                const option = document.createElement('option');
-                option.textContent = 'No hay roles disponibles';
-                selectRol.appendChild(option);
-            }
-        })
-        .catch(error => showSwalError('Error al cargar roles.'));
-}
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar roles:', error);
+            });
+    }
 
-btnCrearUsuario.addEventListener('click', () => {
-    document.querySelector('#modalUsuarioTitle').textContent = 'Crear Usuario';
-    cargarRoles(); // Cargar roles al crear un usuario
-    opcion = "crear";
-    // Mostrar el campo y label de contraseña
-    document.querySelector("#contrasena_usuario").style.display = '';
-    document.querySelector("#lblContrasena").style.display = "";
-    modalUsuario.show();
-})
+    // Mostrar modal para crear usuario
+    btnCrearUsuario.addEventListener('click', () => {
+        document.querySelector('#modalUsuarioTitle').textContent = 'Crear Usuario';
+        cargarRoles();
+        opcion = "crear";
+        // Mostrar campos de contraseña
+        contrasenaUsuario.value = '';
+        contrasenaUsuario.style.display = '';
+        document.querySelector('#lblContrasena').style.display = '';
+        frmUsuario.reset();
+        modalUsuario.show();
+    });
 
+    // Enviar formulario (crear o editar)
     frmUsuario.addEventListener('submit', (e) => {
         e.preventDefault();
         const idRol = document.querySelector('#rolUsuario').value;
-        
-        if (opcion === "crear")
-            {
-                const formData = new FormData();
-                formData.append('nombre_usuario', nombreUsuario.value);
-                formData.append('contrasena_usuario', contrasenaUsuario.value);
-                formData.append('email_usuario', emailUsuario.value);
-                formData.append('rol_idrol', idRol);
-
-                fetch('../../controllers/admin/usuarios.php?action=crear_usuario', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then((response)=> response.json())
-                .then((data) => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Usuario creado exitosamente',
-                            showConfirmButton: true,
-                            timer: 1500
-                        });
-                        modalUsuario.hide();
-                        loadUsers(); // Recargar la lista de usuarios
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error al crear usuario',
-                            text: data.message
-                        });
-                    }
-                })
-            }
-        else if(opcion === "editar")
-            {
-                const formData = new FormData();
-
-                formData.append('idusuario',idusuario)
-                formData.append('nombre_usuario', nombreUsuario.value);
-                formData.append('email_usuario', emailUsuario.value);
-                formData.append('rol_idrol', idRol);
-
-                fetch('../../controllers/admin/usuarios.php?action=editar',{
-                    method:'POST',
-                    body:formData
-                })
-                .then((response)=>response.json())
-                .then((data)=>{
-                    if (data.success) {
+        if (opcion === "crear") {
+            const formData = new FormData();
+            formData.append('nombre_usuario', nombreUsuario.value);
+            formData.append('email_usuario', emailUsuario.value);
+            formData.append('contrasena_usuario', contrasenaUsuario.value);
+            formData.append('rol_idrol', idRol);
+            fetch('../../controllers/admin/usuarios.php?action=crear_usuario', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Usuario creado exitosamente',
+                        showConfirmButton: true,
+                        timer: 1500
+                    });
+                    modalUsuario.hide();
+                    loadUsers();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al crear usuario',
+                        text: data.message
+                    });
+                }
+            });
+        } else if (opcion === "editar") {
+            const formData = new FormData();
+            formData.append('idusuario', idusuario);
+            formData.append('nombre_usuario', nombreUsuario.value);
+            formData.append('email_usuario', emailUsuario.value);
+            formData.append('rol_idrol', idRol);
+            fetch('../../controllers/admin/usuarios.php?action=editar', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Éxito',
-                        text: 'Usuario editado correctamente.',
+                        text: 'Usuario editado correctamente.'
                     }).then(() => {
                         modalUsuario.hide();
-                        loadUsers(); // Recargar inventario
+                        loadUsers();
                     });
                 } else {
                     Swal.fire({
@@ -190,11 +147,11 @@ btnCrearUsuario.addEventListener('click', () => {
                         text: data.message || 'No se pudo editar el usuario.'
                     });
                 }
-                })
+            });
+        }
+    });
 
-            }
-    })
-
+    // Editar o eliminar usuario
     usersTableBody.addEventListener('click', (e) => {
         const botonEliminar = e.target.closest('.btnEliminar');
         const botonEditar = e.target.closest('.btnEditar');
@@ -285,13 +242,7 @@ btnCrearUsuario.addEventListener('click', () => {
             }
         }
     });
-});
 
-function showSwalError(msg) {
-    Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: msg || 'Ocurrió un error.',
-        confirmButtonText: 'Aceptar'
-    });
-}
+    // Inicial
+    loadUsers();
+});

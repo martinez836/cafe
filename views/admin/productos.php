@@ -1,14 +1,4 @@
-<?php
-require_once '../../config/config.php';
-config::iniciarSesion();
-
-// Verificar si está logueado
-if (!isset($_SESSION['usuario_id'])) {
-    header('Location: ../login.php');
-    exit();
-}
-?>
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -36,7 +26,10 @@ if (!isset($_SESSION['usuario_id'])) {
                         <a class="nav-link" href="#">Bienvenido, Admin</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
+                        <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -103,6 +96,11 @@ if (!isset($_SESSION['usuario_id'])) {
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="inventario.php">
+                        <i class="fas fa-boxes me-2"></i>Inventario
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link active" href="productos.php">
                         <i class="fas fa-mug-hot me-2"></i>Productos
                     </a>
@@ -143,20 +141,22 @@ if (!isset($_SESSION['usuario_id'])) {
                 <button class="btn btn-primary mb-3" id="addProductBtn">
                 <i class="fa-solid fa-plus me-2"></i>Crear
                 </button>
-                    <table class="table table-striped table-hover" id="tablaProductos">
+                    <table class="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Precio</th>
-                                <th>Stock</th>
                                 <th>Categoría</th>
                                 <th>Estado</th>
-                                <th>Tipo</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="productsTableBody">
+                            <!-- Datos de productos se cargarán aquí -->
+                            <tr>
+                                <td colspan="6" class="text-center">Cargando productos...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -184,14 +184,7 @@ if (!isset($_SESSION['usuario_id'])) {
                             </div>
                             <div class="mb-3">
                                 <label for="productStock" class="form-label">Stock</label>
-                                <input type="number" class="form-control" placeholder="Cantidad disponible (opcional)" id="productStock" min="0">
-                            </div>
-                            <div class="mb-3">
-                                <label for="productTipo" class="form-label">Tipo de producto</label>
-                                <select class="form-control" id="productTipo" required>
-                                    <option value="1">Sin Stock</option>
-                                    <option value="2">Con Stock</option>
-                                </select>
+                                <input type="number" class="form-control" placeholder="Dejar nulo si no ejerce Stock" id="productStock" required>
                             </div>
                             <div class="mb-3">
                                 <label for="productCategory" class="form-label">Categoría</label>
@@ -216,14 +209,8 @@ if (!isset($_SESSION['usuario_id'])) {
             </div>
         </div>
     </div>
-    
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
-    <script src="/Cafe/assets/js/appProductos.js"></script>
-    <script src="/Cafe/assets/js/notificacionesStock.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="../../assets/jsBootstrap/bootstrap.bundle.js"></script>
+    <script src="../../assets/js/appProductos.js"></script>
 </body>
 </html>

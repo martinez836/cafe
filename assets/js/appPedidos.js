@@ -1,36 +1,12 @@
 // Funcionalidad para la gestión de pedidos
 document.addEventListener('DOMContentLoaded', function() {
-    const tablaPedidos = $('#tablaPedidos').DataTable({
-        responsive: {
-            details: {
-                renderer: function (api, rowIdx, columns) {
-                    let data = columns
-                        .filter(col => col.hidden)
-                        .map(col => {
-                            return `<tr><td class="text-end fw-bold">${col.title}</td><td>${col.data}</td></tr>`;
-                        })
-                        .join('');
-                    return data ? $('<table class="table table-sm table-bordered mb-0 w-100"/>').append(data) : false;
-                }
-            }
-        },
-        columnDefs: [
-            { responsivePriority: 1, targets: 0 }, // ID Pedido (más importante)
-            { responsivePriority: 2, targets: 1 }, // Fecha y Hora
-            { responsivePriority: 3, targets: 2 }, // Mesa
-            { responsivePriority: 4, targets: 3 }, // Estado
-            { responsivePriority: 5, targets: 4 }, // Usuario
-            { responsivePriority: 6, targets: 5 }, // Acciones
-        ],
-        language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-        }
-    });
-    loadOrders(tablaPedidos); // Cargar pedidos al cargar la página
-    setInterval(() => loadOrders(tablaPedidos), 30000);
+    loadOrders(); // Cargar pedidos al cargar la página
+    
+    // Actualizar pedidos automáticamente cada 30 segundos
+    setInterval(loadOrders, 30000);
 });
 
-function loadOrders(tablaPedidos) {
+function loadOrders() {
     fetch('../../controllers/admin/pedidos.php?action=get_all_orders')
         .then(response => {
             if (!response.ok) {
@@ -39,31 +15,39 @@ function loadOrders(tablaPedidos) {
             return response.json();
         })
         .then(data => {
-            tablaPedidos.clear();
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            ordersTableBody.innerHTML = ''; // Limpiar la tabla
+
             if (data.success && data.data.length > 0) {
                 data.data.forEach(order => {
-                    tablaPedidos.row.add([
-                        order.idpedidos,
-                        formatDateTime(order.fecha_hora_pedido),
-                        order.nombre_mesa,
-                        `<span class="badge bg-${getEstadoColor(order.estado_pedido)}">${order.estado_pedido}</span>`,
-                        order.nombre_usuario,
-                        `<button class=\"btn btn-sm btn-info me-1\" onclick=\"verDetallePedido(${order.idpedidos})\"><i class=\"fas fa-eye\"></i> Ver Detalle</button>`
-                    ]);
+                    const row = `
+                        <tr>
+                            <td>${order.idpedidos}</td>
+                            <td>${formatDateTime(order.fecha_hora_pedido)}</td>
+                            <td>${order.nombre_mesa}</td>
+                            <td>
+                                <span class="badge bg-${getEstadoColor(order.estado_pedido)}">
+                                    ${order.estado_pedido}
+                                </span>
+                            </td>
+                            <td>${order.nombre_usuario}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info me-1" onclick="verDetallePedido(${order.idpedidos})">
+                                    <i class="fas fa-eye"></i> Ver Detalle
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    ordersTableBody.insertAdjacentHTML('beforeend', row);
                 });
             } else {
-                tablaPedidos.row.add([
-                    '', '', '', '', '', '<span class="text-center">No hay pedidos para mostrar.</span>'
-                ]);
+                ordersTableBody.innerHTML = `<tr><td colspan="6" class="text-center">No hay pedidos para mostrar.</td></tr>`;
             }
-            tablaPedidos.draw();
         })
         .catch(error => {
-            tablaPedidos.clear();
-            tablaPedidos.row.add([
-                '', '', '', '', '', `<span class="text-danger">Error al cargar pedidos: ${error.message}</span>`
-            ]);
-            tablaPedidos.draw();
+            console.error('Error al cargar pedidos:', error);
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            ordersTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar pedidos: ${error.message}</td></tr>`;
         });
 }
 

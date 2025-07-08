@@ -1,13 +1,3 @@
-<?php
-require_once '../../config/config.php';
-config::iniciarSesion();
-
-// Verificar si está logueado
-if (!isset($_SESSION['usuario_id'])) {
-    header('Location: ../login.php');
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,7 +26,10 @@ if (!isset($_SESSION['usuario_id'])) {
                         <a class="nav-link" href="#">Bienvenido, Admin</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
+                        <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -54,6 +47,11 @@ if (!isset($_SESSION['usuario_id'])) {
             <li class="nav-item">
                 <a class="nav-link active" href="usuarios.php">
                     <i class="fas fa-users me-2"></i>Usuarios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="inventario.php">
+                    <i class="fas fa-boxes me-2"></i>Inventario
                 </a>
             </li>
             <li class="nav-item">
@@ -103,6 +101,11 @@ if (!isset($_SESSION['usuario_id'])) {
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="inventario.php">
+                        <i class="fas fa-boxes me-2"></i>Inventario
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="productos.php">
                         <i class="fas fa-mug-hot me-2"></i>Productos
                     </a>
@@ -139,21 +142,23 @@ if (!isset($_SESSION['usuario_id'])) {
                 <i class="fas fa-table me-2"></i>Lista de Usuarios
             </div>
             <div class="card-body">
-                <button id="btnCrearUsuario" class="btn btn-primary">Crear Usuario </button>
-                <div class="table">
-                    <table class="table table-striped table-hover" id="tablaUsuarios">
+                <button id="btnCrearUsuario" class="btn btn-primary">Crear Articulo </button>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Email</th>
                                 <th>Rol</th>
-                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="usersTableBody">
-
+                            <!-- Datos de usuarios se cargarán aquí -->
+                            <tr>
+                                <td colspan="5" class="text-center">Cargando usuarios...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -180,16 +185,22 @@ if (!isset($_SESSION['usuario_id'])) {
                                 <label for="exampleInputEmail1" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email_usuario" aria-describedby="emailHelp">
                             </div>
-                            <div class="mb-3">
+                             <div class="mb-3">
                                 <label for="exampleInputEmail1" id="lblContrasena" class="form-label">Contraseña</label>
                                 <input type="password" class="form-control" id="contrasena_usuario" aria-describedby="emailHelp">
                             </div>
                             <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Rol</label><br>
-                                <select id="rolUsuario" class="form-select select-rol">
+                                <select id="rolUsuario">
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Estado</label><br>
+                                <select id="estadoUsuario">
                                 </select>
                             </div>
                         </div>
+                
                     </div>
                     <div class="modal-footer">
                         <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -202,7 +213,6 @@ if (!isset($_SESSION['usuario_id'])) {
 </div>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/appUsuario.js"></script>

@@ -33,18 +33,6 @@ try {
             $consultas->deleteProducto($data['id']);
             echo json_encode(['success' => true, 'message' => 'Producto eliminado exitosamente']);
             break;
-        case 'getProductosBajoStock':
-            $productos = $consultas->getProductosBajoStock();
-            echo json_encode(['success' => true, 'data' => $productos]);
-            break;
-        case 'getProductosSinStock':
-            $productos = $consultas->getProductosSinStock();
-            echo json_encode(['success' => true, 'data' => $productos]);
-            break;
-        case 'getResumenStock':
-            $resumen = $consultas->getResumenStock();
-            echo json_encode(['success' => true, 'data' => $resumen]);
-            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Acción no válida']);
             break;

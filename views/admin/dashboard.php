@@ -1,17 +1,9 @@
 <?php
-require_once '../../config/config.php';
-config::iniciarSesion();
-
-// Verificar si está logueado
-if (!isset($_SESSION['usuario_id'])) {
-    header('Location: ../login.php');
-    exit();
-}
-
-$usuario = [
-    'nombre' => $_SESSION['usuario_nombre'] ?? 'Usuario',
-    'rol' => $_SESSION['usuario_rol'] ?? 'Usuario'
-];
+session_start();
+// Evitar caché para que no se pueda volver con el botón atrás
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -37,15 +29,7 @@ $usuario = [
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Bienvenido, <?php echo htmlspecialchars($usuario['nombre']); ?></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="#" id="btnNotificaciones" title="Notificaciones de Stock">
-                            <i class="fas fa-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="badgeNotificaciones" style="display: none;">
-                                0
-                            </span>
-                        </a>
+                        <a class="nav-link" href="#">Bienvenido, Admin</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="../cocina.php">Módulo de Cocina</a>
@@ -54,7 +38,7 @@ $usuario = [
                         <a class="nav-link" href="../cajero.php">Módulo de Cajero</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../../controllers/logout.php">Cerrar Sesión</a>
+                        <a class="nav-link" href="#">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -110,7 +94,7 @@ $usuario = [
         </div>
         <div class="offcanvas-body p-0">
             <ul class="nav flex-column pt-3">
-                <li class="nav-item">   
+                <li class="nav-item">
                     <a class="nav-link active" href="dashboard.php">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
@@ -118,6 +102,11 @@ $usuario = [
                 <li class="nav-item">
                     <a class="nav-link" href="usuarios.php">
                         <i class="fas fa-users me-2"></i>Usuarios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="inventario.php">
+                        <i class="fas fa-boxes me-2"></i>Inventario
                     </a>
                 </li>
                 <li class="nav-item">
@@ -158,8 +147,8 @@ $usuario = [
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3>0</h3>
-                                <small class="text-white">Total Pedidos</small>
+                                <h3 class="mb-0">1,250</h3>
+                                <p class="mb-0">Pedidos Totales</p>
                             </div>
                             <i class="fas fa-receipt fa-3x"></i>
                         </div>
@@ -171,8 +160,8 @@ $usuario = [
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3>$0.00</h3>
-                                <small class="text-white">Ingresos del Mes</small>
+                                <h3 class="mb-0">$25,000</h3>
+                                <p class="mb-0">Ingresos del Mes</p>
                             </div>
                             <i class="fas fa-dollar-sign fa-3x"></i>
                         </div>
@@ -184,30 +173,10 @@ $usuario = [
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h3>0</h3>
-                                <small class="text-white">Nuevos Usuarios</small>
+                                <h3 class="mb-0">15</h3>
+                                <p class="mb-0">Usuarios</p>
                             </div>
                             <i class="fas fa-user-plus fa-3x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Alertas de Stock -->
-        <div class="row mb-4" id="alertasStock">
-            <div class="col-12">
-                <div class="card border-0">
-                    <div class="card-header bg-transparent">
-                        <h5 class="mb-0">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Alertas de Stock
-                        </h5>
-                    </div>
-                    <div class="card-body" id="contenidoAlertasStock">
-                        <div class="text-center">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Cargando...</span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -230,7 +199,20 @@ $usuario = [
                         <i class="fas fa-list me-2"></i>Últimos Pedidos
                     </div>
                     <div class="card-body">
-                        <ul class="list-group" id="ultimosPedidosList"></ul>
+                        <ul class="list-group list-group-flush" id="ultimosPedidosList">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Pedido #123 - Mesa 1
+                                <span class="badge bg-info rounded-pill">Pendiente</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Pedido #122 - Mesa 3
+                                <span class="badge bg-success rounded-pill">Completado</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Pedido #121 - Para llevar
+                                <span class="badge bg-success rounded-pill">Completado</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -238,10 +220,121 @@ $usuario = [
 
     </div>
 
-    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/Cafe/assets/js/appDashboard.js"></script>
-    <script src="/Cafe/assets/js/notificacionesStock.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Función para cargar los datos del dashboard
+            function loadDashboardData() {
+                fetch('../../controllers/admin/dashboard.php?action=get_dashboard_data')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const dashboardData = data.data;
+
+                            // Actualizar tarjetas de resumen
+                            document.querySelector('.card.bg-primary h3').textContent = dashboardData.totalPedidos.toLocaleString();
+                            document.querySelector('.card.bg-success h3').textContent = `$${dashboardData.ingresosMesActual.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                            document.querySelector('.card.bg-warning h3').textContent = dashboardData.nuevosUsuariosMesActual.toLocaleString();
+
+                            // Actualizar gráfica de Ventas Diarias
+                            updateVentasDiariasChart(dashboardData.ventasDiarias.labels, dashboardData.ventasDiarias.data);
+
+                            // Actualizar últimos pedidos
+                            const ultimosPedidosList = document.querySelector('#ultimosPedidosList');
+                            if (ultimosPedidosList) {
+                                ultimosPedidosList.innerHTML = '';
+                                if (dashboardData.ultimosPedidos.length > 0) {
+                                    dashboardData.ultimosPedidos.forEach(pedido => {
+                                        const li = document.createElement('li');
+                                        li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                                        let statusClass = '';
+                                        if (pedido.status === 'Pendiente') {
+                                            statusClass = 'bg-info';
+                                        } else if (pedido.status === 'Completado') {
+                                            statusClass = 'bg-success';
+                                        }
+                                        li.innerHTML = `
+                                            Pedido #${pedido.id} - ${pedido.table}
+                                            <span class="badge ${statusClass} rounded-pill">${pedido.status}</span>
+                                        `;
+                                        ultimosPedidosList.appendChild(li);
+                                    });
+                                } else {
+                                    ultimosPedidosList.innerHTML = '<li class="list-group-item text-center">No hay pedidos recientes.</li>';
+                                }
+                            }
+
+                            // Comentarios recientes (si tienes datos para ellos)
+                            const comentariosRecientesList = document.querySelector('#comentariosRecientesList');
+                            if (comentariosRecientesList) {
+                                comentariosRecientesList.innerHTML = '';
+                                if (dashboardData.comentariosRecientes.length > 0) {
+                                    dashboardData.comentariosRecientes.forEach(comentario => {
+                                        const li = document.createElement('li');
+                                        li.classList.add('list-group-item');
+                                        li.textContent = `"${comentario.texto}" - ${comentario.autor}`;
+                                        comentariosRecientesList.appendChild(li);
+                                    });
+                                } else {
+                                    comentariosRecientesList.innerHTML = '<li class="list-group-item text-center">No hay comentarios recientes.</li>';
+                                }
+                            }
+
+                        } else {
+                            console.error('Error al cargar datos del dashboard:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error de red al cargar el dashboard:', error);
+                    });
+            }
+
+            // Chart para Ventas Diarias (inicialización y actualización)
+            const ventasDiariasCtx = document.getElementById('ventasDiariasChart').getContext('2d');
+            let ventasDiariasChart = new Chart(ventasDiariasCtx, {
+                type: 'line',
+                data: {
+                    labels: [], // Se llenarán con datos reales
+                    datasets: [{
+                        label: 'Ventas ($)',
+                        data: [], // Se llenarán con datos reales
+                        borderColor: '#8B5E3C',
+                        backgroundColor: 'rgba(139, 94, 60, 0.2)',
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: false,
+                            text: 'Ventas Diarias'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            function updateVentasDiariasChart(labels, data) {
+                ventasDiariasChart.data.labels = labels;
+                ventasDiariasChart.data.datasets[0].data = data;
+                ventasDiariasChart.update();
+            }
+
+            // Cargar datos al iniciar la página
+            loadDashboardData();
+        });
+    </script>
 </body>
 </html>

@@ -24,23 +24,19 @@ require_once '../config/config.php';
 
         <form id="loginForm" autocomplete="off">
             <div class="mb-3">
+                <label for="correo" class="form-label">Correo</label>
+                <input type="email" class="form-control" id="correo" name="email" placeholder="Correo electrónico" required autocomplete="username">
+            </div>
+            <div class="mb-3">
+                <label for="contrasena" class="form-label">Contraseña</label>
                 <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-envelope"></i>
-                    </span>
-                    <input type="email" class="form-control" name="email" placeholder="Correo electrónico" required>
+                    <input type="password" class="form-control" id="contrasena" name="password" placeholder="Contraseña" required autocomplete="current-password">
+                    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('contrasena', this)" title="Mostrar/Ocultar contraseña">👁</button>
                 </div>
             </div>
-
-            <div class="mb-4">
-                <div class="input-group">
-                    <span class="input-group-text">
-                        <i class="fas fa-lock"></i>
-                    </span>
-                    <input type="password" class="form-control" name="password" placeholder="Contraseña" required>
-                </div>
+            <div class="mb-3">
+                <a href="./restaurarContrasena.php">¿Olvidaste tu contraseña?</a>
             </div>
-
             <button type="submit" class="btn btn-primary btn-login w-100">
                 <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
             </button>
@@ -49,5 +45,17 @@ require_once '../config/config.php';
 
     <script src="../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/login.js"></script>
+    <script>
+function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === "password") {
+    input.type = "text";
+    btn.textContent = "🙈";
+  } else {
+    input.type = "password";
+    btn.textContent = "👁";
+  }
+}
+</script>
 </body>
 </html> 

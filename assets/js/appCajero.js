@@ -60,7 +60,10 @@ function loadOrders() {
                 ordersList.appendChild(div);
             });
         })
-        .catch(error => showSwalError('Error al cargar pedidos.'));
+        .catch(error => {
+            console.error('Error al cargar pedidos:', error);
+            ordersList.innerHTML = `<p class="text-danger">Error al cargar los pedidos</p>`;
+        });
 }
 
 function showPaymentPanel(order) {
@@ -92,7 +95,7 @@ function showPaymentPanel(order) {
 
         <div class="payment-summary">
             <div class="row align-items-center mb-3">
-                <div class="col">   
+                <div class="col">
                     <span class="fw-bold">Total a Pagar:</span>
                 </div>
                 <div class="col-auto">
@@ -200,7 +203,6 @@ function processPayment(orderNumero) {
                             icon: 'success',
                             confirmButtonColor: '#28a745'
                         });
-                        window.open('../facturas/factura_pedido_' + orderNumero.replace('P', '') + '.pdf', '_blank');
                         clearSelection();
                         loadOrders();
                     } else {
@@ -236,15 +238,6 @@ function clearSelection() {
             <p>Haz clic en un pedido de la lista para proceder con el pago</p>
         </div>
     `;
-}
-
-function showSwalError(msg) {
-    Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: msg || 'Ocurrió un error.',
-        confirmButtonText: 'Aceptar'
-    });
 }
 
 // Inicializar
