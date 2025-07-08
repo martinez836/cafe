@@ -1,21 +1,36 @@
 // Funcionalidad para la gestión de pedidos
 document.addEventListener('DOMContentLoaded', function() {
-    const tablaProductos = $('#tablaPedidos').DataTable({
-        responsive: true,
+    const tablaPedidos = $('#tablaPedidos').DataTable({
+        responsive: {
+            details: {
+                renderer: function (api, rowIdx, columns) {
+                    let data = columns
+                        .filter(col => col.hidden)
+                        .map(col => {
+                            return `<tr><td class="text-end fw-bold">${col.title}</td><td>${col.data}</td></tr>`;
+                        })
+                        .join('');
+                    return data ? $('<table class="table table-sm table-bordered mb-0 w-100"/>').append(data) : false;
+                }
+            }
+        },
+        columnDefs: [
+            { responsivePriority: 1, targets: 0 }, // ID Pedido (más importante)
+            { responsivePriority: 2, targets: 1 }, // Fecha y Hora
+            { responsivePriority: 3, targets: 2 }, // Mesa
+            { responsivePriority: 4, targets: 3 }, // Estado
+            { responsivePriority: 5, targets: 4 }, // Usuario
+            { responsivePriority: 6, targets: 5 }, // Acciones
+        ],
         language: {
             url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
         }
     });
-    loadOrders(); // Cargar pedidos al cargar la página
-    
-    // Actualizar pedidos automáticamente cada 30 segundos
-    setInterval(loadOrders, 30000);
+    loadOrders(tablaPedidos); // Cargar pedidos al cargar la página
+    setInterval(() => loadOrders(tablaPedidos), 30000);
 });
 
-function loadOrders() {
-    const tablaPedidos = $('#tablaPedidos').DataTable();
-    tablaPedidos.clear(); // Limpia la tabla de DataTables
-
+function loadOrders(tablaPedidos) {
     fetch('../../controllers/admin/pedidos.php?action=get_all_orders')
         .then(response => {
             if (!response.ok) {
@@ -24,6 +39,7 @@ function loadOrders() {
             return response.json();
         })
         .then(data => {
+            tablaPedidos.clear();
             if (data.success && data.data.length > 0) {
                 data.data.forEach(order => {
                     tablaPedidos.row.add([
@@ -32,33 +48,20 @@ function loadOrders() {
                         order.nombre_mesa,
                         `<span class="badge bg-${getEstadoColor(order.estado_pedido)}">${order.estado_pedido}</span>`,
                         order.nombre_usuario,
-                        `<button class="btn btn-sm btn-info me-1" onclick="verDetallePedido(${order.idpedidos})">
-                            <i class="fas fa-eye"></i> Ver Detalle
-                        </button>`
+                        `<button class=\"btn btn-sm btn-info me-1\" onclick=\"verDetallePedido(${order.idpedidos})\"><i class=\"fas fa-eye\"></i> Ver Detalle</button>`
                     ]);
                 });
             } else {
                 tablaPedidos.row.add([
-                    '',
-                    '',
-                    '',
-                    '',
-                    '',
-                    '<span class="text-center">No hay pedidos para mostrar.</span>'
+                    '', '', '', '', '', '<span class="text-center">No hay pedidos para mostrar.</span>'
                 ]);
             }
             tablaPedidos.draw();
         })
         .catch(error => {
-            console.error('Error al cargar pedidos:', error);
             tablaPedidos.clear();
             tablaPedidos.row.add([
-                '',
-                '',
-                '',
-                '',
-                '',
-                `<span class="text-danger">Error al cargar pedidos: ${error.message}</span>`
+                '', '', '', '', '', `<span class="text-danger">Error al cargar pedidos: ${error.message}</span>`
             ]);
             tablaPedidos.draw();
         });
@@ -203,13 +206,4 @@ function verDetallePedido(idPedido) {
                 </div>
             `;
         });
-}
-
-function showSwalError(msg) {
-    Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: msg || 'Ocurrió un error.',
-        confirmButtonText: 'Aceptar'
-    });
 }

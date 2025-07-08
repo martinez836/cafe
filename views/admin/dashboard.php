@@ -109,7 +109,7 @@ $usuario = [
         </div>
         <div class="offcanvas-body p-0">
             <ul class="nav flex-column pt-3">
-                <li class="nav-item">
+                <li class="nav-item">   
                     <a class="nav-link active" href="dashboard.php">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>

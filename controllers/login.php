@@ -45,13 +45,7 @@ try {
         $_SESSION['usuario_rol'] = $usuario['nombre_rol'];
 
         // Bloquear acceso a Mesero desde este login
-        if ($usuario['nombre_rol'] === 'Mesero') {
-            echo json_encode([
-                'success' => false,
-                'message' => 'El acceso de meseros debe hacerse desde su módulo de login específico.'
-            ]);
-            exit;
-        }
+        
 
         // Determinar la página de destino según el rol
         $redirect = '../views/admin/dashboard.php'; // Por defecto
@@ -64,6 +58,9 @@ try {
                 break;
             case 'Cocina':
                 $redirect = '../views/cocina.php';
+                break;
+            case 'Mesero':
+                $redirect = '../views/mesero.php';
                 break;
             // No incluir Mesero aquí
         }

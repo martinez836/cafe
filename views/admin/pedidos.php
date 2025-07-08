@@ -17,6 +17,7 @@ if (!isset($_SESSION['usuario_id'])) {
     <link href="/Cafe/assets/cssBootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/Cafe/assets/css/pedidos.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
@@ -184,8 +185,9 @@ if (!isset($_SESSION['usuario_id'])) {
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="/Cafe/assets/jsBootstrap/bootstrap.bundle.min.js"></script>
-    <script src="/Cafe/assets/js/appPedidos.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="../../assets/jsBootstrap/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/appPedidos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
