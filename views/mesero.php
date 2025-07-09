@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['rol'] !== 2) {
+if (!isset($_SESSION['usuario'])) {
   header('Location: InicioSesion.php');
   exit;
 }

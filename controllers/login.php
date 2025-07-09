@@ -24,10 +24,6 @@ try {
     $usuario = $consultas->verificarCredencialesUsuario($pdo, $correo, $contrasena);
     
     if ($usuario) {
-        if ((int)$usuario['rol_idrol'] !== 2) {
-            echo json_encode(['success' => false, 'message' => 'Acceso solo permitido para meseros']);
-            exit;
-        }
         // Guardar datos mínimos en sesión
         $_SESSION['usuario'] = [
             'id' => $usuario['idusuarios'],
