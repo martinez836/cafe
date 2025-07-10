@@ -177,7 +177,7 @@ class ConsultasMesero
             WHERE p.mesas_idmesas = ?
               AND p.token_utilizado = ?
               AND p.estados_idestados IN (1,3,4)
-              AND t.estado_token = 'activo'
+              AND t.estado_token IN ('activo', 'usado')
               AND t.fecha_hora_expiracion > NOW()
             GROUP BY p.idpedidos
             ORDER BY p.fecha_hora_pedido DESC
