@@ -412,14 +412,21 @@ function confirmarPedido() {
           icon: 'success',
           title: 'Pedido registrado',
           text: data.message,
+        }).then(() => {
+          if (usuarioInteractuando()) {
+            actualizarPendiente = true;
+          } else {
+            actualizarSelectMesas();
+            cargarPedidosActivosGlobal();
+          }
+          pedido = [];
+          pedidoIdModificar = null;
+          actualizarLista();
+          // Limpiar los inputs seleccion de mesa y categoria
+          document.getElementById("mesaSelect").value = "";
+          document.getElementById("categoriaSelect").value = "";
+          document.getElementById("productosContainer").innerHTML = "";
         });
-        pedido = [];
-        pedidoIdModificar = null;
-        actualizarLista();
-        // Limpiar los inputs seleccion de mesa y categoria
-        document.getElementById("mesaSelect").value = "";
-        document.getElementById("categoriaSelect").value = "";
-        document.getElementById("productosContainer").innerHTML = "";
       } else {
         Swal.fire({
           icon: 'error',
@@ -504,51 +511,7 @@ document.addEventListener("DOMContentLoaded", function () {
   window.generarTokenMesa = generarTokenMesa;
   
   // Cargar todos los pedidos activos de todas las mesas al iniciar
-  function cargarPedidosActivosGlobal() {
-    fetch("../controllers/pedidos_activos.php")
-      .then(res => res.json())
-      .then(data => {
-        const cont = document.getElementById("pedidosActivosMesa");
-        if (!cont) return;
-        window.pedidosActivosGlobal = {};
-        if (data.success && data.pedidos && data.pedidos.length > 0) {
-          let html = '<div class="accordion" id="accordionPedidosActivos">';
-          data.pedidos.forEach((pedido, idx) => {
-            window.pedidosActivosGlobal[pedido.mesa_id] = pedido;
-            html += `
-              <div class="accordion-item">
-                <h2 class="accordion-header" id="heading${pedido.pedido_id}">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${pedido.pedido_id}" aria-expanded="false" aria-controls="collapse${pedido.pedido_id}">
-                    <strong>${pedido.mesa_nombre || pedido.mesa_id}</strong> 
-                  </button>
-                </h2>
-                <div id="collapse${pedido.pedido_id}" class="accordion-collapse collapse" aria-labelledby="heading${pedido.pedido_id}" data-bs-parent="#accordionPedidosActivos">
-                  <div class="accordion-body">
-                    <div><strong>Pedido #:</strong> ${pedido.pedido_id}</div>
-                    <div><strong>Productos:</strong><ul class='mb-1'>`;
-            pedido.productos.forEach(prod => {
-              html += `<li>${prod.nombre} x${prod.cantidad} ($${parseFloat(prod.precio).toFixed(2)})</li>`;
-            });
-            html += `</ul></div>
-                    <div><strong>Total:</strong> $${pedido.productos.reduce((sum, p) => sum + (parseFloat(p.precio) * parseInt(p.cantidad)), 0).toFixed(2)}</div>
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                      <button class='btn btn-warning btn-sm' onclick='modificarPedidoActivo(${pedido.pedido_id}, ${pedido.mesa_id})'>Modificar pedido</button>
-                      <span class="badge bg-info text-dark ms-2">${pedido.estado_nombre || 'Desconocido'}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
-          });
-          html += '</div>';
-          cont.innerHTML = html;
-        } else {
-          cont.innerHTML = '<div class="text-muted">No hay pedidos activos.</div>';
-        }
-      });
-  }
   cargarPedidosActivosGlobal();
-  setInterval(cargarPedidosActivosGlobal, 10000);
 });
 
 window.modificarPedidoActivo = function(pedidoId, mesaId) {
@@ -632,3 +595,164 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// === ACTUALIZACIÓN DINÁMICA DEL SELECT DE MESAS ===
+function actualizarSelectMesas() {
+  const mesaSelect = document.getElementById('mesaSelect');
+  if (!mesaSelect) return;
+  // Detectar si el select está abierto o el usuario está interactuando
+  if (mesaSelect.matches(':focus') || mesaSelect.open) return;
+  const seleccionActual = mesaSelect.value;
+  fetch('../controllers/cargar_mesas.php')
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && Array.isArray(data.mesas)) {
+        const opciones = ['<option value="">Seleccione una mesa</option>'];
+        data.mesas.forEach(mesa => {
+          const deshabilitar = (mesa.tiene_pedido_confirmado > 0 || mesa.tiene_pedido_entregado > 0 || mesa.tiene_token_activo > 0);
+          const disabled = deshabilitar ? 'disabled' : '';
+          const msg = mesa.tiene_pedido_confirmado > 0 ? ' (Confirmado)' : (mesa.tiene_pedido_entregado > 0 ? ' (Entregado)' : '');
+          const token = mesa.token_activo ? ' | Token #' + mesa.token_activo : '';
+          const tokenActivo = mesa.token_activo ? '1' : '0';
+          opciones.push(`<option value="${mesa.idmesas}" data-token-activo="${tokenActivo}" ${disabled}>${mesa.nombre}${token}${msg}</option>`);
+        });
+        // Guardar la selección previa
+        const prevValue = mesaSelect.value;
+        mesaSelect.innerHTML = opciones.join('');
+        // Restaurar selección si sigue disponible y habilitada
+        if (prevValue && mesaSelect.querySelector(`option[value="${prevValue}"]`) && !mesaSelect.querySelector(`option[value="${prevValue}"]`).disabled) {
+          mesaSelect.value = prevValue;
+        } else {
+          mesaSelect.value = '';
+        }
+        // Solo disparar el evento change si la selección realmente cambió
+        if (mesaSelect.value !== seleccionActual) {
+          mesaSelect.dispatchEvent(new Event('change'));
+        }
+      }
+    });
+}
+// Llamar periódicamente, pero solo si el select no está abierto
+// === FLAGS Y FUNCIONES DE INTERACCIÓN (AJUSTADO) ===
+let actualizarPendiente = false;
+
+function usuarioInteractuando() {
+  // Modal abierto
+  if (document.querySelector('.modal.show')) return true;
+  // Input de cantidad en foco
+  if (document.querySelector('#productosContainer input[type="number"]:focus')) return true;
+  // Select de mesa o categoría en foco (desplegado)
+  const mesaSelect = document.getElementById('mesaSelect');
+  const categoriaSelect = document.getElementById('categoriaSelect');
+  if ((mesaSelect && mesaSelect === document.activeElement) || (categoriaSelect && categoriaSelect === document.activeElement)) return true;
+  // Card de pedidos activos desplegada (acordeón abierto)
+  if (document.querySelector('#pedidosActivosMesa .accordion-collapse.show')) return true;
+  return false;
+}
+// Detectar cierre de acordeón (card de pedidos activos)
+document.addEventListener('hidden.bs.collapse', function(e) {
+  if (e.target.classList.contains('accordion-collapse')) {
+    setTimeout(() => {
+      if (actualizarPendiente && !usuarioInteractuando()) {
+        actualizarPendiente = false;
+        actualizarSelectMesas();
+        cargarPedidosActivosGlobal();
+      }
+    }, 100);
+  }
+});
+// Detectar blur en inputs de cantidad
+function setupInputBlurListener() {
+  document.querySelectorAll('#productosContainer input[type="number"]').forEach(input => {
+    input.addEventListener('blur', function() {
+      setTimeout(() => {
+        if (actualizarPendiente && !usuarioInteractuando()) {
+          actualizarPendiente = false;
+          actualizarSelectMesas();
+          cargarPedidosActivosGlobal();
+        }
+      }, 100); // Esperar a que termine el blur
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded', setupInputBlurListener);
+// Llamar también tras cargar productos
+const origProductosChange = document.querySelector('#categoriaSelect')?.onchange;
+document.querySelector('#categoriaSelect')?.addEventListener('change', function(e) {
+  if (typeof origProductosChange === 'function') origProductosChange.call(this, e);
+  setupInputBlurListener();
+});
+// Detectar blur en selects
+['mesaSelect', 'categoriaSelect'].forEach(id => {
+  const sel = document.getElementById(id);
+  if (sel) {
+    sel.addEventListener('blur', function() {
+      setTimeout(() => {
+        if (actualizarPendiente && !usuarioInteractuando()) {
+          actualizarPendiente = false;
+          actualizarSelectMesas();
+          cargarPedidosActivosGlobal();
+        }
+      }, 100);
+    });
+  }
+});
+// === FIN FLAGS ===
+
+// Cambiar intervalos automáticos para que respeten la interacción
+function intervaloActualizacion() {
+  if (usuarioInteractuando()) {
+    actualizarPendiente = true;
+    return;
+  }
+  actualizarSelectMesas();
+  cargarPedidosActivosGlobal();
+}
+setInterval(intervaloActualizacion, 7000); // 7 segundos es un buen balance para apps de restaurante
+
+// === FUNCIONES GLOBALES ===
+function cargarPedidosActivosGlobal() {
+  const mesaSelect = document.getElementById('mesaSelect');
+  if (mesaSelect && (mesaSelect.matches(':focus') || mesaSelect.open)) return;
+  fetch("../controllers/pedidos_activos.php")
+    .then(res => res.json())
+    .then(data => {
+      const cont = document.getElementById("pedidosActivosMesa");
+      if (!cont) return;
+      window.pedidosActivosGlobal = {};
+      if (data.success && data.pedidos && data.pedidos.length > 0) {
+        let html = '<div class="accordion" id="accordionPedidosActivos">';
+        data.pedidos.forEach((pedido, idx) => {
+          window.pedidosActivosGlobal[pedido.mesa_id] = pedido;
+          html += `
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading${pedido.pedido_id}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${pedido.pedido_id}" aria-expanded="false" aria-controls="collapse${pedido.pedido_id}">
+                  <strong>${pedido.mesa_nombre || pedido.mesa_id}</strong> 
+                </button>
+              </h2>
+              <div id="collapse${pedido.pedido_id}" class="accordion-collapse collapse" aria-labelledby="heading${pedido.pedido_id}" data-bs-parent="#accordionPedidosActivos">
+                <div class="accordion-body">
+                  <div><strong>Pedido #:</strong> ${pedido.pedido_id}</div>
+                  <div><strong>Productos:</strong><ul class='mb-1'>`;
+          pedido.productos.forEach(prod => {
+            html += `<li>${prod.nombre} x${prod.cantidad} ($${parseFloat(prod.precio).toFixed(2)})</li>`;
+          });
+          html += `</ul></div>
+                  <div><strong>Total:</strong> $${pedido.productos.reduce((sum, p) => sum + (parseFloat(p.precio) * parseInt(p.cantidad)), 0).toFixed(2)}</div>
+                  <div class="d-flex justify-content-between align-items-center mt-2">
+                    <button class='btn btn-warning btn-sm' onclick='modificarPedidoActivo(${pedido.pedido_id}, ${pedido.mesa_id})'>Modificar pedido</button>
+                    <span class="badge bg-info text-dark ms-2">${pedido.estado_nombre || 'Desconocido'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        html += '</div>';
+        cont.innerHTML = html;
+      } else {
+        cont.innerHTML = '<div class="text-muted">No hay pedidos activos.</div>';
+      }
+    });
+}

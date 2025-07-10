@@ -206,52 +206,13 @@ try {
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/js/appMesero.js"></script>
   <script>
-  // Mostrar/ocultar botón cancelar token según mesa seleccionada
-  const mesaSelect = document.getElementById('mesaSelect');
-  const btnCancelarToken = document.getElementById('btnCancelarToken');
-  mesaSelect.addEventListener('change', function() {
-    const selected = mesaSelect.options[mesaSelect.selectedIndex];
-    if (selected && selected.getAttribute('data-token-activo') === '1') {
-      btnCancelarToken.style.display = '';
-    } else {
-      btnCancelarToken.style.display = 'none';
-    }
-  });
-
-  function cancelarTokenMesa(mesaId, nombreMesa) {
-    Swal.fire({
-      title: '¿Cancelar token?',
-      text: '¿Estás seguro de cancelar el token activo de la mesa ' + nombreMesa + '?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, cancelar',
-      cancelButtonText: 'No'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        fetch('../controllers/cancelar_token.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mesa_id: mesaId })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            Swal.fire('Token cancelado', '', 'success').then(() => location.reload());
-          } else {
-            Swal.fire('Error', data.message || 'No se pudo cancelar el token', 'error');
-          }
-        })
-        .catch(() => Swal.fire('Error', 'No se pudo cancelar el token', 'error'));
-      }
-    });
-  }
   // Mostrar el botón si la opción seleccionada al cargar ya tiene token activo
   window.addEventListener('DOMContentLoaded', function() {
-    const selected = mesaSelect.options[mesaSelect.selectedIndex];
+    const selected = document.getElementById('mesaSelect').options[document.getElementById('mesaSelect').selectedIndex];
     if (selected && selected.getAttribute('data-token-activo') === '1') {
-      btnCancelarToken.style.display = '';
+      document.getElementById('btnCancelarToken').style.display = '';
     } else {
-      btnCancelarToken.style.display = 'none';
+      document.getElementById('btnCancelarToken').style.display = 'none';
     }
   });
   </script>
